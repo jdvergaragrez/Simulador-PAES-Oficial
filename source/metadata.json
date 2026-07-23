@@ -1,0 +1,6 @@
+{
+  "name": "Simulador PAES 2027",
+  "description": "Calculadora de puntajes ponderados PAES y comparativa con cortes de admisión para universidades chilenas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

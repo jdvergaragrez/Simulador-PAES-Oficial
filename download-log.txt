@@ -1,0 +1,93 @@
+🔑 Got authentication token
+
+🔍 Fetching latest deployment...
+✅ Found latest deployment (personal account)
+
+📦 Deployment ID:  dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL
+🌐 Deployment URL: simuladorpaes-2b6jhmou2-vergara-jd.vercel.app
+📁 Project:        simulador_paes
+
+📋 Fetching file tree from API...
+
+✅ Got file tree (10 top-level entries)
+
+📁 Output directory: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source
+
+🗑️  Clearing previous download...
+
+⬇️  Downloading files...
+   (Use --verbose to see detailed progress)
+
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\Card.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\CompareSection.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\CompatibilitySection.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\GradeInputs.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\Header.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\HeroCard.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\ImproveSection.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\SlidersSection.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\TargetSelector.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\App.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\data.ts
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\index.css
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\main.tsx
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\types.ts
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\utils.ts
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\.env.example
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\README.md
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\index.html
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\metadata.json
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\package-lock.json
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\package.json
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\tsconfig.json
+✅ Downloaded: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\vite.config.ts
+
+🎉 All files processed successfully!
+
+📊 Running comparison...
+
+📁 Total files: 23
+   ✅ Downloaded: 23
+   ⏭️  Skipped: 0
+   ❌ Failed: 0
+💾 Total size: 0.22 MB
+
+📈 File types breakdown:
+   tsx               11 files
+   ts                 4 files
+   json               4 files
+   css                1 files
+   example            1 files
+   md                 1 files
+   html               1 files
+
+🌳 File structure tree:
+
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\.env.example
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\index.html
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\metadata.json
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\package-lock.json
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\package.json
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\README.md
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\App.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\Card.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\CompareSection.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\CompatibilitySection.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\GradeInputs.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\Header.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\HeroCard.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\ImproveSection.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\SlidersSection.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\components\TargetSelector.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\data.ts
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\index.css
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\main.tsx
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\types.ts
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\src\utils.ts
+├── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\tsconfig.json
+└── 📄 C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\source\vite.config.ts
+
+✨ Download and verification complete!
+📄 Full log saved to: C:\Users\juand\OneDrive\Escritorio\SimuladorPAES\out\dpl_DCg1zdwUwybBTCXMrnY4Zja4gSJL\download-log.txt
+   (Use --verbose to see file tree and skipped files)
+
