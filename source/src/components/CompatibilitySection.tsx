@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Card from './Card';
-import { universidades, careerDisplayNames } from '../data';
-import { CareerKey, Universidad } from '../types';
+import { displayNombreUniversidad } from '../data';
 import { calculatePonderado } from '../utils';
+import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
+import SearchableSelect from './SearchableSelect';
 
 interface CompatibilitySectionProps {
+  porCategoria: CarrerasPorCategoria;
+  categoriaDisplay: Record<string, string>;
+  anioAdmision: number;
   nemScore: number;
   rankingScore: number;
   lectoraCorrect: number;
@@ -13,9 +17,15 @@ interface CompatibilitySectionProps {
   cienciasCorrect: number;
   historiaCorrect: number;
   cienciasModule: 'biologia' | 'fisica' | 'quimica';
+  favoritos: string[];
+  onToggleFav: (carreraId: string) => void;
+  onOpenDetail: (carrera: CarreraConDetalle) => void;
 }
 
-export default function CompatibilitySection({
+function CompatibilitySection({
+  porCategoria,
+  categoriaDisplay,
+  anioAdmision,
   nemScore,
   rankingScore,
   lectoraCorrect,
@@ -24,150 +34,132 @@ export default function CompatibilitySection({
   cienciasCorrect,
   historiaCorrect,
   cienciasModule,
+  favoritos,
+  onToggleFav,
+  onOpenDetail,
 }: CompatibilitySectionProps) {
-  const [selectedCareer, setSelectedCareer] = useState<CareerKey>('civil');
-  const currentUnis = universidades[selectedCareer] || [];
+  const opciones = useMemo(
+    () =>
+      Object.keys(porCategoria)
+        .map((key) => ({ value: key, label: categoriaDisplay[key] || key }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'es')),
+    [porCategoria, categoriaDisplay]
+  );
+
+  const [selectedCareer, setSelectedCareer] = useState<string>(opciones[0]?.value || '');
+
+  useEffect(() => {
+    if (!porCategoria[selectedCareer]) setSelectedCareer(opciones[0]?.value || '');
+  }, [anioAdmision]);
+
+  const favSet = new Set(favoritos);
+  const currentUnis = porCategoria[selectedCareer] || [];
+
+  const hayPuntajes =
+    nemScore > 0 || rankingScore > 0 || lectoraCorrect > 0 || m1Correct > 0 ||
+    m2Correct > 0 || cienciasCorrect > 0 || historiaCorrect > 0;
+
+  // Compute ponderado + gap for each university, sort best-fit first.
+  const filas = useMemo(() => {
+    const rows = currentUnis.map((uni) => {
+      const ponderado = hayPuntajes
+        ? calculatePonderado(nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule, uni)
+        : null;
+      const referencia = uni.puntajeCorte ?? uni.promedioMinimo ?? null;
+      const gap = ponderado !== null && referencia !== null ? ponderado - referencia : null;
+      return { uni, ponderado, referencia, gap };
+    });
+    rows.sort((a, b) => {
+      if (a.gap !== null && b.gap !== null) return b.gap - a.gap;
+      if (a.ponderado !== null && b.ponderado !== null) return b.ponderado - a.ponderado;
+      const ca = a.uni.puntajeCorte ?? -1, cb = b.uni.puntajeCorte ?? -1;
+      return cb - ca;
+    });
+    return rows;
+  }, [currentUnis, nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule, hayPuntajes]);
 
   return (
     <Card id="section-compatibilidad" className="space-y-5">
       <div>
         <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">
-          COMPATIBILIDAD POR UNIVERSIDAD
+          COMPARADOR POR UNIVERSIDAD
         </div>
-        <h3 className="text-lg font-bold text-[#0F172A]">Simulador General por Carrera</h3>
+        <h3 className="text-lg font-bold text-[#0F172A]">🏫 Una carrera en todas sus universidades</h3>
+        <p className="text-xs text-[#64748B] mt-1">
+          Busca una carrera y compara dónde te conviene postular según tu ponderado y el corte · Admisión {anioAdmision}.
+        </p>
       </div>
 
-      {/* Career horizontal filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-5 px-5 md:-mx-6 md:px-6">
-        {Object.entries(careerDisplayNames).map(([key, name]) => (
-          <button
-            key={key}
-            onClick={() => setSelectedCareer(key as CareerKey)}
-            className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 outline-none ${
-              selectedCareer === key
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9]'
-            }`}
-          >
-            {name}
-          </button>
-        ))}
+      <SearchableSelect
+        options={opciones}
+        value={selectedCareer}
+        onChange={setSelectedCareer}
+        placeholder="Busca una carrera..."
+      />
+
+      <div className="text-xs text-[#94A3B8]">
+        {filas.length} universidad{filas.length === 1 ? '' : 'es'} dicta{filas.length === 1 ? '' : 'n'} esta carrera
       </div>
 
-      {/* List of cards */}
-      <div className="space-y-3.5">
-        {currentUnis.map((uni, idx) => {
-          const ponderado = calculatePonderado(
-            nemScore,
-            rankingScore,
-            lectoraCorrect,
-            m1Correct,
-            m2Correct,
-            cienciasCorrect,
-            historiaCorrect,
-            cienciasModule,
-            uni
-          );
-
-          const hasCorte = uni.corte !== null;
-          const hasWeights = uni.weights !== null;
-          const isCalculable = ponderado !== null && hasCorte;
-
-          const gap = isCalculable ? ponderado! - uni.corte! : null;
-
-          // Determine LEFT COLOR BAR color
-          let barColorClass = 'bg-[#F59E0B]'; // muted amber default for nodata/broken
-          if (isCalculable && gap !== null) {
-            if (gap >= 0) {
-              barColorClass = 'bg-[#059669]'; // green success
-            } else if (gap >= -30) {
-              barColorClass = 'bg-[#2563EB]'; // blue within 30 points
-            } else {
-              barColorClass = 'bg-[#94A3B8]'; // gray further below
-            }
+      <div className="space-y-3">
+        {filas.map(({ uni, ponderado, referencia, gap }) => {
+          const isFav = favSet.has(uni.id);
+          let barColor = 'bg-[#CBD5E1]';
+          if (gap !== null) {
+            if (gap >= 0) barColor = 'bg-[#10B981]';
+            else if (gap >= -30) barColor = 'bg-[#3B82F6]';
+            else barColor = 'bg-[#94A3B8]';
           }
-
-          // Elective Text helper
-          let electiveText = '';
-          if (uni.electivaTipo === 'ciencias') {
-            electiveText = '(Cs)';
-          } else if (uni.electivaTipo === 'historia') {
-            electiveText = '(Hist)';
-          } else if (uni.electivaTipo === 'mejor') {
-            electiveText = '(Cs o Hist, la mejor)';
-          }
-
-          // Tier badge styling
-          let tierBadgeText = 'Verificada';
-          let tierBadgeStyle = 'border-emerald-200 text-emerald-600 bg-emerald-50';
-          if (uni.tier === 'medium' || uni.tier === 'partial') {
-            tierBadgeText = 'Referencia';
-            tierBadgeStyle = 'border-blue-200 text-blue-600 bg-blue-50';
-          } else if (uni.tier === 'broken') {
-            tierBadgeText = 'Incompleta';
-            tierBadgeStyle = 'border-amber-200 text-amber-600 bg-amber-50';
-          } else if (uni.tier === 'nodata') {
-            tierBadgeText = 'No disp.';
-            tierBadgeStyle = 'border-slate-200 text-slate-400 bg-slate-50';
-          }
-
           return (
             <div
-              key={`${uni.nombre}-${idx}`}
-              className={`relative overflow-hidden bg-white border border-[#F1F5F9] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-200 hover:shadow-md ${
-                !hasWeights ? 'opacity-70 bg-[#FBFBFB]' : ''
-              }`}
+              key={uni.id}
+              onClick={() => onOpenDetail(uni)}
+              className="relative overflow-hidden bg-white border border-[#F1F5F9] rounded-2xl p-4 pr-10 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-all duration-200 hover:shadow-md hover:border-[#E2E8F0] cursor-pointer"
             >
-              {/* LEFT COLOR BAR */}
-              <div className={`absolute top-0 left-0 w-1.5 h-full rounded-r ${barColorClass}`} />
-
-              {/* Left Column: Info */}
-              <div className="pl-3 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-[#0F172A] text-[15px]">{uni.nombre}</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${tierBadgeStyle}`}>
-                    {tierBadgeText}
-                  </span>
-                  {electiveText && (
-                    <span className="text-[10px] font-medium text-[#94A3B8] bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">
-                      {electiveText}
-                    </span>
+              <div className={`absolute top-0 left-0 w-1.5 h-full rounded-r ${barColor}`} />
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleFav(uni.id); }}
+                title="Favorito"
+                className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center text-base transition-colors ${isFav ? 'text-amber-400' : 'text-slate-300 hover:text-slate-400'}`}
+              >
+                {isFav ? '★' : '☆'}
+              </button>
+              <div className="pl-3 min-w-0 space-y-0.5">
+                <div className="font-bold text-[#0F172A] text-[15px] leading-snug">{displayNombreUniversidad(uni)}</div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {uni.region && (
+                    <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">{uni.region}</span>
+                  )}
+                  {uni.vacantes !== null && (
+                    <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">{uni.vacantes} vac.</span>
                   )}
                 </div>
-
-                {uni.nota && (
-                  <p className="text-xs text-[#94A3B8] font-normal italic leading-normal">
-                    {uni.nota}
-                  </p>
-                )}
               </div>
-
-              {/* Right Column: Score and Gap */}
-              <div className="pl-3 md:pl-0 text-left md:text-right flex flex-col justify-center">
-                {isCalculable && ponderado !== null ? (
+              <div className="pl-3 md:pl-0 text-left md:text-right shrink-0">
+                {ponderado !== null ? (
                   <>
-                    <div className="text-2xl font-extrabold text-[#0F172A] font-mono tabular-nums">
-                      {ponderado.toFixed(2)} <span className="text-xs font-semibold text-[#94A3B8]">pts</span>
+                    <div className="text-xl font-extrabold text-[#0F172A] font-mono tabular-nums">
+                      {ponderado.toFixed(2)} <span className="text-[10px] font-semibold text-[#94A3B8]">pts</span>
                     </div>
-                    <div className="text-xs text-[#64748B] flex items-center md:justify-end gap-1.5 mt-0.5">
-                      <span>Corte: {uni.corte?.toFixed(2)}</span>
-                      <span className="text-[#CBD5E1]">·</span>
-                      <span
-                        className={`font-semibold ${
-                          gap !== null && gap >= 0 ? 'text-[#059669]' : 'text-[#DC2626]'
-                        }`}
-                      >
-                        gap: {gap !== null && gap >= 0 ? '+' : ''}
-                        {gap?.toFixed(2)}
-                      </span>
+                    <div className="text-[11px] text-[#64748B] flex items-center md:justify-end gap-1.5">
+                      <span>{uni.puntajeCorte !== null ? 'Corte' : 'Mín.'}: {referencia !== null ? referencia.toFixed(2) : '—'}</span>
+                      {gap !== null && (
+                        <>
+                          <span className="text-[#CBD5E1]">·</span>
+                          <span className={`font-semibold ${gap >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                            {gap >= 0 ? '+' : ''}{gap.toFixed(2)}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </>
                 ) : (
-                  <div className="space-y-0.5">
-                    <div className="text-lg font-bold text-[#94A3B8] font-mono">—</div>
-                    <div className="text-[11px] text-[#94A3B8] uppercase tracking-wider">
-                      {!hasWeights ? 'Sin ponderación' : 'Sin corte'}
-                    </div>
+                  <div className="text-[11px] text-[#94A3B8]">
+                    {uni.puntajeCorte !== null ? (
+                      <>Corte: <strong className="font-semibold text-[#0F172A]">{uni.puntajeCorte.toFixed(2)}</strong></>
+                    ) : uni.promedioMinimo ? (
+                      <>Mín.: <strong className="font-semibold text-[#0F172A]">{uni.promedioMinimo}</strong></>
+                    ) : 'Sin corte'}
                   </div>
                 )}
               </div>
@@ -178,3 +170,5 @@ export default function CompatibilitySection({
     </Card>
   );
 }
+
+export default React.memo(CompatibilitySection);

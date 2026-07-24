@@ -1,4 +1,23 @@
-import { UniversidadesData } from './types';
+import {
+  Universidad,
+  Sede,
+  Carrera,
+  Ponderacion,
+  PuntajeCorte,
+  CarreraConDetalle,
+  CarrerasPorCategoria,
+  TierType,
+  ElectiveType,
+  GrupoEducativo,
+} from './types';
+import {
+  universidades2026,
+  sedes2026,
+  carreras2026,
+  ponderaciones2026,
+  puntajesCorte2026,
+  categoriaDisplay2026,
+} from './data2026.generated';
 
 export const tablasPAES = {
   lectora: {0:100,1:149,2:172,3:193,4:214,5:234,6:253,7:269,8:284,9:298,10:313,11:330,12:347,13:361,14:373,15:383,16:393,17:404,18:417,19:432,20:447,21:461,22:472,23:480,24:487,25:495,26:504,27:516,28:531,29:546,30:560,31:571,32:580,33:587,34:594,35:603,36:614,37:629,38:644,39:659,40:671,41:680,42:689,43:699,44:711,45:725,46:741,47:758,48:772,49:786,50:799,51:814,52:832,53:852,54:871,55:892,56:913,57:936,58:963,59:991,60:1000} as Record<number, number>,
@@ -10,7 +29,43 @@ export const tablasPAES = {
   ciencias_quimica: {0:100,1:124,2:147,3:168,4:187,5:206,6:222,7:237,8:250,9:264,10:278,11:293,12:306,13:317,14:326,15:334,16:343,17:353,18:366,19:379,20:391,21:401,22:408,23:413,24:418,25:424,26:432,27:442,28:454,29:467,30:478,31:487,32:493,33:497,34:501,35:505,36:510,37:518,38:528,39:541,40:553,41:564,42:573,43:579,44:583,45:587,46:591,47:597,48:606,49:617,50:629,51:642,52:652,53:660,54:667,55:672,56:679,57:687,58:697,59:710,60:724,61:736,62:746,63:756,64:766,65:777,66:791,67:807,68:822,69:837,70:853,71:871,72:890,73:912,74:935,75:1000} as Record<number, number>
 };
 
-export const universidades: UniversidadesData = {
+export const careerDisplayNames: Record<string, string> = {
+  civil: "Ingeniería Civil",
+  comercial: "Ingeniería Comercial",
+  medicina: "Medicina",
+  derecho: "Derecho",
+  psicologia: "Psicología",
+  agronomia: "Agronomía e Ing. Forestal"
+};
+
+// -----------------------------------------------------------------------
+// Data cruda de Admisión 2027, usada como fuente única para poblar el
+// modelo relacional (Universidad / Sede / Carrera / Ponderación / Corte).
+// Cuando se incorpore la base de Admisión 2026 (Excel DEMRE), se agregará
+// como un seed independiente con su propio año_admisión, sin tocar este.
+// -----------------------------------------------------------------------
+const ANIO_ADMISION_LEGACY = 2027;
+
+interface LegacyWeights {
+  nem: number;
+  ranking: number;
+  lectora: number;
+  m1: number;
+  m2: number;
+  electivo: number;
+}
+
+interface LegacyEntry {
+  nombre: string;
+  tier: TierType;
+  corte: number | null;
+  electivaTipo?: ElectiveType;
+  weights: LegacyWeights | null;
+  corteNota?: string;
+  nota?: string;
+}
+
+const legacyUniversidadesRaw: Record<string, LegacyEntry[]> = {
   civil: [
     {nombre:"P. U. Católica (UC)", tier:"verified", corte:898.10, electivaTipo:"ciencias", weights:{nem:20,ranking:20,lectora:10,m1:20,m2:15,electivo:15}},
     {nombre:"U. de Chile (FCFM)", tier:"verified", corte:833.85, electivaTipo:"ciencias", weights:{nem:10,ranking:25,lectora:10,m1:20,m2:20,electivo:15}},
@@ -55,18 +110,240 @@ export const universidades: UniversidadesData = {
   ]
 };
 
-export const careerDisplayNames: Record<string, string> = {
-  civil: "Ingeniería Civil",
-  comercial: "Ingeniería Comercial",
-  medicina: "Medicina",
-  derecho: "Derecho",
-  psicologia: "Psicología",
-  agronomia: "Agronomía e Ing. Forestal"
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// Splits a display name like "U. de Chile (FCFM)" into the base university
+// name and the parenthetical sede/facultad label, if present.
+function splitNombreSede(nombre: string): { base: string; sede: string | null } {
+  const match = nombre.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (match) {
+    return { base: match[1].trim(), sede: match[2].trim() };
+  }
+  return { base: nombre.trim(), sede: null };
+}
+
+function buildRelationalModel() {
+  const universidadesSeed: Universidad[] = [];
+  const sedesSeed: Sede[] = [];
+  const carrerasSeed: Carrera[] = [];
+  const ponderacionesSeed: Ponderacion[] = [];
+  const puntajesCorteSeed: PuntajeCorte[] = [];
+
+  const universidadIdByNombre = new Map<string, string>();
+  const sedeIdByKey = new Map<string, string>();
+
+  Object.entries(legacyUniversidadesRaw).forEach(([categoria, entries]) => {
+    entries.forEach((entry) => {
+      const { base, sede: sedeLabel } = splitNombreSede(entry.nombre);
+
+      let universidadId = universidadIdByNombre.get(base);
+      if (!universidadId) {
+        universidadId = slugify(base);
+        universidadIdByNombre.set(base, universidadId);
+        universidadesSeed.push({ id: universidadId, nombre: base, tipo: 'CRUCH' });
+      }
+
+      const sedeNombre = sedeLabel || 'Sede Principal';
+      const sedeKey = `${universidadId}::${sedeNombre}`;
+      let sedeId = sedeIdByKey.get(sedeKey);
+      if (!sedeId) {
+        sedeId = `${universidadId}-${slugify(sedeNombre)}`;
+        sedeIdByKey.set(sedeKey, sedeId);
+        sedesSeed.push({ id: sedeId, universidadId, nombre: sedeNombre, region: null });
+      }
+
+      const carreraId = `${categoria}-${universidadId}`;
+      carrerasSeed.push({
+        id: carreraId,
+        universidadId,
+        sedeId,
+        nombre: careerDisplayNames[categoria] || categoria,
+        jornada: null,
+        duracion: null,
+        vacantes: null,
+        anioAdmision: ANIO_ADMISION_LEGACY,
+        categoria,
+        tier: entry.tier,
+        electivaTipo: entry.electivaTipo,
+        corteNota: entry.corteNota,
+        nota: entry.nota,
+      });
+
+      if (entry.weights) {
+        const cienciasPct = entry.electivaTipo !== 'historia' ? entry.weights.electivo : 0;
+        const historiaPct = entry.electivaTipo !== 'ciencias' ? entry.weights.electivo : 0;
+        ponderacionesSeed.push({
+          carreraId,
+          anioAdmision: ANIO_ADMISION_LEGACY,
+          nemPct: entry.weights.nem,
+          rankingPct: entry.weights.ranking,
+          lecturaPct: entry.weights.lectora,
+          m1Pct: entry.weights.m1,
+          m2Pct: entry.weights.m2,
+          cienciasPct,
+          historiaPct,
+        });
+      }
+
+      puntajesCorteSeed.push({
+        carreraId,
+        anioAdmision: ANIO_ADMISION_LEGACY,
+        puntajeCorte: entry.corte,
+      });
+    });
+  });
+
+  return { universidadesSeed, sedesSeed, carrerasSeed, ponderacionesSeed, puntajesCorteSeed };
+}
+
+export const {
+  universidadesSeed,
+  sedesSeed,
+  carrerasSeed,
+  ponderacionesSeed,
+  puntajesCorteSeed,
+} = buildRelationalModel();
+
+// Generic join: builds the categoria -> CarreraConDetalle[] read model from any
+// set of normalized seeds (works for both the 2027 and 2026 bases).
+function buildCarrerasPorCategoria(
+  universidades: Universidad[],
+  sedes: Sede[],
+  carreras: Carrera[],
+  ponderaciones: Ponderacion[],
+  puntajesCorte: PuntajeCorte[]
+): CarrerasPorCategoria {
+  const universidadesById = new Map(universidades.map((u) => [u.id, u]));
+  const sedesById = new Map(sedes.map((s) => [s.id, s]));
+  const ponderacionByCarreraId = new Map(ponderaciones.map((p) => [p.carreraId, p]));
+  const corteByCarreraId = new Map(puntajesCorte.map((c) => [c.carreraId, c]));
+
+  const result: CarrerasPorCategoria = {};
+
+  carreras.forEach((carrera) => {
+    const universidad = universidadesById.get(carrera.universidadId);
+    const sede = sedesById.get(carrera.sedeId);
+    const corte = corteByCarreraId.get(carrera.id);
+
+    const view: CarreraConDetalle = {
+      id: carrera.id,
+      nombre: carrera.nombre,
+      categoria: carrera.categoria,
+      universidadNombre: universidad?.nombre ?? '—',
+      universidadTipo: universidad?.tipo ?? 'PRIVADA_ADSCRITA',
+      sedeNombre: sede?.nombre ?? 'Sede Principal',
+      region: sede?.region ?? null,
+      anioAdmision: carrera.anioAdmision,
+      tier: carrera.tier,
+      electivaTipo: carrera.electivaTipo,
+      corteNota: carrera.corteNota,
+      nota: carrera.nota,
+      vacantes: carrera.vacantes ?? null,
+      ponderadoMinimo: carrera.ponderadoMinimo ?? null,
+      promedioMinimo: carrera.promedioMinimo ?? null,
+      codigoDemre: carrera.codigoDemre,
+      ponderacion: ponderacionByCarreraId.get(carrera.id) ?? null,
+      puntajeCorte: corte?.puntajeCorte ?? null,
+    };
+
+    if (!result[carrera.categoria]) result[carrera.categoria] = [];
+    result[carrera.categoria].push(view);
+  });
+
+  return result;
+}
+
+export interface Catalogo {
+  anio: number;
+  etiqueta: string;
+  fuente: string;
+  tieneCortes: boolean;
+  porCategoria: CarrerasPorCategoria;
+  categoriaDisplay: Record<string, string>;
+  todas: CarreraConDetalle[];
+  totalCarreras: number;
+  totalUniversidades: number;
+}
+
+// Flattens the categoria map into a single list for global search.
+function flattenCatalogo(porCategoria: CarrerasPorCategoria): CarreraConDetalle[] {
+  const out: CarreraConDetalle[] = [];
+  for (const key of Object.keys(porCategoria)) {
+    for (const c of porCategoria[key]) out.push(c);
+  }
+  return out;
+}
+
+const carrerasPorCategoria2027 = buildCarrerasPorCategoria(
+  universidadesSeed,
+  sedesSeed,
+  carrerasSeed,
+  ponderacionesSeed,
+  puntajesCorteSeed
+);
+
+const carrerasPorCategoria2026 = buildCarrerasPorCategoria(
+  universidades2026,
+  sedes2026,
+  carreras2026,
+  ponderaciones2026,
+  puntajesCorte2026
+);
+
+// Registry of admission-year catalogs. Both bases coexist independently.
+export const catalogos: Record<number, Catalogo> = {
+  2026: {
+    anio: 2026,
+    etiqueta: 'Admisión 2026',
+    fuente: 'Ponderaciones DEMRE + cortes 2026',
+    tieneCortes: true,
+    porCategoria: carrerasPorCategoria2026,
+    categoriaDisplay: categoriaDisplay2026,
+    todas: flattenCatalogo(carrerasPorCategoria2026),
+    totalCarreras: carreras2026.length,
+    totalUniversidades: universidades2026.length,
+  },
+  2027: {
+    anio: 2027,
+    etiqueta: 'Admisión 2027',
+    fuente: 'Cortes y ponderaciones recopilados por universidad',
+    tieneCortes: true,
+    porCategoria: carrerasPorCategoria2027,
+    categoriaDisplay: careerDisplayNames,
+    todas: flattenCatalogo(carrerasPorCategoria2027),
+    totalCarreras: carrerasSeed.length,
+    totalUniversidades: universidadesSeed.length,
+  },
 };
+
+export const aniosAdmisionDisponibles: number[] = [2026, 2027];
+
+export function getCatalogo(anio: number): Catalogo {
+  return catalogos[anio] ?? catalogos[2026];
+}
+
+// Display label for a CarreraConDetalle, mirroring the old "nombre" field
+// (base university name + sede annotation when it's not the default sede).
+export function displayNombreUniversidad(carrera: CarreraConDetalle): string {
+  return carrera.sedeNombre === 'Sede Principal'
+    ? carrera.universidadNombre
+    : `${carrera.universidadNombre} (${carrera.sedeNombre})`;
+}
+
+// Accent/case-insensitive normalization for text search.
+export function normalizar(s: string): string {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
 
 const nemAnchors = [[4.0,100],[5.0,450],[6.0,700],[6.4,828],[6.7,914],[6.9,970],[7.0,1000]];
 
-export function nemFromGrade(g: number): number {
+export function nemFromGrade(g: number, _grupo: GrupoEducativo = 'CH_DIURNO'): number {
   if (isNaN(g) || g < 1.0) return 100;
   if (g <= 4.0) return 100;
   if (g >= 7.0) return 1000;
@@ -79,3 +356,42 @@ export function nemFromGrade(g: number): number {
   }
   return 100;
 }
+
+// Bonus curve (in points, added on top of the NEM score) based on the
+// student's approximate percentile within their graduating class.
+// NOTE: esto es una aproximación no oficial. El Ranking real de DEMRE
+// depende del desempeño histórico de cada colegio y no está publicado
+// como tabla pública — falta verificar/calibrar contra fuente oficial.
+const rankingBonusAnchors: [number, number][] = [
+  [1, 100], [5, 90], [10, 75], [20, 55], [30, 35], [50, 10], [70, -20], [100, -60],
+];
+
+export const percentilOptions: { value: string; label: string }[] = [
+  { value: '1', label: 'Top 1% de mi generación' },
+  { value: '5', label: 'Top 5%' },
+  { value: '10', label: 'Top 10%' },
+  { value: '20', label: 'Top 20%' },
+  { value: '30', label: 'Top 30%' },
+  { value: '50', label: 'Top 50%' },
+  { value: '70', label: 'Top 70%' },
+  { value: '100', label: 'No lo sé / resto de la generación' },
+];
+
+export function rankingFromPercentil(nemScore: number, percentil: number, _grupo: GrupoEducativo = 'CH_DIURNO'): number {
+  let bonus = rankingBonusAnchors[rankingBonusAnchors.length - 1][1];
+  for (let i = 0; i < rankingBonusAnchors.length - 1; i++) {
+    const [p1, b1] = rankingBonusAnchors[i];
+    const [p2, b2] = rankingBonusAnchors[i + 1];
+    if (percentil >= p1 && percentil <= p2) {
+      bonus = b1 + ((b2 - b1) * (percentil - p1)) / (p2 - p1);
+      break;
+    }
+  }
+  return Math.max(100, Math.min(1000, Math.round(nemScore + bonus)));
+}
+
+export const grupoEducativoOptions: { value: GrupoEducativo; label: string }[] = [
+  { value: 'CH_DIURNO', label: 'Científico-Humanista Diurno' },
+  { value: 'ADULTOS', label: 'Educación de Adultos' },
+  { value: 'TECNICO_PROFESIONAL', label: 'Técnico-Profesional' },
+];

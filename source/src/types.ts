@@ -1,29 +1,85 @@
-export type CareerKey = 'civil' | 'comercial' | 'medicina' | 'derecho' | 'psicologia' | 'agronomia';
-
 export type ElectiveType = 'ciencias' | 'historia' | 'mejor';
 
 export type TierType = 'verified' | 'medium' | 'partial' | 'broken' | 'nodata';
 
-export interface Weights {
-  nem: number;
-  ranking: number;
-  lectora: number;
-  m1: number;
-  m2: number;
-  electivo: number;
-}
+export type GrupoEducativo = 'CH_DIURNO' | 'ADULTOS' | 'TECNICO_PROFESIONAL';
 
 export interface Universidad {
+  id: string;
   nombre: string;
-  tier: TierType;
-  corte: number | null;
-  electivaTipo?: ElectiveType;
-  weights: Weights | null;
-  corteNota?: string;
-  nota?: string;
+  tipo: 'CRUCH' | 'PRIVADA_ADSCRITA';
 }
 
-export type UniversidadesData = Record<CareerKey, Universidad[]>;
+export interface Sede {
+  id: string;
+  universidadId: string;
+  nombre: string;
+  region: string | null;
+}
+
+export interface Carrera {
+  id: string;
+  universidadId: string;
+  sedeId: string;
+  nombre: string;
+  jornada: string | null;
+  duracion: string | null;
+  vacantes: number | null;
+  anioAdmision: number;
+  categoria: string;
+  tier: TierType;
+  electivaTipo?: ElectiveType;
+  corteNota?: string;
+  nota?: string;
+  // Datos oficiales DEMRE (base 2026): puntajes mínimos de postulación y código.
+  ponderadoMinimo?: number | null;
+  promedioMinimo?: number | null;
+  codigoDemre?: string;
+}
+
+export interface Ponderacion {
+  carreraId: string;
+  anioAdmision: number;
+  nemPct: number;
+  rankingPct: number;
+  lecturaPct: number;
+  m1Pct: number;
+  m2Pct: number;
+  cienciasPct: number;
+  historiaPct: number;
+  pruebaEspecialPct?: number;
+}
+
+export interface PuntajeCorte {
+  carreraId: string;
+  anioAdmision: number;
+  puntajeCorte: number | null;
+}
+
+// Read-model that joins Carrera + Universidad + Sede + Ponderacion + PuntajeCorte
+// for convenient consumption by the UI, while the underlying data stays normalized.
+export interface CarreraConDetalle {
+  id: string;
+  nombre: string;
+  categoria: string;
+  universidadNombre: string;
+  universidadTipo: 'CRUCH' | 'PRIVADA_ADSCRITA';
+  sedeNombre: string;
+  region: string | null;
+  anioAdmision: number;
+  tier: TierType;
+  electivaTipo?: ElectiveType;
+  corteNota?: string;
+  nota?: string;
+  vacantes: number | null;
+  ponderadoMinimo?: number | null;
+  promedioMinimo?: number | null;
+  codigoDemre?: string;
+  ponderacion: Ponderacion | null;
+  puntajeCorte: number | null;
+}
+
+export type CarrerasPorCategoria = Record<string, CarreraConDetalle[]>;
 
 export interface AppState {
   grades: {
@@ -34,6 +90,8 @@ export interface AppState {
   };
   manualNem: string;
   manualRanking: string;
+  grupoEducativo: GrupoEducativo;
+  percentilGeneracion: string;
   scores: {
     lectora: number; // 0-60
     m1: number; // 0-60
@@ -42,7 +100,9 @@ export interface AppState {
     historia: number; // 0-60
   };
   cienciasModule: 'biologia' | 'fisica' | 'quimica';
-  targetCareer: CareerKey;
+  anioAdmision: number;
+  targetCareer: string;
   targetUniIndex: number;
-  compareSlots: string[]; // encoded strings of "careerKey:uniIndex" or ""
+  compareSlots: string[]; // encoded strings of "categoria:uniIndex" or ""
+  favoritos: string[]; // carrera ids marcadas como favoritas
 }

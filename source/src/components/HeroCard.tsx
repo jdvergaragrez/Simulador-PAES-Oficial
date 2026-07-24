@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Card from './Card';
-import { Universidad } from '../types';
-import { careerDisplayNames } from '../data';
+import { CarreraConDetalle } from '../types';
+import { displayNombreUniversidad } from '../data';
 
 // Custom hook to animate score change over 300ms
 function useAnimatedNumber(target: number) {
@@ -41,11 +41,12 @@ function useAnimatedNumber(target: number) {
 interface HeroCardProps {
   score: number | null;
   targetCareer: string;
-  targetUni: Universidad | null;
+  categoriaDisplay: Record<string, string>;
+  targetUni: CarreraConDetalle | null;
   isEmpty: boolean;
 }
 
-export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: HeroCardProps) {
+function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty }: HeroCardProps) {
   const finalScore = score ?? 0;
   const animatedScore = useAnimatedNumber(finalScore);
 
@@ -63,8 +64,8 @@ export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: He
   }
 
   // Gap Calculation
-  const hasCorte = targetUni.corte !== null;
-  const gap = hasCorte ? finalScore - targetUni.corte! : 0;
+  const hasCorte = targetUni.puntajeCorte !== null;
+  const gap = hasCorte ? finalScore - targetUni.puntajeCorte! : 0;
   const isPositive = gap >= 0;
 
   // Tier Badge configurations
@@ -82,9 +83,9 @@ export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: He
   }
 
   return (
-    <Card className="relative overflow-hidden border-2 border-[#2563EB] bg-gradient-to-b from-white to-[#F8FAFC]">
+    <Card className="relative overflow-hidden border-2 border-[#3B82F6] bg-gradient-to-b from-white to-[#F8FAFC]">
       {/* Decorative subtle radial glow behind the score */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#2563EB]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative flex flex-col items-center text-center space-y-4">
         {/* Label and Tier Badge */}
@@ -94,6 +95,9 @@ export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: He
           </span>
           <span className={`text-[10px] px-2 py-0.5 font-bold rounded-full border ${tierBadgeStyle}`}>
             {tierBadgeText}
+          </span>
+          <span className="text-[10px] px-2 py-0.5 font-bold rounded-full border border-slate-200 text-slate-500 bg-slate-50">
+            Admisión {targetUni.anioAdmision}
           </span>
         </div>
 
@@ -105,47 +109,53 @@ export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: He
           <span className="text-lg font-semibold text-[#94A3B8] ml-1">/1000</span>
         </div>
 
-        {/* Target metadata & gap indicator */}
-        <div className="w-full pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-left">
-            <div className="text-xs font-bold text-[#94A3B8] uppercase">META DEFINIDA</div>
-            <div className="text-sm font-semibold text-[#0F172A]">
-              {careerDisplayNames[targetCareer] || targetCareer}
+        {/* Medidor visual vs corte / mínimo */}
+        {(() => {
+          const ref = targetUni.puntajeCorte ?? targetUni.promedioMinimo ?? null;
+          if (ref === null) {
+            return (
+              <div className="w-full text-center text-xs font-semibold text-[#64748B] bg-[#F1F5F9] rounded-full py-1.5">
+                Sin corte histórico
+              </div>
+            );
+          }
+          const g = finalScore - ref;
+          const color = g >= 0 ? '#10B981' : g >= -30 ? '#3B82F6' : '#EF4444';
+          const lo = Math.max(0, Math.min(ref, finalScore) - 120);
+          const hi = Math.min(1000, Math.max(ref, finalScore) + 120);
+          const pos = (v: number) => `${Math.max(2, Math.min(98, ((v - lo) / (hi - lo)) * 100))}%`;
+          const estado = g >= 0 ? 'Sobre el corte' : g >= -30 ? 'Cerca del corte' : 'Bajo el corte';
+          return (
+            <div className="w-full space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold px-2.5 py-1 rounded-full" style={{ background: `${color}1A`, color }}>{estado}</span>
+                <span className="font-mono font-bold" style={{ color }}>{g >= 0 ? '+' : ''}{g.toFixed(2)} pts</span>
+              </div>
+              <div className="relative w-full h-3 rounded-full bg-[#F1F5F9] mt-1">
+                {/* fill hasta tu puntaje */}
+                <div className="absolute top-0 left-0 h-full rounded-full transition-all duration-500" style={{ width: pos(finalScore), background: color }} />
+                {/* marcador del corte */}
+                <div className="absolute top-[-3px] h-[18px] w-[2px] bg-[#0F172A]" style={{ left: pos(ref) }} />
+              </div>
+              <div className="flex justify-between text-[10px] text-[#94A3B8] font-medium">
+                <span>Tú: <strong className="text-[#0F172A] font-mono">{finalScore.toFixed(0)}</strong></span>
+                <span>{hasCorte ? 'Corte' : 'Mín.'}: <strong className="text-[#0F172A] font-mono">{ref.toFixed(0)}</strong></span>
+              </div>
             </div>
-            <div className="text-xs text-[#64748B]">{targetUni.nombre}</div>
-          </div>
+          );
+        })()}
 
-          <div>
-            {hasCorte ? (
-              <div
-                className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                  isPositive ? 'bg-[#DCFCE7] text-[#059669]' : 'bg-[#FEE2E2] text-[#DC2626]'
-                }`}
-              >
-                {isPositive ? '+' : ''}
-                {gap.toFixed(2)} vs corte
-              </div>
-            ) : (
-              <div className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#F1F5F9] text-[#64748B]">
-                Sin corte publicado
-              </div>
-            )}
+        {/* Meta */}
+        <div className="w-full pt-3 border-t border-slate-100 text-left">
+          <div className="text-xs font-bold text-[#94A3B8] uppercase">🎯 Meta definida</div>
+          <div className="text-sm font-semibold text-[#0F172A]">
+            {categoriaDisplay[targetCareer] || targetUni.nombre || targetCareer}
           </div>
+          <div className="text-xs text-[#64748B]">🏫 {displayNombreUniversidad(targetUni)}</div>
+          {targetUni.corteNota && (
+            <span className="inline-block mt-1.5 text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded text-[11px]">{targetUni.corteNota}</span>
+          )}
         </div>
-
-        {/* Cutoff footnote details */}
-        {hasCorte && (
-          <div className="w-full text-left bg-slate-50 p-2.5 rounded-xl border border-slate-100/80 flex justify-between items-center text-xs">
-            <span className="text-[#64748B]">
-              Corte oficial: <strong className="font-semibold text-[#0F172A]">{targetUni.corte?.toFixed(2)} pts</strong>
-            </span>
-            {targetUni.corteNota && (
-              <span className="text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded text-[11px]">
-                {targetUni.corteNota}
-              </span>
-            )}
-          </div>
-        )}
 
         {targetUni.nota && (
           <p className="text-left text-xs text-[#94A3B8] bg-slate-50 p-3 rounded-xl leading-relaxed w-full">
@@ -156,3 +166,5 @@ export default function HeroCard({ score, targetCareer, targetUni, isEmpty }: He
     </Card>
   );
 }
+
+export default React.memo(HeroCard);

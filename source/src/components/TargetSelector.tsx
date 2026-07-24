@@ -1,101 +1,88 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Card from './Card';
-import { universidades, careerDisplayNames } from '../data';
-import { CareerKey } from '../types';
+import { displayNombreUniversidad } from '../data';
+import { CarrerasPorCategoria } from '../types';
+import SearchableSelect from './SearchableSelect';
 
 interface TargetSelectorProps {
-  targetCareer: CareerKey;
+  porCategoria: CarrerasPorCategoria;
+  categoriaDisplay: Record<string, string>;
+  targetCareer: string;
   targetUniIndex: number;
-  onChangeCareer: (career: CareerKey) => void;
+  onChangeCareer: (career: string) => void;
   onChangeUniIndex: (index: number) => void;
 }
 
-export default function TargetSelector({
+function TargetSelector({
+  porCategoria,
+  categoriaDisplay,
   targetCareer,
   targetUniIndex,
   onChangeCareer,
   onChangeUniIndex,
 }: TargetSelectorProps) {
-  const currentUnis = universidades[targetCareer] || [];
+  const currentUnis = porCategoria[targetCareer] || [];
 
-  // Filter universities that have non-null weights
-  const validUnisWithOriginalIndex = currentUnis
-    .map((uni, idx) => ({ uni, originalIndex: idx }))
-    .filter((item) => item.uni.weights !== null);
+  const careerOptions = useMemo(
+    () =>
+      Object.keys(porCategoria)
+        .map((key) => ({ value: key, label: categoriaDisplay[key] || key }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'es')),
+    [porCategoria, categoriaDisplay]
+  );
+
+  // Universities offering the selected career (only those with a ponderación)
+  const uniOptions = useMemo(
+    () =>
+      currentUnis
+        .map((uni, idx) => ({ uni, idx }))
+        .filter((x) => x.uni.ponderacion !== null)
+        .map((x) => ({
+          value: String(x.idx),
+          label: displayNombreUniversidad(x.uni),
+          sublabel: x.uni.region || undefined,
+        })),
+    [currentUnis]
+  );
 
   // Auto-correct university selection if it becomes invalid on career change
   useEffect(() => {
-    if (validUnisWithOriginalIndex.length > 0) {
-      // Check if current targetUniIndex is still in the valid list
-      const isValid = validUnisWithOriginalIndex.some(
-        (item) => item.originalIndex === targetUniIndex
-      );
-      if (!isValid) {
-        onChangeUniIndex(validUnisWithOriginalIndex[0].originalIndex);
-      }
+    if (uniOptions.length > 0) {
+      const isValid = uniOptions.some((o) => o.value === String(targetUniIndex));
+      if (!isValid) onChangeUniIndex(parseInt(uniOptions[0].value, 10));
     }
-  }, [targetCareer, targetUniIndex, validUnisWithOriginalIndex]);
+  }, [targetCareer, targetUniIndex, uniOptions]);
 
   return (
     <Card id="section-objetivo" className="space-y-4">
       <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">
-          TU OBJETIVO
-        </div>
-        <h3 className="text-lg font-bold text-[#0F172A]">Elige tu Meta Universitaria</h3>
+        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">TU OBJETIVO</div>
+        <h3 className="text-lg font-bold text-[#0F172A]">🎯 Elige tu Meta Universitaria</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Career dropdown */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            Carrera de Interés
-          </label>
-          <div className="relative">
-            <select
-              value={targetCareer}
-              onChange={(e) => onChangeCareer(e.target.value as CareerKey)}
-              className="w-full h-11 px-4 pr-10 bg-[#F5F7FA] text-[#0F172A] font-semibold rounded-xl appearance-none focus:ring-2 focus:ring-[#2563EB] focus:bg-white outline-none cursor-pointer transition-all duration-200"
-            >
-              {Object.entries(careerDisplayNames).map(([key, name]) => (
-                <option key={key} value={key}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#64748B]">
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
-            </div>
-          </div>
+          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Carrera de Interés</label>
+          <SearchableSelect
+            options={careerOptions}
+            value={targetCareer}
+            onChange={onChangeCareer}
+            placeholder="Busca tu carrera..."
+          />
         </div>
 
-        {/* University dropdown */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            Universidad de Destino
-          </label>
-          <div className="relative">
-            <select
-              value={targetUniIndex}
-              onChange={(e) => onChangeUniIndex(parseInt(e.target.value, 10))}
-              className="w-full h-11 px-4 pr-10 bg-[#F5F7FA] text-[#0F172A] font-semibold rounded-xl appearance-none focus:ring-2 focus:ring-[#2563EB] focus:bg-white outline-none cursor-pointer transition-all duration-200"
-            >
-              {validUnisWithOriginalIndex.map((item) => (
-                <option key={item.originalIndex} value={item.originalIndex}>
-                  {item.uni.nombre}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#64748B]">
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
-            </div>
-          </div>
+          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Universidad de Destino</label>
+          <SearchableSelect
+            options={uniOptions}
+            value={String(targetUniIndex)}
+            onChange={(v) => onChangeUniIndex(parseInt(v, 10))}
+            placeholder="Busca la universidad..."
+          />
         </div>
       </div>
     </Card>
   );
 }
+
+export default React.memo(TargetSelector);

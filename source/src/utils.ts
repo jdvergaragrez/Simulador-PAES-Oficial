@@ -1,9 +1,9 @@
-import { AppState, Universidad } from './types';
+import { AppState, CarreraConDetalle } from './types';
 import { tablasPAES } from './data';
 
 /**
  * Calculates the weighted PAES score (Puntaje Ponderado) for a specific university admission requirement.
- * Returns null if the university has no weights defined.
+ * Returns null if the carrera has no ponderación defined.
  */
 export function calculatePonderado(
   nem: number,
@@ -14,9 +14,10 @@ export function calculatePonderado(
   cienciasCorrect: number,
   historiaCorrect: number,
   cienciasModule: 'biologia' | 'fisica' | 'quimica',
-  uni: Universidad
+  carrera: CarreraConDetalle
 ): number | null {
-  if (!uni.weights) return null;
+  if (!carrera.ponderacion) return null;
+  const w = carrera.ponderacion;
 
   // Map correct answers to PAES scores
   const scoreLectora = tablasPAES.lectora[lectoraCorrect] ?? 100;
@@ -29,30 +30,30 @@ export function calculatePonderado(
 
   // Determine elective score based on university preference
   let scoreElectivo = 100;
-  if (uni.electivaTipo === 'ciencias') {
+  let pctElectivo = 0;
+  if (carrera.electivaTipo === 'ciencias') {
     scoreElectivo = scoreCiencias;
-  } else if (uni.electivaTipo === 'historia') {
+    pctElectivo = w.cienciasPct;
+  } else if (carrera.electivaTipo === 'historia') {
     scoreElectivo = scoreHistoria;
-  } else if (uni.electivaTipo === 'mejor') {
-    scoreElectivo = Math.max(scoreCiencias, scoreHistoria);
+    pctElectivo = w.historiaPct;
+  } else if (carrera.electivaTipo === 'mejor') {
+    if (scoreCiencias >= scoreHistoria) {
+      scoreElectivo = scoreCiencias;
+      pctElectivo = w.cienciasPct;
+    } else {
+      scoreElectivo = scoreHistoria;
+      pctElectivo = w.historiaPct;
+    }
   }
 
-  const { w_nem, w_ranking, w_lectora, w_m1, w_m2, w_electivo } = {
-    w_nem: uni.weights.nem,
-    w_ranking: uni.weights.ranking,
-    w_lectora: uni.weights.lectora,
-    w_m1: uni.weights.m1,
-    w_m2: uni.weights.m2,
-    w_electivo: uni.weights.electivo,
-  };
-
   const scoreTotal =
-    nem * w_nem +
-    ranking * w_ranking +
-    scoreLectora * w_lectora +
-    scoreM1 * w_m1 +
-    scoreM2 * w_m2 +
-    scoreElectivo * w_electivo;
+    nem * w.nemPct +
+    ranking * w.rankingPct +
+    scoreLectora * w.lecturaPct +
+    scoreM1 * w.m1Pct +
+    scoreM2 * w.m2Pct +
+    scoreElectivo * pctElectivo;
 
   // Return value rounded to 2 decimal places to match Chilean admission standard format
   return Math.round(scoreTotal) / 100;
@@ -78,6 +79,9 @@ export function encodeState(state: AppState): string {
       tc: state.targetCareer,
       tui: state.targetUniIndex,
       cs: state.compareSlots,
+      ge: state.grupoEducativo,
+      pg: state.percentilGeneracion,
+      fv: state.favoritos,
     };
     const jsonStr = JSON.stringify(compactObj);
     // Use btoa safely for unicode or base64 representation
@@ -117,6 +121,9 @@ export function decodeState(encoded: string): Partial<AppState> | null {
       targetCareer: compactObj.tc ?? 'civil',
       targetUniIndex: compactObj.tui ?? 0,
       compareSlots: compactObj.cs ?? ['', '', ''],
+      grupoEducativo: compactObj.ge ?? 'CH_DIURNO',
+      percentilGeneracion: compactObj.pg ?? '',
+      favoritos: compactObj.fv ?? [],
     };
   } catch (e) {
     console.error('Failed to decode state', e);

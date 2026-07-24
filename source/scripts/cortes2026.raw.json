@@ -1,0 +1,2002 @@
+[
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "958,4",
+"vacantes": "82",
+"demanda": "41.65"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "956,4",
+"vacantes": "90",
+"demanda": "3.60"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Medicina",
+"region": "Biobío",
+"corte": "953,2",
+"vacantes": "100",
+"demanda": "19.41"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "944,0",
+"vacantes": "72",
+"demanda": "3.15"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "939,4",
+"vacantes": "40",
+"demanda": "12.68"
+},
+{
+"universidad": "Universidad Finis Terrae",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "935,3",
+"vacantes": "80",
+"demanda": "2.92"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "931,2",
+"vacantes": "190",
+"demanda": "14.64"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "930,9",
+"vacantes": "64",
+"demanda": "2.39"
+},
+{
+"universidad": "Universidad Catolica del Maule",
+"carrera": "Medicina",
+"region": "Maule",
+"corte": "923,0",
+"vacantes": "70",
+"demanda": "10.40"
+},
+{
+"universidad": "Universidad Austral de Chile",
+"carrera": "Medicina: Campo Clínico Valdivia",
+"region": "Los Ríos",
+"corte": "922,8",
+"vacantes": "46",
+"demanda": "9.02"
+},
+{
+"universidad": "Universidad de Valparaiso",
+"carrera": "Medicina",
+"region": "Valparaíso",
+"corte": "919,9",
+"vacantes": "74",
+"demanda": "9.24"
+},
+{
+"universidad": "Universidad de la Frontera",
+"carrera": "Medicina",
+"region": "Araucanía",
+"corte": "917,2",
+"vacantes": "58",
+"demanda": "12.34"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Medicina",
+"region": "Maule",
+"corte": "914,5",
+"vacantes": "75",
+"demanda": "6.13"
+},
+{
+"universidad": "Universidad Austral de Chile",
+"carrera": "Medicina: Campo Clínico Osorno",
+"region": "Los Ríos",
+"corte": "912,1",
+"vacantes": "19",
+"demanda": "2.95"
+},
+{
+"universidad": "Universidad San Sebastian",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "911,3",
+"vacantes": "130",
+"demanda": "2.10"
+},
+{
+"universidad": "Universidad de O'higgins",
+"carrera": "Medicina",
+"region": "O'higgins",
+"corte": "911,1",
+"vacantes": "80",
+"demanda": "7.85"
+},
+{
+"universidad": "Universidad de Antofagasta",
+"carrera": "Medicina",
+"region": "Antofagasta",
+"corte": "911,0",
+"vacantes": "40",
+"demanda": "11.45"
+},
+{
+"universidad": "Universidad Andres Bello",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "910,6",
+"vacantes": "140",
+"demanda": "2.92"
+},
+{
+"universidad": "Universidad San Sebastian",
+"carrera": "Medicina",
+"region": "Biobío",
+"corte": "907,6",
+"vacantes": "120",
+"demanda": "2.63"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Medicina",
+"region": "Biobío",
+"corte": "907,6",
+"vacantes": "80",
+"demanda": "9.31"
+},
+{
+"universidad": "Universidad Autonoma de Chile",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "906,9",
+"vacantes": "50",
+"demanda": "5.10"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Química y Farmacia",
+"region": "Metropolitana",
+"corte": "906,3",
+"vacantes": "70",
+"demanda": "13.80"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Bachillerato de Medicina",
+"region": "Metropolitana",
+"corte": "905,6",
+"vacantes": "100",
+"demanda": "0.78"
+},
+{
+"universidad": "Universidad Mayor",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "904,9",
+"vacantes": "70",
+"demanda": "1.49"
+},
+{
+"universidad": "Universidad de Tarapaca",
+"carrera": "Medicina",
+"region": "Arica y Parinacota",
+"corte": "903,1",
+"vacantes": "41",
+"demanda": "9.78"
+},
+{
+"universidad": "Universidad del Alba",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "902,8",
+"vacantes": "70",
+"demanda": "2.87"
+},
+{
+"universidad": "Universidad del Bio-bio",
+"carrera": "Medicina",
+"region": "Ñuble",
+"corte": "902,2",
+"vacantes": "40",
+"demanda": "13.43"
+},
+{
+"universidad": "Universidad de los Lagos",
+"carrera": "Medicina",
+"region": "Los Lagos",
+"corte": "899,8",
+"vacantes": "30",
+"demanda": "24.90"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Ingeniería",
+"region": "Metropolitana",
+"corte": "898,7",
+"vacantes": "650",
+"demanda": "6.12"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Astronomía",
+"region": "Metropolitana",
+"corte": "897,7",
+"vacantes": "28",
+"demanda": "9.07"
+},
+{
+"universidad": "Universidad Finis Terrae",
+"carrera": "Bachillerato en Medicina y Ciencias Biomédicas",
+"region": "Metropolitana",
+"corte": "897,0",
+"vacantes": "40",
+"demanda": "12.18"
+},
+{
+"universidad": "Universidad Catolica del Norte",
+"carrera": "Medicina",
+"region": "Coquimbo",
+"corte": "896,2",
+"vacantes": "54",
+"demanda": "10.80"
+},
+{
+"universidad": "Universidad del Alba",
+"carrera": "Medicina",
+"region": "Coquimbo",
+"corte": "894,0",
+"vacantes": "50",
+"demanda": "2.70"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Bioquímica",
+"region": "Metropolitana",
+"corte": "893,6",
+"vacantes": "40",
+"demanda": "5.33"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "International Management",
+"region": "Metropolitana",
+"corte": "892,5",
+"vacantes": "25",
+"demanda": "4.12"
+},
+{
+"universidad": "Universidad Bernardo O'higgins",
+"carrera": "Medicina",
+"region": "Metropolitana",
+"corte": "891,5",
+"vacantes": "60",
+"demanda": "2.47"
+},
+{
+"universidad": "Universidad San Sebastian",
+"carrera": "Medicina",
+"region": "Los Ríos",
+"corte": "891,2",
+"vacantes": "78",
+"demanda": "1.32"
+},
+{
+"universidad": "Universidad Central",
+"carrera": "Medicina - Santiago",
+"region": "Metropolitana",
+"corte": "890,9",
+"vacantes": "50",
+"demanda": "3.26"
+},
+{
+"universidad": "Universidad Andres Bello",
+"carrera": "Medicina",
+"region": "Valparaíso",
+"corte": "890,5",
+"vacantes": "130",
+"demanda": "3.96"
+},
+{
+"universidad": "Universidad de Valparaiso",
+"carrera": "Medicina",
+"region": "Valparaíso",
+"corte": "890,2",
+"vacantes": "50",
+"demanda": "4.92"
+},
+{
+"universidad": "Universidad Catolica de Temuco",
+"carrera": "Medicina",
+"region": "Araucanía",
+"corte": "889,5",
+"vacantes": "55",
+"demanda": "6.09"
+},
+{
+"universidad": "Universidad Andres Bello",
+"carrera": "Medicina",
+"region": "Biobío",
+"corte": "888,7",
+"vacantes": "111",
+"demanda": "2.87"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Física",
+"region": "Metropolitana",
+"corte": "887,7",
+"vacantes": "31",
+"demanda": "3.71"
+},
+{
+"universidad": "Universidad de Magallanes",
+"carrera": "Medicina",
+"region": "Magallanes",
+"corte": "887,3",
+"vacantes": "50",
+"demanda": "4.20"
+},
+{
+"universidad": "Universidad Autonoma de Chile",
+"carrera": "Medicina",
+"region": "Maule",
+"corte": "885,1",
+"vacantes": "50",
+"demanda": "3.10"
+},
+{
+"universidad": "Universidad San Sebastian",
+"carrera": "Medicina",
+"region": "Los Lagos",
+"corte": "884,9",
+"vacantes": "90",
+"demanda": "2.19"
+},
+{
+"universidad": "Universidad Autonoma de Chile",
+"carrera": "Medicina",
+"region": "Araucanía",
+"corte": "883,7",
+"vacantes": "50",
+"demanda": "4.02"
+},
+{
+"universidad": "Universidad de la Serena",
+"carrera": "Medicina",
+"region": "Coquimbo",
+"corte": "883,1",
+"vacantes": "35",
+"demanda": "19.91"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Ingeniería Civil en Biomedicina",
+"region": "Metropolitana",
+"corte": "881,4",
+"vacantes": "25",
+"demanda": "4.88"
+},
+{
+"universidad": "Universidad de Atacama",
+"carrera": "Medicina",
+"region": "Atacama",
+"corte": "875,2",
+"vacantes": "45",
+"demanda": "6.00"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Aeroespacial",
+"region": "Biobío",
+"corte": "875,1",
+"vacantes": "18",
+"demanda": "16.67"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Quimica y Farmacia",
+"region": "Biobío",
+"corte": "874,5",
+"vacantes": "82",
+"demanda": "8.65"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "874,3",
+"vacantes": "125",
+"demanda": "10.07"
+},
+{
+"universidad": "Universidad Mayor",
+"carrera": "Medicina",
+"region": "Araucanía",
+"corte": "873,5",
+"vacantes": "70",
+"demanda": "2.49"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "872,4",
+"vacantes": "325",
+"demanda": "5.73"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "870,1",
+"vacantes": "418",
+"demanda": "4.69"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Estudios Internacionales",
+"region": "Metropolitana",
+"corte": "869,2",
+"vacantes": "35",
+"demanda": "12.20"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Odontología",
+"region": "Metropolitana",
+"corte": "866,9",
+"vacantes": "62",
+"demanda": "7.13"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "866,6",
+"vacantes": "55",
+"demanda": "20.00"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "College Ciencias Naturales y Matemáticas",
+"region": "Metropolitana",
+"corte": "862,7",
+"vacantes": "350",
+"demanda": "0.57"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Química y Farmacia",
+"region": "Metropolitana",
+"corte": "862,3",
+"vacantes": "65",
+"demanda": "5.54"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Arquitectura",
+"region": "Metropolitana",
+"corte": "855,2",
+"vacantes": "60",
+"demanda": "13.77"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "851,2",
+"vacantes": "400",
+"demanda": "4.78"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Ciencia Política",
+"region": "Metropolitana",
+"corte": "848,3",
+"vacantes": "35",
+"demanda": "4.63"
+},
+{
+"universidad": "Universidad de la Frontera",
+"carrera": "Química y Farmacia",
+"region": "Araucanía",
+"corte": "843,0",
+"vacantes": "40",
+"demanda": "5.42"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Doble Grado Derecho + Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "842,6",
+"vacantes": "30",
+"demanda": "2.80"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Industrial",
+"region": "Metropolitana",
+"corte": "837,4",
+"vacantes": "140",
+"demanda": "5.79"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Bachillerato, Programa Académico de",
+"region": "Metropolitana",
+"corte": "836,1",
+"vacantes": "300",
+"demanda": "1.46"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ingeniería y Ciencias - Plan Común",
+"region": "Metropolitana",
+"corte": "833,9",
+"vacantes": "710",
+"demanda": "6.36"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Química",
+"region": "Metropolitana",
+"corte": "833,5",
+"vacantes": "35",
+"demanda": "2.11"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Enfermería",
+"region": "Metropolitana",
+"corte": "831,3",
+"vacantes": "120",
+"demanda": "6.06"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "829,6",
+"vacantes": "400",
+"demanda": "3.92"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Medicina Veterinaria",
+"region": "Metropolitana",
+"corte": "829,4",
+"vacantes": "115",
+"demanda": "6.03"
+},
+{
+"universidad": "Universidad Catolica de Temuco",
+"carrera": "Quimica y Farmacia",
+"region": "Araucanía",
+"corte": "829,0",
+"vacantes": "35",
+"demanda": "5.63"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Bioquimica",
+"region": "Biobío",
+"corte": "829,0",
+"vacantes": "55",
+"demanda": "2.51"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Plan Comun",
+"region": "Metropolitana",
+"corte": "825,6",
+"vacantes": "130",
+"demanda": "1.82"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Geologia",
+"region": "Biobío",
+"corte": "825,6",
+"vacantes": "35",
+"demanda": "4.94"
+},
+{
+"universidad": "Universidad de Valparaiso",
+"carrera": "Química y Farmacia",
+"region": "Valparaíso",
+"corte": "825,4",
+"vacantes": "70",
+"demanda": "3.29"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Odontología",
+"region": "Metropolitana",
+"corte": "824,9",
+"vacantes": "65",
+"demanda": "1.00"
+},
+{
+"universidad": "Universidad Catolica del Maule",
+"carrera": "Química y Farmacia",
+"region": "Maule",
+"corte": "824,2",
+"vacantes": "75",
+"demanda": "2.92"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Tecnologia Medica",
+"region": "Biobío",
+"corte": "824,0",
+"vacantes": "73",
+"demanda": "4.07"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Odontologia",
+"region": "Biobío",
+"corte": "823,1",
+"vacantes": "75",
+"demanda": "4.85"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Química y Farmacia",
+"region": "Metropolitana",
+"corte": "822,8",
+"vacantes": "50",
+"demanda": "1.18"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Mecanica",
+"region": "Metropolitana",
+"corte": "822,6",
+"vacantes": "75",
+"demanda": "3.75"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Electrica",
+"region": "Metropolitana",
+"corte": "822,5",
+"vacantes": "60",
+"demanda": "6.13"
+},
+{
+"universidad": "Universidad del Bio-bio",
+"carrera": "Química y Farmacia",
+"region": "Ñuble",
+"corte": "820,3",
+"vacantes": "50",
+"demanda": "4.84"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Informatica",
+"region": "Metropolitana",
+"corte": "820,1",
+"vacantes": "135",
+"demanda": "6.43"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Bioquímica",
+"region": "Metropolitana",
+"corte": "818,7",
+"vacantes": "35",
+"demanda": "3.83"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Odontología",
+"region": "Maule",
+"corte": "818,7",
+"vacantes": "75",
+"demanda": "2.93"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ciencia Política",
+"region": "Metropolitana",
+"corte": "816,4",
+"vacantes": "65",
+"demanda": "3.03"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Periodismo - Dirección Audiovisual - Publicidad",
+"region": "Metropolitana",
+"corte": "816,3",
+"vacantes": "125",
+"demanda": "4.96"
+},
+{
+"universidad": "Universidad Finis Terrae",
+"carrera": "Actuación y Creación Teatral",
+"region": "Metropolitana",
+"corte": "816,3",
+"vacantes": "24",
+"demanda": "2.17"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Quimica",
+"region": "Metropolitana",
+"corte": "815,4",
+"vacantes": "50",
+"demanda": "3.20"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Ingeniería Civil (plan Común) - 7 Carreras o Especialidades",
+"region": "Metropolitana",
+"corte": "815,0",
+"vacantes": "400",
+"demanda": "1.29"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Química y Farmacia",
+"region": "Maule",
+"corte": "814,6",
+"vacantes": "40",
+"demanda": "7.08"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Enfermería",
+"region": "Metropolitana",
+"corte": "813,6",
+"vacantes": "40",
+"demanda": "5.33"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Doble Grado Derecho + Ingeniería Comercial",
+"region": "Valparaíso",
+"corte": "812,5",
+"vacantes": "25",
+"demanda": "1.72"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Ingeniería Civil (plan Común)",
+"region": "Metropolitana",
+"corte": "812,4",
+"vacantes": "240",
+"demanda": "0.76"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "811,6",
+"vacantes": "70",
+"demanda": "6.47"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "811,4",
+"vacantes": "430",
+"demanda": "1.68"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil",
+"region": "Metropolitana",
+"corte": "811,2",
+"vacantes": "75",
+"demanda": "2.77"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Odontología",
+"region": "Metropolitana",
+"corte": "810,7",
+"vacantes": "98",
+"demanda": "5.47"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Licenciatura en Ingeniería en Ciencia de la Computación",
+"region": "Metropolitana",
+"corte": "809,3",
+"vacantes": "100",
+"demanda": "5.21"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Estadística",
+"region": "Metropolitana",
+"corte": "809,3",
+"vacantes": "40",
+"demanda": "2.20"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Química y Farmacia",
+"region": "Metropolitana",
+"corte": "809,1",
+"vacantes": "145",
+"demanda": "4.39"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Informatica",
+"region": "Biobío",
+"corte": "809,0",
+"vacantes": "53",
+"demanda": "8.89"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Pedagogía en Educación Media en Matemática",
+"region": "Metropolitana",
+"corte": "808,6",
+"vacantes": "40",
+"demanda": "3.40"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Derecho y Filosofía",
+"region": "Metropolitana",
+"corte": "807,9",
+"vacantes": "10",
+"demanda": "0.80"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Global Business Administration",
+"region": "Metropolitana",
+"corte": "807,6",
+"vacantes": "25",
+"demanda": "2.28"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Kinesiología",
+"region": "Metropolitana",
+"corte": "806,5",
+"vacantes": "80",
+"demanda": "6.62"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil Industrial",
+"region": "Metropolitana",
+"corte": "805,9",
+"vacantes": "100",
+"demanda": "8.91"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil de Minas",
+"region": "Metropolitana",
+"corte": "805,7",
+"vacantes": "100",
+"demanda": "4.58"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Derecho",
+"region": "Biobío",
+"corte": "805,6",
+"vacantes": "145",
+"demanda": "4.69"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ingeniería en Biotecnología Molecular",
+"region": "Metropolitana",
+"corte": "805,6",
+"vacantes": "35",
+"demanda": "5.69"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Matemática",
+"region": "Valparaíso",
+"corte": "805,3",
+"vacantes": "25",
+"demanda": "2.88"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Matematica",
+"region": "Metropolitana",
+"corte": "805,2",
+"vacantes": "35",
+"demanda": "1.71"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Industrial",
+"region": "Valparaíso",
+"corte": "804,8",
+"vacantes": "140",
+"demanda": "4.96"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Química y Farmacia",
+"region": "Biobío",
+"corte": "804,6",
+"vacantes": "75",
+"demanda": "4.20"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Electrica",
+"region": "Biobío",
+"corte": "804,6",
+"vacantes": "53",
+"demanda": "6.00"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Biología",
+"region": "Metropolitana",
+"corte": "802,6",
+"vacantes": "65",
+"demanda": "2.74"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Valparaiso",
+"carrera": "Quimica y Farmacia",
+"region": "Valparaíso",
+"corte": "802,2",
+"vacantes": "50",
+"demanda": "4.92"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "International Management",
+"region": "Valparaíso",
+"corte": "801,4",
+"vacantes": "25",
+"demanda": "1.52"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Doble Título Arquitectura + Ingeniería Civil Industrial",
+"region": "Metropolitana",
+"corte": "800,7",
+"vacantes": "35",
+"demanda": "3.31"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Bioquímica",
+"region": "Metropolitana",
+"corte": "800,2",
+"vacantes": "39",
+"demanda": "2.49"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Industrial",
+"region": "Biobío",
+"corte": "800,1",
+"vacantes": "113",
+"demanda": "7.26"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Comercial",
+"region": "Metropolitana",
+"corte": "799,6",
+"vacantes": "200",
+"demanda": "1.92"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ingeniería en Sonido",
+"region": "Metropolitana",
+"corte": "799,4",
+"vacantes": "24",
+"demanda": "8.00"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Derecho e Historia",
+"region": "Metropolitana",
+"corte": "799,3",
+"vacantes": "10",
+"demanda": "1.10"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "International Business",
+"region": "Metropolitana",
+"corte": "798,0",
+"vacantes": "80",
+"demanda": "1.46"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Licenciatura en Estudios Internacionales",
+"region": "Metropolitana",
+"corte": "797,6",
+"vacantes": "45",
+"demanda": "1.93"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "797,4",
+"vacantes": "160",
+"demanda": "0.93"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Actuación",
+"region": "Metropolitana",
+"corte": "795,2",
+"vacantes": "45",
+"demanda": "2.22"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Ingeniería en Negocios y Tecnología",
+"region": "Metropolitana",
+"corte": "794,9",
+"vacantes": "30",
+"demanda": "2.37"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Tecnología Médica",
+"region": "Metropolitana",
+"corte": "794,4",
+"vacantes": "86",
+"demanda": "7.19"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "793,2",
+"vacantes": "80",
+"demanda": "1.49"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Obstetricia y Puericultura",
+"region": "Metropolitana",
+"corte": "792,9",
+"vacantes": "30",
+"demanda": "8.50"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Bachillerato de Ingeniería Civil",
+"region": "Metropolitana",
+"corte": "792,1",
+"vacantes": "55",
+"demanda": "1.13"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Biología Marina",
+"region": "Metropolitana",
+"corte": "792,0",
+"vacantes": "30",
+"demanda": "6.37"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Licenciatura en Ingeniería en Ciencia de Datos",
+"region": "Metropolitana",
+"corte": "791,0",
+"vacantes": "80",
+"demanda": "1.91"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "790,4",
+"vacantes": "152",
+"demanda": "1.27"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Mecanica",
+"region": "Valparaíso",
+"corte": "790,1",
+"vacantes": "70",
+"demanda": "3.49"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Ingeniería Civil Industrial",
+"region": "Maule",
+"corte": "789,3",
+"vacantes": "40",
+"demanda": "7.33"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Mecanica",
+"region": "Biobío",
+"corte": "788,6",
+"vacantes": "70",
+"demanda": "3.70"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Valparaiso",
+"carrera": "Ingenieria Civil Industrial",
+"region": "Valparaíso",
+"corte": "788,0",
+"vacantes": "155",
+"demanda": "4.76"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Psicologia",
+"region": "Biobío",
+"corte": "787,7",
+"vacantes": "59",
+"demanda": "8.73"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil en Informática",
+"region": "Metropolitana",
+"corte": "787,6",
+"vacantes": "60",
+"demanda": "10.57"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Ingeniería en Información y Control de Gestión",
+"region": "Metropolitana",
+"corte": "786,4",
+"vacantes": "143",
+"demanda": "3.38"
+},
+{
+"universidad": "Universidad Autonoma de Chile",
+"carrera": "Química y Farmacia",
+"region": "Metropolitana",
+"corte": "786,2",
+"vacantes": "90",
+"demanda": "2.81"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Licenciatura en Interpretación y Formación Musical Especializada",
+"region": "Maule",
+"corte": "786,1",
+"vacantes": "15",
+"demanda": "4.07"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Administración Pública",
+"region": "Metropolitana",
+"corte": "785,8",
+"vacantes": "90",
+"demanda": "2.77"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil en Minas",
+"region": "Metropolitana",
+"corte": "784,3",
+"vacantes": "70",
+"demanda": "8.44"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingeniería Civil Física",
+"region": "Metropolitana",
+"corte": "783,9",
+"vacantes": "35",
+"demanda": "1.91"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Matemática",
+"region": "Metropolitana",
+"corte": "783,7",
+"vacantes": "40",
+"demanda": "0.90"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingeniería Civil en Biotecnología",
+"region": "Valparaíso",
+"corte": "783,2",
+"vacantes": "50",
+"demanda": "3.44"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Pedagogía en Educación Media en Física",
+"region": "Metropolitana",
+"corte": "782,7",
+"vacantes": "10",
+"demanda": "1.60"
+},
+{
+"universidad": "Universidad del Bio-bio",
+"carrera": "Bachillerato en Ciencias",
+"region": "Ñuble",
+"corte": "782,2",
+"vacantes": "35",
+"demanda": "1.34"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Ingeniería Civil en Informática e Inteligencia Artificial",
+"region": "Metropolitana",
+"corte": "782,1",
+"vacantes": "25",
+"demanda": "2.72"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Quimica",
+"region": "Biobío",
+"corte": "781,5",
+"vacantes": "73",
+"demanda": "3.26"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Enfermería",
+"region": "Metropolitana",
+"corte": "781,4",
+"vacantes": "97",
+"demanda": "5.11"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Electrica",
+"region": "Valparaíso",
+"corte": "781,3",
+"vacantes": "60",
+"demanda": "3.98"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Medicina Veterinaria (concepcion)",
+"region": "Biobío",
+"corte": "780,5",
+"vacantes": "80",
+"demanda": "5.54"
+},
+{
+"universidad": "Universidad de Valparaiso",
+"carrera": "Odontología",
+"region": "Valparaíso",
+"corte": "780,0",
+"vacantes": "72",
+"demanda": "2.96"
+},
+{
+"universidad": "Universidad Austral de Chile",
+"carrera": "Química y Farmacia (valdivia)",
+"region": "Los Ríos",
+"corte": "779,9",
+"vacantes": "90",
+"demanda": "2.40"
+},
+{
+"universidad": "Universidad Catolica del Maule",
+"carrera": "Bachillerato en Ciencias Biomédicas",
+"region": "Maule",
+"corte": "779,7",
+"vacantes": "40",
+"demanda": "0.68"
+},
+{
+"universidad": "Universidad de Antofagasta",
+"carrera": "Odontología",
+"region": "Antofagasta",
+"corte": "779,5",
+"vacantes": "45",
+"demanda": "2.87"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil Biomedica",
+"region": "Biobío",
+"corte": "779,4",
+"vacantes": "58",
+"demanda": "4.17"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Doble Título Ingeniería Comercial + Sociología",
+"region": "Metropolitana",
+"corte": "778,4",
+"vacantes": "30",
+"demanda": "1.83"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "777,9",
+"vacantes": "200",
+"demanda": "1.53"
+},
+{
+"universidad": "Universidad de Playa Ancha",
+"carrera": "Pedagogia en Quimica y Ciencias, Licenciatura en Educacion",
+"region": "Valparaíso",
+"corte": "777,1",
+"vacantes": "12",
+"demanda": "0.08"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Valparaiso",
+"carrera": "Derecho",
+"region": "Valparaíso",
+"corte": "776,9",
+"vacantes": "195",
+"demanda": "3.42"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Diseño",
+"region": "Metropolitana",
+"corte": "776,6",
+"vacantes": "80",
+"demanda": "5.34"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Contador Auditor",
+"region": "Metropolitana",
+"corte": "775,6",
+"vacantes": "72",
+"demanda": "10.46"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Medicina Veterinaria",
+"region": "Metropolitana",
+"corte": "775,3",
+"vacantes": "180",
+"demanda": "4.87"
+},
+{
+"universidad": "Universidad de la Serena",
+"carrera": "Odontología",
+"region": "Coquimbo",
+"corte": "774,9",
+"vacantes": "45",
+"demanda": "5.13"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Administración Pública",
+"region": "Metropolitana",
+"corte": "774,2",
+"vacantes": "160",
+"demanda": "3.19"
+},
+{
+"universidad": "Universidad de Tarapaca",
+"carrera": "Química y Farmacia",
+"region": "Arica y Parinacota",
+"corte": "774,1",
+"vacantes": "40",
+"demanda": "3.70"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Tecnología Médica",
+"region": "Biobío",
+"corte": "774,0",
+"vacantes": "100",
+"demanda": "2.04"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Pedagogía en Educación Media en Ciencias Naturales y Biología",
+"region": "Metropolitana",
+"corte": "772,7",
+"vacantes": "25",
+"demanda": "2.20"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "772,5",
+"vacantes": "261",
+"demanda": "1.82"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Quimica",
+"region": "Valparaíso",
+"corte": "772,4",
+"vacantes": "40",
+"demanda": "3.15"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "772,3",
+"vacantes": "135",
+"demanda": "2.08"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Pedagogía en Inglés para Educación Básica y Media",
+"region": "Metropolitana",
+"corte": "772,2",
+"vacantes": "50",
+"demanda": "5.60"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "772,2",
+"vacantes": "206",
+"demanda": "3.09"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Astronomia",
+"region": "Biobío",
+"corte": "772,1",
+"vacantes": "35",
+"demanda": "3.91"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Informatica",
+"region": "Valparaíso",
+"corte": "771,8",
+"vacantes": "120",
+"demanda": "2.99"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Licenciatura en Ling. Aplic. a la Trad. Inglés - Japonés e Inglés Portug.",
+"region": "Metropolitana",
+"corte": "770,7",
+"vacantes": "45",
+"demanda": "7.60"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Bachillerato de Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "770,2",
+"vacantes": "60",
+"demanda": "0.33"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "College Ciencias Sociales",
+"region": "Metropolitana",
+"corte": "769,5",
+"vacantes": "370",
+"demanda": "0.64"
+},
+{
+"universidad": "Universidad Arturo Prat",
+"carrera": "Odontología",
+"region": "Tarapacá",
+"corte": "769,3",
+"vacantes": "40",
+"demanda": "4.25"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "768,7",
+"vacantes": "125",
+"demanda": "1.17"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Enfermería",
+"region": "Biobío",
+"corte": "768,7",
+"vacantes": "85",
+"demanda": "3.44"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Bachillerato en Ciencias y Humanidades",
+"region": "Metropolitana",
+"corte": "768,6",
+"vacantes": "150",
+"demanda": "1.13"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil en Electricidad",
+"region": "Metropolitana",
+"corte": "768,4",
+"vacantes": "90",
+"demanda": "3.30"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Valparaiso",
+"carrera": "Psicologia",
+"region": "Valparaíso",
+"corte": "768,1",
+"vacantes": "80",
+"demanda": "7.16"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Bachillerato de Ingeniería Comercial",
+"region": "Metropolitana",
+"corte": "768,0",
+"vacantes": "90",
+"demanda": "0.86"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Ingeniería Civil Industrial",
+"region": "Metropolitana",
+"corte": "767,3",
+"vacantes": "80",
+"demanda": "1.23"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Kinesiología",
+"region": "Metropolitana",
+"corte": "766,0",
+"vacantes": "42",
+"demanda": "11.62"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Kinesiología",
+"region": "Metropolitana",
+"corte": "765,9",
+"vacantes": "45",
+"demanda": "3.18"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Antropología - Arqueología",
+"region": "Metropolitana",
+"corte": "764,8",
+"vacantes": "100",
+"demanda": "2.70"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Plan Comun",
+"region": "Valparaíso",
+"corte": "764,4",
+"vacantes": "110",
+"demanda": "1.26"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Ingeniería Civil en Informática e Innovación Tecnológica",
+"region": "Metropolitana",
+"corte": "763,5",
+"vacantes": "25",
+"demanda": "1.84"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Telematica",
+"region": "Metropolitana",
+"corte": "763,3",
+"vacantes": "60",
+"demanda": "1.28"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Periodismo",
+"region": "Metropolitana",
+"corte": "762,8",
+"vacantes": "122",
+"demanda": "2.64"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Ingeniería Civil Industrial",
+"region": "Valparaíso",
+"corte": "761,7",
+"vacantes": "75",
+"demanda": "1.76"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Cine y Televisión",
+"region": "Metropolitana",
+"corte": "760,7",
+"vacantes": "69",
+"demanda": "3.97"
+},
+{
+"universidad": "Universidad de la Frontera",
+"carrera": "Odontologia",
+"region": "Araucanía",
+"corte": "760,3",
+"vacantes": "70",
+"demanda": "2.56"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Antropología- Arqueología",
+"region": "Metropolitana",
+"corte": "760,0",
+"vacantes": "70",
+"demanda": "2.20"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Obstetricia y Puericultura",
+"region": "Biobío",
+"corte": "759,1",
+"vacantes": "80",
+"demanda": "6.29"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Psicología",
+"region": "Biobío",
+"corte": "759,0",
+"vacantes": "100",
+"demanda": "3.82"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Odontología",
+"region": "Biobío",
+"corte": "758,4",
+"vacantes": "80",
+"demanda": "2.26"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Obstetricia y Puericultura",
+"region": "Metropolitana",
+"corte": "758,4",
+"vacantes": "76",
+"demanda": "9.91"
+},
+{
+"universidad": "Universidad Catolica de la Santisima Concepcion",
+"carrera": "Derecho",
+"region": "Biobío",
+"corte": "757,6",
+"vacantes": "125",
+"demanda": "2.03"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Derecho (chillan)",
+"region": "Ñuble",
+"corte": "757,4",
+"vacantes": "65",
+"demanda": "3.82"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Pedagogía en Educación Física y Salud para Educación Básica y Media",
+"region": "Metropolitana",
+"corte": "757,3",
+"vacantes": "60",
+"demanda": "4.35"
+},
+{
+"universidad": "Universidad Catolica del Maule",
+"carrera": "Tecnología Médica con Mención en Imagenologia u Oftalmologia",
+"region": "Maule",
+"corte": "757,1",
+"vacantes": "65",
+"demanda": "2.18"
+},
+{
+"universidad": "Universidad del Bio-bio",
+"carrera": "Ingenieria Civil Industrial",
+"region": "Biobío",
+"corte": "757,0",
+"vacantes": "115",
+"demanda": "2.45"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Ingeniería en Computer Science",
+"region": "Metropolitana",
+"corte": "756,8",
+"vacantes": "35",
+"demanda": "0.69"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Ingenieria Civil de Minas",
+"region": "Biobío",
+"corte": "756,7",
+"vacantes": "70",
+"demanda": "6.94"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Ingeniería Civil Industrial",
+"region": "Metropolitana",
+"corte": "756,2",
+"vacantes": "260",
+"demanda": "1.80"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Enfermeria (concepcion)",
+"region": "Biobío",
+"corte": "755,6",
+"vacantes": "103",
+"demanda": "3.94"
+},
+{
+"universidad": "Universidad de la Serena",
+"carrera": "Ingeniería Civil de Minas",
+"region": "Coquimbo",
+"corte": "755,5",
+"vacantes": "70",
+"demanda": "6.67"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil en Mecánica",
+"region": "Metropolitana",
+"corte": "755,2",
+"vacantes": "95",
+"demanda": "2.34"
+},
+{
+"universidad": "Universidad de O'higgins",
+"carrera": "Tecnología Médica",
+"region": "O'higgins",
+"corte": "753,5",
+"vacantes": "65",
+"demanda": "3.18"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "753,0",
+"vacantes": "80",
+"demanda": "1.46"
+},
+{
+"universidad": "Universidad Austral de Chile",
+"carrera": "Ingeniería Civil Industrial (valdivia)",
+"region": "Los Ríos",
+"corte": "752,9",
+"vacantes": "70",
+"demanda": "3.24"
+},
+{
+"universidad": "Universidad de Chile",
+"carrera": "Danza",
+"region": "Metropolitana",
+"corte": "751,4",
+"vacantes": "25",
+"demanda": "2.40"
+},
+{
+"universidad": "Universidad de Talca",
+"carrera": "Derecho",
+"region": "Maule",
+"corte": "751,3",
+"vacantes": "140",
+"demanda": "2.29"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería de Ejecución en Computación e Informática",
+"region": "Metropolitana",
+"corte": "751,0",
+"vacantes": "45",
+"demanda": "4.91"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Odontología",
+"region": "Metropolitana",
+"corte": "751,0",
+"vacantes": "62",
+"demanda": "2.34"
+},
+{
+"universidad": "Universidad Catolica del Maule",
+"carrera": "Enfermería",
+"region": "Maule",
+"corte": "750,7",
+"vacantes": "70",
+"demanda": "2.83"
+},
+{
+"universidad": "Pontificia Universidad Catolica de Chile",
+"carrera": "Construcción Civil",
+"region": "Metropolitana",
+"corte": "750,6",
+"vacantes": "205",
+"demanda": "1.76"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Enfermería",
+"region": "Metropolitana",
+"corte": "750,5",
+"vacantes": "95",
+"demanda": "0.68"
+},
+{
+"universidad": "Universidad Finis Terrae",
+"carrera": "Ingeniería Civil Biomédica",
+"region": "Metropolitana",
+"corte": "750,5",
+"vacantes": "35",
+"demanda": "1.00"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Kinesiologia",
+"region": "Biobío",
+"corte": "750,3",
+"vacantes": "68",
+"demanda": "5.38"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Química",
+"region": "Metropolitana",
+"corte": "749,9",
+"vacantes": "25",
+"demanda": "0.80"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Metalurgica",
+"region": "Valparaíso",
+"corte": "749,4",
+"vacantes": "40",
+"demanda": "3.42"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil",
+"region": "Valparaíso",
+"corte": "749,2",
+"vacantes": "60",
+"demanda": "2.20"
+},
+{
+"universidad": "Universidad de Santiago de Chile",
+"carrera": "Ingeniería Civil Biomédica",
+"region": "Metropolitana",
+"corte": "749,1",
+"vacantes": "55",
+"demanda": "2.69"
+},
+{
+"universidad": "Universidad del Desarrollo",
+"carrera": "Derecho",
+"region": "Metropolitana",
+"corte": "749,0",
+"vacantes": "100",
+"demanda": "1.62"
+},
+{
+"universidad": "Universidad Diego Portales",
+"carrera": "Ingeniería Civil en Informática y Telecomunicaciones",
+"region": "Metropolitana",
+"corte": "748,7",
+"vacantes": "170",
+"demanda": "1.94"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Licenciatura en Astrofisica",
+"region": "Metropolitana",
+"corte": "748,6",
+"vacantes": "30",
+"demanda": "1.60"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Arquitectura",
+"region": "Metropolitana",
+"corte": "748,3",
+"vacantes": "70",
+"demanda": "1.47"
+},
+{
+"universidad": "Universidad de los Andes",
+"carrera": "Bachillerato de Ingeniería",
+"region": "Metropolitana",
+"corte": "748,0",
+"vacantes": "25",
+"demanda": "0.40"
+},
+{
+"universidad": "Universidad de Concepcion",
+"carrera": "Arquitectura",
+"region": "Biobío",
+"corte": "747,9",
+"vacantes": "71",
+"demanda": "3.89"
+},
+{
+"universidad": "Universidad Tecnica Federico Santa Maria",
+"carrera": "Ingenieria Civil Electronica",
+"region": "Valparaíso",
+"corte": "747,5",
+"vacantes": "70",
+"demanda": "2.20"
+},
+{
+"universidad": "Universidad Finis Terrae",
+"carrera": "Dirección y Gestión de Artes Culinarias",
+"region": "Metropolitana",
+"corte": "747,4",
+"vacantes": "35",
+"demanda": "5.89"
+},
+{
+"universidad": "Universidad de la Serena",
+"carrera": "Psicología",
+"region": "Coquimbo",
+"corte": "747,2",
+"vacantes": "50",
+"demanda": "7.26"
+},
+{
+"universidad": "Universidad Catolica del Norte",
+"carrera": "Enfermeria",
+"region": "Coquimbo",
+"corte": "747,0",
+"vacantes": "40",
+"demanda": "2.42"
+},
+{
+"universidad": "Universidad de la Serena",
+"carrera": "Química y Farmacia",
+"region": "Coquimbo",
+"corte": "746,1",
+"vacantes": "55",
+"demanda": "5.22"
+},
+{
+"universidad": "Universidad Adolfo Ibañez",
+"carrera": "Psicología",
+"region": "Metropolitana",
+"corte": "746,0",
+"vacantes": "80",
+"demanda": "1.14"
+}
+]

@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulador PAES 2027</title>
+    <script>
+      // Aplica el tema guardado antes del primer render (evita parpadeo)
+      try {
+        var t = localStorage.getItem('paes_theme');
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
