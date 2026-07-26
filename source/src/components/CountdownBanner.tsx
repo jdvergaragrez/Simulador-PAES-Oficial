@@ -12,9 +12,7 @@ interface Hito {
 const HITOS: Hito[] = [
   { id: 'paes', label: '🎯 Rendición PAES Regular', date: [2026, 10, 30, 8, 0] },
   { id: 'ponderaciones', label: '📋 Oferta Definitiva 2027', date: [2026, 8, 24, 0, 0] },
-  { id: 'simulador', label: '🧭 Apertura Simulador DEMRE', date: [2026, 9, 13, 12, 0] },
   { id: 'beneficios', label: '💰 Servicios y Beneficios', date: [2026, 10, 19, 0, 0] },
-  { id: 'cierre-sim', label: '🔒 Cierre Simulador DEMRE', date: [2026, 11, 15, 12, 0] },
   { id: 'puntajes', label: '📊 Publicación de Puntajes PAES', date: [2027, 0, 4, 8, 0] },
   { id: 'postulaciones', label: '📝 Inicio de Postulaciones', date: [2027, 0, 4, 9, 0] },
   { id: 'seleccion', label: '🎓 Resultados de Selección', date: [2027, 0, 18, 12, 0] },

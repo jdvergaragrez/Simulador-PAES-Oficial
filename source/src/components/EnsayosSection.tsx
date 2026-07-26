@@ -66,8 +66,6 @@ function aciertosDePuntaje(tabla: Record<number, number>, puntaje: number): numb
 function EnsayosSection() {
   const [store, setStore] = useState<Store>(loadStore);
   const [prueba, setPrueba] = useState<PruebaId>('lectora');
-  const [inputMode, setInputMode] = useState<'puntaje' | 'aciertos'>('puntaje');
-  const [puntaje, setPuntaje] = useState('');
   const [aciertos, setAciertos] = useState('');
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10));
   const [proveedor, setProveedor] = useState('DEMRE');
@@ -80,28 +78,16 @@ function EnsayosSection() {
   }, [store]);
 
   const pruebaMeta = PRUEBAS.find((p) => p.id === prueba)!;
-  // Preview del puntaje al ingresar aciertos (misma tabla que el simulador principal)
+  // Puntaje calculado automáticamente desde las respuestas correctas
+  // (misma tabla oficial que el simulador principal).
   const aciertosNum = parseInt(aciertos, 10);
-  const puntajeDesdeAciertos =
-    !isNaN(aciertosNum) && aciertosNum >= 0 && aciertosNum <= pruebaMeta.max
-      ? (tablaDe(prueba, store.cienciasModule)[aciertosNum] ?? null)
-      : null;
+  const aciertosValidos = !isNaN(aciertosNum) && aciertosNum >= 0 && aciertosNum <= pruebaMeta.max;
+  const puntajeCalculado = aciertosValidos ? (tablaDe(prueba, store.cienciasModule)[aciertosNum] ?? null) : null;
 
   const addEnsayo = () => {
-    let puntajeFinal: number;
-    let aciertosFinal: number | undefined;
-    if (inputMode === 'aciertos') {
-      if (puntajeDesdeAciertos === null) return;
-      puntajeFinal = puntajeDesdeAciertos;
-      aciertosFinal = aciertosNum;
-    } else {
-      const n = parseInt(puntaje, 10);
-      if (isNaN(n) || n < 100 || n > 1000) return;
-      puntajeFinal = n;
-    }
-    const e: Ensayo = { id: `${Date.now()}-${Math.round(puntajeFinal)}`, prueba, puntaje: puntajeFinal, aciertos: aciertosFinal, fecha, proveedor };
+    if (puntajeCalculado === null) return;
+    const e: Ensayo = { id: `${Date.now()}-${Math.round(puntajeCalculado)}`, prueba, puntaje: puntajeCalculado, aciertos: aciertosNum, fecha, proveedor };
     setStore((s) => ({ ...s, ensayos: [...s.ensayos, e] }));
-    setPuntaje('');
     setAciertos('');
   };
 
@@ -147,58 +133,56 @@ function EnsayosSection() {
     <div className="space-y-6">
       {/* Registro */}
       <Card className="space-y-4">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">MONITOR DE ENSAYOS</div>
-            <h3 className="text-lg font-bold text-[#0F172A]">📚 Registra tus ensayos</h3>
-          </div>
-          {/* Toggle: puntaje o respuestas correctas */}
-          <div className="bg-[#F5F7FA] p-1 rounded-lg flex gap-1">
-            {(['puntaje', 'aciertos'] as const).map((m) => (
-              <button key={m} onClick={() => setInputMode(m)} className={`px-3 h-8 rounded-md text-xs font-semibold transition-all ${inputMode === m ? 'bg-white text-[#0F172A] shadow-sm' : 'text-[#64748B]'}`}>
-                {m === 'puntaje' ? 'Puntaje' : 'Respuestas correctas'}
-              </button>
-            ))}
-          </div>
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">MONITOR DE ENSAYOS</div>
+          <h3 className="text-lg font-bold text-[#0F172A]">📚 Registra tus ensayos</h3>
+          <p className="text-xs text-[#64748B] mt-1">El puntaje se calcula automáticamente con la tabla oficial de conversión.</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <div className="col-span-2 md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div className="md:col-span-1">
             <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Prueba</label>
-            <select value={prueba} onChange={(e) => setPrueba(e.target.value as PruebaId)} className="w-full h-10 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]">
+            <select value={prueba} onChange={(e) => setPrueba(e.target.value as PruebaId)} className="w-full h-12 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]">
               {PRUEBAS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           </div>
-          {inputMode === 'puntaje' ? (
+          {/* Correctas (izquierda, prioritario) + Puntaje (derecha, auto) */}
+          <div className="grid grid-cols-2 gap-3 md:col-span-2">
             <div>
-              <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Puntaje</label>
-              <input type="text" inputMode="numeric" value={puntaje} onChange={(e) => setPuntaje(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))} placeholder="850" className="w-full h-10 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]" />
+              <label className="text-[10px] font-bold uppercase text-[#3B82F6]">Correctas / {pruebaMeta.max}</label>
+              <input
+                type="text" inputMode="numeric" value={aciertos}
+                onChange={(e) => setAciertos(e.target.value.replace(/[^0-9]/g, '').slice(0, 3))}
+                placeholder={`0-${pruebaMeta.max}`}
+                className="w-full h-12 mt-1 px-3 bg-[#F5F7FA] rounded-lg text-base font-bold outline-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all"
+              />
             </div>
-          ) : (
             <div>
-              <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Correctas / {pruebaMeta.max}</label>
-              <input type="text" inputMode="numeric" value={aciertos} onChange={(e) => setAciertos(e.target.value.replace(/[^0-9]/g, '').slice(0, 3))} placeholder={`0-${pruebaMeta.max}`} className="w-full h-10 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]" />
+              <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Puntaje (auto)</label>
+              <div className="w-full h-12 mt-1 px-3 bg-[#F1F5F9] rounded-lg flex items-center font-bold text-base font-mono tabular-nums" aria-live="polite">
+                {puntajeCalculado !== null
+                  ? <span className="text-[#10B981]">{puntajeCalculado}</span>
+                  : <span className="text-[#94A3B8] text-sm font-sans font-normal">—</span>}
+              </div>
             </div>
-          )}
+          </div>
           <div>
             <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Fecha</label>
-            <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full h-10 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]" />
+            <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full h-12 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]" />
           </div>
           <div>
             <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Proveedor</label>
-            <select value={proveedor} onChange={(e) => setProveedor(e.target.value)} className="w-full h-10 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]">
+            <select value={proveedor} onChange={(e) => setProveedor(e.target.value)} className="w-full h-12 mt-1 px-2 bg-[#F5F7FA] rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]">
               {PROVEEDORES.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
         </div>
-        {inputMode === 'aciertos' && (
-          <div className="text-xs text-[#64748B] -mt-1">
-            {prueba === 'ciencias' && <span className="text-[#94A3B8]">Módulo {store.cienciasModule}. </span>}
-            {puntajeDesdeAciertos !== null
-              ? <>Equivale a <strong className="text-[#3B82F6] font-bold font-mono">{puntajeDesdeAciertos} pts</strong> (tabla oficial de conversión).</>
-              : aciertos !== '' ? <span className="text-[#EF4444]">Ingresa un número entre 0 y {pruebaMeta.max}.</span> : <span className="text-[#94A3B8]">Ingresa tus respuestas correctas para convertirlas a puntaje.</span>}
-          </div>
+        {prueba === 'ciencias' && (
+          <p className="text-[11px] text-[#94A3B8] -mt-1">Conversión según módulo de Ciencias: {store.cienciasModule}.</p>
         )}
-        <button onClick={addEnsayo} className="w-full h-11 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-semibold rounded-xl transition-colors active:scale-[0.99]">
+        {aciertos !== '' && !aciertosValidos && (
+          <p className="text-[11px] text-[#EF4444] -mt-1">Ingresa un número entre 0 y {pruebaMeta.max}.</p>
+        )}
+        <button onClick={addEnsayo} disabled={puntajeCalculado === null} className="w-full h-12 bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors active:scale-[0.99]">
           + Agregar ensayo
         </button>
       </Card>

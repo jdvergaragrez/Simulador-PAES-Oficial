@@ -33,3 +33,50 @@
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
+/* ==========================================================================
+   MODO OSCURO — se activa con la clase .dark en <html>.
+   Remapea las clases de color existentes (fondos, superficies, texto, bordes)
+   para no tener que reescribir cada componente. Los tonos semánticos
+   (verde/rojo/azul en pills) se mantienen porque contrastan bien en oscuro.
+   ========================================================================== */
+:root.dark {
+  color-scheme: dark;
+}
+/* transición suave al alternar tema */
+:root.dark body, :root.dark [class*="bg-"] { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+
+/* Fondos / superficies */
+:root.dark .bg-\[\#F8F9FA\] { background-color: #0F172A; }
+:root.dark .bg-\[\#F8F9FA\]\/90 { background-color: rgba(15,23,42,0.92); }
+:root.dark .bg-white { background-color: #1E293B; }
+:root.dark .bg-\[\#F5F7FA\] { background-color: #0F172A; }
+:root.dark .bg-\[\#F8FAFC\] { background-color: #172033; }
+:root.dark .bg-\[\#F1F5F9\] { background-color: #334155; }
+:root.dark .bg-\[\#EFF6FF\] { background-color: #1E3A5F; }
+:root.dark .bg-slate-50 { background-color: #172033; }
+:root.dark .bg-slate-50\/60 { background-color: rgba(23,32,51,0.6); }
+/* barra de pestañas: contenedor más oscuro para que la píldora activa resalte */
+:root.dark .bg-white.overflow-x-auto { background-color: #0B1220; }
+/* gradientes (HeroCard / tarjetas) */
+:root.dark .from-white { --tw-gradient-from: #1E293B var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+:root.dark .to-\[\#F8FAFC\] { --tw-gradient-to: #172033 var(--tw-gradient-to-position); }
+:root.dark .from-\[\#EFF6FF\] { --tw-gradient-from: #1E3A5F var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+
+/* Texto */
+:root.dark .text-\[\#0F172A\] { color: #E2E8F0; }
+:root.dark .text-\[\#1E293B\] { color: #E2E8F0; }
+:root.dark .text-\[\#64748B\] { color: #A9B6C9; }
+:root.dark .text-\[\#94A3B8\] { color: #7E8CA0; }
+
+/* Bordes */
+:root.dark .border-\[\#E2E8F0\] { border-color: #334155; }
+:root.dark .border-\[\#F1F5F9\] { border-color: #2A3546; }
+:root.dark .border-slate-100 { border-color: #334155; }
+:root.dark .border-slate-100\/80 { border-color: rgba(51,65,85,0.8); }
+:root.dark .border-slate-100\/60 { border-color: rgba(51,65,85,0.6); }
+:root.dark .border-slate-200 { border-color: #475569; }
+:root.dark .border-blue-100 { border-color: #1E3A5F; }
+
+/* Superficie del año-selector y otros contenedores con borde claro */
+:root.dark .bg-white.border { border-color: #334155; }
+

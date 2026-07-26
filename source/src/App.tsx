@@ -53,6 +53,14 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'puntaje' | 'buscar' | 'comparar' | 'ensayos' | 'extras' | 'compartir'>('puntaje');
   const [detailCarrera, setDetailCarrera] = useState<CarreraConDetalle | null>(null);
+  const [dark, setDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+
+  // Aplica y persiste el tema
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+    try { localStorage.setItem('paes_theme', dark ? 'dark' : 'light'); } catch {}
+  }, [dark]);
+  const toggleDark = useCallback(() => setDark((d) => !d), []);
 
   // Load initial state from URL query or localStorage on mount
   useEffect(() => {
@@ -127,7 +135,6 @@ export default function App() {
   const handleManualNemChange = useCallback((val: string) => setState((prev) => ({ ...prev, manualNem: val })), []);
   const handleManualRankingChange = useCallback((val: string) => setState((prev) => ({ ...prev, manualRanking: val })), []);
   const handleGrupoEducativoChange = useCallback((grupo: AppState['grupoEducativo']) => setState((prev) => ({ ...prev, grupoEducativo: grupo })), []);
-  const handlePercentilChange = useCallback((val: string) => setState((prev) => ({ ...prev, percentilGeneracion: val })), []);
   const handleScoresChange = useCallback((scores: { lectora: number; m1: number; m2: number; ciencias: number; historia: number }) => {
     setState((prev) => ({ ...prev, scores }));
   }, []);
@@ -212,7 +219,7 @@ export default function App() {
       <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-6">
         
         {/* Header Title with Custom styling */}
-        <Header />
+        <Header dark={dark} onToggleDark={toggleDark} />
 
         {/* Admission-year (database) selector — both bases coexist */}
         <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_2px_10px_rgba(15,23,42,0.02)] p-3 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -298,12 +305,10 @@ export default function App() {
                 manualNem={state.manualNem}
                 manualRanking={state.manualRanking}
                 grupoEducativo={state.grupoEducativo}
-                percentilGeneracion={state.percentilGeneracion}
                 onChangeGrades={handleGradesChange}
                 onChangeManualNem={handleManualNemChange}
                 onChangeManualRanking={handleManualRankingChange}
                 onChangeGrupoEducativo={handleGrupoEducativoChange}
-                onChangePercentil={handlePercentilChange}
               />
 
               {/* Section 2: Tus puntajes de prueba */}

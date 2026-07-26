@@ -105,6 +105,12 @@ function TestVocacionalSection({ carreras, onOpenDetail }: Props) {
       <div>
         <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">TEST VOCACIONAL</div>
         <h3 className="text-lg font-bold text-[#0F172A]">🧭 Descubre tu área</h3>
+        <div className="mt-2 flex items-start gap-2 bg-[#EFF6FF] border border-blue-100 rounded-xl px-3 py-2">
+          <span className="text-base leading-none mt-0.5">💡</span>
+          <p className="text-xs font-semibold text-[#3B82F6] leading-snug">
+            Responde este cuestionario vocacional para recomendarte una carrera.
+          </p>
+        </div>
       </div>
 
       {!done ? (
