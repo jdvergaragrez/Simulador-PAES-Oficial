@@ -214,7 +214,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] font-sans text-[#0F172A] selection:bg-blue-100 pb-16">
+    <div className="min-h-dvh bg-[#F8F9FA] font-sans text-[#0F172A] selection:bg-blue-100 pb-16">
       {/* Centered container: max-width is beautifully optimized for desktop and mobile */}
       <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-6">
         
@@ -254,9 +254,9 @@ export default function App() {
           </p>
         </div>
 
-        {/* Sticky Tab Bar (scrollable on mobile) */}
+        {/* Sticky Tab Bar — 3x2 en móvil, una fila en desktop */}
         <div className="sticky top-0 z-40 bg-[#F8F9FA]/90 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 border-b border-transparent">
-          <div className="bg-white p-1 rounded-2xl flex relative border border-[#E2E8F0] shadow-[0_2px_10px_rgba(15,23,42,0.02)] overflow-x-auto scrollbar-none">
+          <div className="bg-white p-1 rounded-2xl grid grid-cols-3 sm:grid-cols-6 gap-1 relative border border-[#E2E8F0] shadow-[0_2px_10px_rgba(15,23,42,0.02)]">
             {([
               ['puntaje', 'Mi puntaje', '🎯'],
               ['buscar', 'Buscar', '🔍'],
@@ -268,7 +268,7 @@ export default function App() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`flex-1 min-w-[78px] h-11 text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer relative z-10 whitespace-nowrap px-2 ${
+                className={`h-11 text-[13px] sm:text-sm font-semibold rounded-xl flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer relative z-10 whitespace-nowrap px-1 ${
                   activeTab === id ? 'text-[#0F172A]' : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
                 style={{ minHeight: '44px' }}
@@ -281,7 +281,7 @@ export default function App() {
                   />
                 )}
                 <span className="relative z-20 text-[13px]" aria-hidden>{icon}</span>
-                <span className="relative z-20">{label}</span>
+                <span className="relative z-20 truncate">{label}</span>
               </button>
             ))}
           </div>
