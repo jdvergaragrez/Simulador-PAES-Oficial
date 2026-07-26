@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'motion/react';
+import { Analytics } from '@vercel/analytics/react';
 import { AppState, CarreraConDetalle } from './types';
 import { getCatalogo, aniosAdmisionDisponibles } from './data';
 import { calculatePonderado, encodeState, decodeState } from './utils';
@@ -214,7 +215,9 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-[#F8F9FA] font-sans text-[#0F172A] selection:bg-blue-100 pb-16">
+    <>
+      <Analytics />
+      <div className="min-h-dvh bg-[#F8F9FA] font-sans text-[#0F172A] selection:bg-blue-100 pb-16">
       {/* Centered container: max-width is beautifully optimized for desktop and mobile */}
       <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-6">
         
@@ -569,5 +572,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </>
   );
 }
