@@ -41,7 +41,7 @@ const INITIAL_STATE: AppState = {
     historia: 0,
   },
   cienciasModule: 'fisica',
-  anioAdmision: 2026,
+  anioAdmision: 2027,
   targetCareer: '',
   targetUniIndex: 0,
   compareSlots: ['', '', ''],
@@ -253,6 +253,16 @@ export default function App() {
             {!catalogo.tieneCortes && ' · sin puntaje de corte publicado'}
           </p>
         </div>
+
+        {/* Aviso al usar la base del año pasado (2026) */}
+        {state.anioAdmision === 2026 && (
+          <div className="flex items-start gap-2.5 bg-[#EFF6FF] border border-blue-100 rounded-2xl px-4 py-3">
+            <span className="text-lg leading-none mt-0.5" aria-hidden>📅</span>
+            <p className="text-xs text-[#3B82F6] font-medium leading-snug">
+              Simula tu puntaje con las ponderaciones del <strong className="font-bold">año pasado</strong> para tener una referencia en base a sus puntajes de corte.
+            </p>
+          </div>
+        )}
 
         {/* Sticky Tab Bar — 3x2 en móvil, una fila en desktop */}
         <div className="sticky top-0 z-40 bg-[#F8F9FA]/90 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 border-b border-transparent">
