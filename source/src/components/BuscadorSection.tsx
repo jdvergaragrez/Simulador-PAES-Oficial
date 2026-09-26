@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Search, Star, ChevronDown, MapPin, Users, Info, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
 import Card from './Card';
 import { CarreraConDetalle } from '../types';
-import { calculatePonderado } from '../utils';
+import { calculatePonderado, PuntajesDirectos } from '../utils';
 import { displayNombreUniversidad, normalizar } from '../data';
+import { ESTADOS, EstadoCorte, estadoCorte } from '../constants';
 
 interface BuscadorSectionProps {
   carreras: CarreraConDetalle[];
@@ -17,6 +19,7 @@ interface BuscadorSectionProps {
   cienciasCorrect: number;
   historiaCorrect: number;
   cienciasModule: 'biologia' | 'fisica' | 'quimica';
+  directos: PuntajesDirectos;
   favoritos: string[];
   onToggleFav: (carreraId: string) => void;
   onOpenDetail: (carrera: CarreraConDetalle) => void;
@@ -31,6 +34,35 @@ type OrdenTipo =
 
 const MAX_RESULTADOS = 60;
 
+const fmt = (n: number, dec = 2) => n.toLocaleString('es-CL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const fmtDelta = (d: number) => `${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}`;
+
+const ICONO_ESTADO: Record<EstadoCorte, LucideIcon> = {
+  alcanzable: Check,
+  limite: TriangleAlert,
+  noalcanza: CircleX,
+  sindato: Minus,
+};
+
+function EstadoBadge({ estado }: { estado: EstadoCorte }) {
+  const meta = ESTADOS[estado];
+  const Icon = ICONO_ESTADO[estado];
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+      style={{ background: meta.tint, color: meta.ink }}
+    >
+      <Icon size={12} strokeWidth={2.5} />
+      {meta.label}
+    </span>
+  );
+}
+
+const selectCls =
+  'w-full h-10 pl-3 pr-9 bg-[#F4F3F1] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';
+
+const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F4F3F1] px-2 py-0.5 rounded-full inline-flex items-center gap-1';
+
 function BuscadorSection({
   carreras,
   categoriaDisplay,
@@ -44,6 +76,7 @@ function BuscadorSection({
   cienciasCorrect,
   historiaCorrect,
   cienciasModule,
+  directos,
   favoritos,
   onToggleFav,
   onOpenDetail,
@@ -71,7 +104,8 @@ function BuscadorSection({
 
   const hayPuntajes =
     nemScore > 0 || rankingScore > 0 || lectoraCorrect > 0 || m1Correct > 0 ||
-    m2Correct > 0 || cienciasCorrect > 0 || historiaCorrect > 0;
+    m2Correct > 0 || cienciasCorrect > 0 || historiaCorrect > 0 ||
+    Object.keys(directos).length > 0;
 
   const resultados = useMemo(() => {
     const q = normalizar(debouncedQuery);
@@ -119,7 +153,7 @@ function BuscadorSection({
   const ponderadoDe = (c: CarreraConDetalle) =>
     calculatePonderado(
       nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct,
-      cienciasCorrect, historiaCorrect, cienciasModule, c
+      cienciasCorrect, historiaCorrect, cienciasModule, c, directos
     );
 
   const opcionesOrden: { value: OrdenTipo; label: string }[] = [
@@ -136,52 +170,48 @@ function BuscadorSection({
   return (
     <Card id="section-buscador" className="space-y-5">
       <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">
-          BUSCADOR DE CARRERAS
+        <div className="flex items-center gap-2">
+          <Search size={18} className="text-[#64748B]" />
+          <h3 className="text-base font-semibold text-[#0F172A]">Explora todo el catálogo</h3>
         </div>
-        <h3 className="text-lg font-bold text-[#0F172A]">🔍 Explora todo el catálogo</h3>
-        <p className="text-xs text-[#64748B] mt-1">
-          Busca entre <strong className="font-semibold text-[#0F172A]">{carreras.length.toLocaleString('es')}</strong> carreras
+        <p className="text-xs text-[#64748B] mt-1.5">
+          Busca entre <strong className="font-semibold text-[#0F172A]">{carreras.length.toLocaleString('es-CL')}</strong> carreras
           por nombre, universidad, sede o región · Admisión {anioAdmision}.
         </p>
       </div>
 
       {/* Search input */}
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm">🔎</span>
+        <Search size={18} strokeWidth={2} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" aria-hidden />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Ej: medicina, Universidad de Chile, Valparaíso..."
-          className="w-full h-12 pl-10 pr-4 bg-[#F5F7FA] border-0 rounded-xl text-[#0F172A] font-medium focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-200 outline-none placeholder:text-[#94A3B8]"
+          aria-label="Buscar carrera"
+          className="w-full h-12 pl-11 pr-4 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal"
         />
       </div>
 
       {/* Región + tipo universidad */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="relative">
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full h-10 px-3 pr-9 bg-[#F5F7FA] text-xs font-semibold text-[#0F172A] rounded-xl appearance-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white outline-none cursor-pointer transition-all duration-200"
-          >
+          <select value={region} onChange={(e) => setRegion(e.target.value)} className={selectCls} aria-label="Región">
             <option value="">Todas las regiones</option>
             {regiones.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[#64748B]">
-            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-          </div>
+          <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]" aria-hidden />
         </div>
-        <div className="bg-[#F5F7FA] p-1 rounded-xl flex gap-1">
+        <div className="bg-[#F4F3F1] p-0.5 rounded-full flex gap-0.5" role="group" aria-label="Tipo de universidad">
           {([['', 'Todas'], ['CRUCH', 'CRUCH'], ['PRIVADA_ADSCRITA', 'Privadas']] as const).map(([val, lbl]) => (
             <button
               key={val}
               onClick={() => setTipoU(val)}
-              className={`flex-1 h-8 rounded-lg text-xs font-semibold transition-all ${
-                tipoU === val ? 'bg-white text-[#0F172A] shadow-sm border border-slate-100' : 'text-[#64748B] hover:text-[#0F172A]'
+              aria-pressed={tipoU === val}
+              className={`flex-1 h-9 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                tipoU === val ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
               {lbl}
@@ -193,140 +223,129 @@ function BuscadorSection({
       {/* Sort + filters */}
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
         <div className="relative flex-1">
-          <select
-            value={orden}
-            onChange={(e) => setOrden(e.target.value as OrdenTipo)}
-            className="w-full h-10 px-3 pr-9 bg-[#F5F7FA] text-xs font-semibold text-[#0F172A] rounded-xl appearance-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white outline-none cursor-pointer transition-all duration-200"
-          >
+          <select value={orden} onChange={(e) => setOrden(e.target.value as OrdenTipo)} className={selectCls} aria-label="Ordenar">
             {opcionesOrden.map((o) => (
               <option key={o.value} value={o.value}>Ordenar: {o.label}</option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[#64748B]">
-            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-          </div>
+          <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]" aria-hidden />
         </div>
-        {tieneCortes && (
-          <label className="flex items-center gap-2 text-xs font-medium text-[#64748B] cursor-pointer select-none">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {tieneCortes && (
+            <label className="flex items-center gap-2 min-h-[40px] text-xs font-medium text-[#64748B] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={soloConCorte}
+                onChange={(e) => setSoloConCorte(e.target.checked)}
+                className="w-4 h-4 accent-[#2563EB] cursor-pointer"
+              />
+              Solo con corte
+            </label>
+          )}
+          <label className="flex items-center gap-2 min-h-[40px] text-xs font-medium text-[#64748B] cursor-pointer select-none">
             <input
               type="checkbox"
-              checked={soloConCorte}
-              onChange={(e) => setSoloConCorte(e.target.checked)}
-              className="w-4 h-4 accent-[#3B82F6] cursor-pointer"
+              checked={soloConPonderacion}
+              onChange={(e) => setSoloConPonderacion(e.target.checked)}
+              className="w-4 h-4 accent-[#2563EB] cursor-pointer"
             />
-            Solo con corte
+            Solo con ponderación
           </label>
-        )}
-        <label className="flex items-center gap-2 text-xs font-medium text-[#64748B] cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={soloConPonderacion}
-            onChange={(e) => setSoloConPonderacion(e.target.checked)}
-            className="w-4 h-4 accent-[#3B82F6] cursor-pointer"
-          />
-          Solo con ponderación
-        </label>
-        <button
-          onClick={() => setSoloFavoritas((v) => !v)}
-          className={`flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 h-8 transition-colors ${
-            soloFavoritas ? 'bg-amber-50 border border-amber-200 text-amber-600' : 'border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9]'
-          }`}
-        >
-          <span>{soloFavoritas ? '★' : '☆'}</span> Favoritas
-        </button>
+          <button
+            onClick={() => setSoloFavoritas((v) => !v)}
+            aria-pressed={soloFavoritas}
+            className={`flex items-center gap-1.5 text-xs font-medium rounded-full px-3 h-9 border transition-colors cursor-pointer ${
+              soloFavoritas ? 'bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            <Star size={14} strokeWidth={2} className={soloFavoritas ? 'fill-[#F59E0B] text-[#D97706]' : ''} />
+            Favoritas
+          </button>
+        </div>
       </div>
 
       {/* Results meta */}
-      <div className="text-xs text-[#94A3B8]">
+      <div className="text-xs text-[#94A3B8] tabular-nums">
         {resultados.length === 0
           ? 'Sin resultados. Prueba otro término.'
-          : `${resultados.length.toLocaleString('es')} resultado${resultados.length === 1 ? '' : 's'}${
+          : `${resultados.length.toLocaleString('es-CL')} resultado${resultados.length === 1 ? '' : 's'}${
               resultados.length > MAX_RESULTADOS ? ` · mostrando los primeros ${MAX_RESULTADOS}` : ''
             }`}
       </div>
 
       {/* Results list */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {visibles.map((c) => {
           const ponderado = hayPuntajes ? ponderadoDe(c) : null;
-          const referencia = c.puntajeCorte ?? c.promedioMinimo ?? null;
-          const gap = ponderado !== null && referencia !== null ? ponderado - referencia : null;
-
-          let barColor = 'bg-[#CBD5E1]';
-          if (gap !== null) {
-            if (gap >= 0) barColor = 'bg-[#10B981]';
-            else if (gap >= -30) barColor = 'bg-[#3B82F6]';
-            else barColor = 'bg-[#94A3B8]';
-          }
+          const corte = c.puntajeCorte;
+          const estado = ponderado !== null ? estadoCorte(ponderado, corte) : null;
+          const delta = ponderado !== null && corte !== null ? ponderado - corte : null;
+          const barColor = estado ? ESTADOS[estado].color : '#E7E5E1';
 
           let electiveText = '';
-          if (c.electivaTipo === 'ciencias') electiveText = '(Cs)';
-          else if (c.electivaTipo === 'historia') electiveText = '(Hist)';
-          else if (c.electivaTipo === 'mejor') electiveText = '(Cs/Hist)';
+          if (c.electivaTipo === 'ciencias') electiveText = 'Ciencias';
+          else if (c.electivaTipo === 'historia') electiveText = 'Historia';
+          else if (c.electivaTipo === 'mejor') electiveText = 'Ciencias o Historia';
+
+          const minimo = c.ponderadoMinimo != null
+            ? { label: 'Mín. postulación', valor: c.ponderadoMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
+            : c.promedioMinimo != null
+              ? { label: 'Mín. prom. Leng.+M1', valor: c.promedioMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
+              : null;
 
           const isFav = favSet.has(c.id);
           return (
             <div
               key={c.id}
               onClick={() => onOpenDetail(c)}
-              className="relative overflow-hidden bg-white border border-[#F1F5F9] rounded-2xl p-4 pr-10 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-all duration-200 hover:shadow-md hover:border-[#E2E8F0] cursor-pointer"
+              className="relative overflow-hidden bg-white border border-[#E7E5E1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer"
             >
-              <div className={`absolute top-0 left-0 w-1.5 h-full rounded-r ${barColor}`} />
+              <div className="absolute top-0 left-0 w-1 h-full" style={{ background: barColor }} aria-hidden />
               <button
                 onClick={(e) => { e.stopPropagation(); onToggleFav(c.id); }}
-                title="Favorito"
-                className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center text-base transition-colors ${isFav ? 'text-amber-400' : 'text-slate-300 hover:text-slate-400'}`}
+                title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
+                aria-label={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
+                aria-pressed={isFav}
+                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
               >
-                {isFav ? '★' : '☆'}
+                <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
               </button>
-              <div className="pl-3 space-y-1 min-w-0">
-                <div className="font-bold text-[#0F172A] text-[15px] leading-snug">{c.nombre}</div>
+              <div className="space-y-1 min-w-0">
+                <div className="font-semibold text-[#0F172A] text-[15px] leading-snug">{c.nombre}</div>
                 <div className="text-xs text-[#64748B]">{displayNombreUniversidad(c)}</div>
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                   {c.region && (
-                    <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">
-                      {c.region}
-                    </span>
+                    <span className={chipCls}><MapPin size={11} />{c.region}</span>
                   )}
-                  {electiveText && (
-                    <span className="text-[10px] font-medium text-[#94A3B8] bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">
-                      {electiveText}
-                    </span>
-                  )}
+                  {electiveText && <span className={chipCls}>{electiveText}</span>}
                   {c.vacantes !== null && (
-                    <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-full">
-                      {c.vacantes} vac.
-                    </span>
+                    <span className={`${chipCls} tabular-nums`}><Users size={11} />{c.vacantes} vac.</span>
                   )}
                 </div>
               </div>
 
-              <div className="pl-3 md:pl-0 text-left md:text-right shrink-0">
-                {ponderado !== null ? (
-                  <>
-                    <div className="text-xl font-extrabold text-[#0F172A] font-mono tabular-nums">
-                      {ponderado.toFixed(2)} <span className="text-[10px] font-semibold text-[#94A3B8]">pts</span>
-                    </div>
-                    <div className="text-[11px] text-[#64748B] flex items-center md:justify-end gap-1.5">
-                      <span>{c.puntajeCorte !== null ? 'Corte' : 'Mín.'}: {referencia !== null ? referencia.toFixed(2) : '—'}</span>
-                      {gap !== null && (
-                        <>
-                          <span className="text-[#CBD5E1]">·</span>
-                          <span className={`font-semibold ${gap >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-                            {gap >= 0 ? '+' : ''}{gap.toFixed(2)}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-[11px] text-[#94A3B8]">
-                    {c.puntajeCorte !== null ? (
-                      <>Corte: <strong className="font-semibold text-[#0F172A]">{c.puntajeCorte.toFixed(2)}</strong></>
-                    ) : c.promedioMinimo ? (
-                      <>Mín. postulación: <strong className="font-semibold text-[#0F172A]">{c.promedioMinimo}</strong></>
-                    ) : (
-                      'Sin corte histórico'
+              <div className="text-left md:text-right shrink-0 space-y-1">
+                {ponderado !== null && (
+                  <div className="text-xl font-bold text-[#0F172A] tabular-nums leading-none">
+                    {fmt(ponderado)} <span className="text-[11px] font-medium text-[#94A3B8]">pts</span>
+                  </div>
+                )}
+                <div className="text-[11px] text-[#64748B] tabular-nums">
+                  {corte !== null ? (
+                    <>Corte 2026: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
+                  ) : minimo ? (
+                    <>{minimo.label}: <strong className="font-semibold text-[#0F172A]">{minimo.valor}</strong></>
+                  ) : (
+                    <span className="text-[#94A3B8]">Sin corte 2026</span>
+                  )}
+                </div>
+                {estado && estado !== 'sindato' && (
+                  <div className="flex items-center md:justify-end gap-1.5">
+                    <EstadoBadge estado={estado} />
+                    {delta !== null && (
+                      <span className="text-xs font-semibold tabular-nums" style={{ color: ESTADOS[estado].ink }}>
+                        {fmtDelta(delta)}
+                      </span>
                     )}
                   </div>
                 )}
@@ -337,8 +356,11 @@ function BuscadorSection({
       </div>
 
       {!hayPuntajes && resultados.length > 0 && (
-        <p className="text-[11px] text-[#94A3B8] bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
-          💡 Ingresa tus puntajes en la pestaña <strong className="font-semibold text-[#64748B]">Mi puntaje</strong> para ver tu ponderado y la brecha con el corte en cada carrera.
+        <p className="flex items-start gap-2 text-xs text-[#64748B] bg-[#F4F3F1] rounded-xl px-3 py-2.5">
+          <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
+          <span>
+            Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y la distancia al corte en cada carrera.
+          </span>
         </p>
       )}
     </Card>

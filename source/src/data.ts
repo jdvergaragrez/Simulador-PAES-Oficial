@@ -6,18 +6,8 @@ import {
   PuntajeCorte,
   CarreraConDetalle,
   CarrerasPorCategoria,
-  TierType,
-  ElectiveType,
   GrupoEducativo,
 } from './types';
-import {
-  universidades2026,
-  sedes2026,
-  carreras2026,
-  ponderaciones2026,
-  puntajesCorte2026,
-  categoriaDisplay2026,
-} from './data2026.generated';
 
 export const tablasPAES = {
   lectora: {0:100,1:149,2:172,3:193,4:214,5:234,6:253,7:269,8:284,9:298,10:313,11:330,12:347,13:361,14:373,15:383,16:393,17:404,18:417,19:432,20:447,21:461,22:472,23:480,24:487,25:495,26:504,27:516,28:531,29:546,30:560,31:571,32:580,33:587,34:594,35:603,36:614,37:629,38:644,39:659,40:671,41:680,42:689,43:699,44:711,45:725,46:741,47:758,48:772,49:786,50:799,51:814,52:832,53:852,54:871,55:892,56:913,57:936,58:963,59:991,60:1000} as Record<number, number>,
@@ -29,189 +19,7 @@ export const tablasPAES = {
   ciencias_quimica: {0:100,1:124,2:147,3:168,4:187,5:206,6:222,7:237,8:250,9:264,10:278,11:293,12:306,13:317,14:326,15:334,16:343,17:353,18:366,19:379,20:391,21:401,22:408,23:413,24:418,25:424,26:432,27:442,28:454,29:467,30:478,31:487,32:493,33:497,34:501,35:505,36:510,37:518,38:528,39:541,40:553,41:564,42:573,43:579,44:583,45:587,46:591,47:597,48:606,49:617,50:629,51:642,52:652,53:660,54:667,55:672,56:679,57:687,58:697,59:710,60:724,61:736,62:746,63:756,64:766,65:777,66:791,67:807,68:822,69:837,70:853,71:871,72:890,73:912,74:935,75:1000} as Record<number, number>
 };
 
-export const careerDisplayNames: Record<string, string> = {
-  civil: "Ingeniería Civil",
-  comercial: "Ingeniería Comercial",
-  medicina: "Medicina",
-  derecho: "Derecho",
-  psicologia: "Psicología",
-  agronomia: "Agronomía e Ing. Forestal"
-};
-
-// -----------------------------------------------------------------------
-// Data cruda de Admisión 2027, usada como fuente única para poblar el
-// modelo relacional (Universidad / Sede / Carrera / Ponderación / Corte).
-// Cuando se incorpore la base de Admisión 2026 (Excel DEMRE), se agregará
-// como un seed independiente con su propio año_admisión, sin tocar este.
-// -----------------------------------------------------------------------
-const ANIO_ADMISION_LEGACY = 2027;
-
-interface LegacyWeights {
-  nem: number;
-  ranking: number;
-  lectora: number;
-  m1: number;
-  m2: number;
-  electivo: number;
-}
-
-interface LegacyEntry {
-  nombre: string;
-  tier: TierType;
-  corte: number | null;
-  electivaTipo?: ElectiveType;
-  weights: LegacyWeights | null;
-  corteNota?: string;
-  nota?: string;
-}
-
-const legacyUniversidadesRaw: Record<string, LegacyEntry[]> = {
-  civil: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:898.10, electivaTipo:"ciencias", weights:{nem:20,ranking:20,lectora:10,m1:20,m2:15,electivo:15}},
-    {nombre:"U. de Chile (FCFM)", tier:"verified", corte:833.85, electivaTipo:"ciencias", weights:{nem:10,ranking:25,lectora:10,m1:20,m2:20,electivo:15}},
-    {nombre:"USACH (Industrial)", tier:"verified", corte:805.90, corteNota:"último matric. 2025", electivaTipo:"mejor", weights:{nem:25,ranking:25,lectora:10,m1:15,m2:15,electivo:10}},
-    {nombre:"UdeC (Plan Común)", tier:"verified", corte:700.25, electivaTipo:"mejor", weights:{nem:20,ranking:15,lectora:15,m1:25,m2:15,electivo:10}},
-    {nombre:"UTFSM", tier:"nodata", corte:null, weights:null, nota:"Ingreso vía Plan Común (bachillerato 2 años); especialidad se define por ranking interno, no por corte PAES."},
-    {nombre:"U. de los Andes", tier:"verified", corte:812.40, electivaTipo:"ciencias", weights:{nem:10,ranking:25,lectora:10,m1:40,m2:5,electivo:10}}
-  ],
-  comercial: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:870.10, electivaTipo:"mejor", weights:{nem:20,ranking:20,lectora:10,m1:30,m2:10,electivo:10}},
-    {nombre:"U. de Chile (FEN)", tier:"verified", corte:829.60, electivaTipo:"mejor", weights:{nem:10,ranking:20,lectora:10,m1:35,m2:15,electivo:10}},
-    {nombre:"USACH", tier:"verified", corte:741.75, corteNota:"último matric. 2025", electivaTipo:"mejor", weights:{nem:10,ranking:40,lectora:10,m1:25,m2:5,electivo:10}},
-    {nombre:"UdeC", tier:"verified", corte:705.15, electivaTipo:"mejor", weights:{nem:15,ranking:25,lectora:15,m1:30,m2:5,electivo:10}},
-    {nombre:"U. de los Andes", tier:"verified", corte:797.40, electivaTipo:"mejor", weights:{nem:10,ranking:25,lectora:10,m1:40,m2:5,electivo:10}},
-    {nombre:"UDD", tier:"partial", corte:772.30, weights:null, nota:"Corte publicado, ponderaciones bloqueadas por JS en el sitio oficial."},
-    {nombre:"UAI", tier:"nodata", corte:null, weights:null, nota:"Sitio oficial renderiza los datos vía JS; no extraíbles."}
-  ],
-  medicina: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:958.35, electivaTipo:"ciencias", weights:{nem:20,ranking:20,lectora:15,m1:20,m2:0,electivo:25}},
-    {nombre:"U. de Chile", tier:"verified", corte:931.15, electivaTipo:"ciencias", weights:{nem:10,ranking:20,lectora:15,m1:20,m2:0,electivo:35}},
-    {nombre:"USACH", tier:"verified", corte:937.80, corteNota:"último matric. 2025", electivaTipo:"ciencias", weights:{nem:10,ranking:40,lectora:15,m1:15,m2:0,electivo:20}},
-    {nombre:"UdeC", tier:"verified", corte:952.15, electivaTipo:"ciencias", weights:{nem:15,ranking:25,lectora:15,m1:35,m2:0,electivo:10}},
-    {nombre:"UTFSM", tier:"nodata", corte:null, weights:null, nota:"No dicta Medicina"},
-    {nombre:"U. de los Andes", tier:"verified", corte:944.00, electivaTipo:"ciencias", weights:{nem:10,ranking:15,lectora:20,m1:35,m2:0,electivo:20}},
-    {nombre:"UDD", tier:"partial", corte:956.40, weights:null, nota:"Corte publicado, ponderaciones bloqueadas por JS."}
-  ],
-  derecho: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:871.90, electivaTipo:"historia", weights:{nem:20,ranking:20,lectora:25,m1:10,m2:0,electivo:25}},
-    {nombre:"U. de Chile", tier:"verified", corte:null, electivaTipo:"historia", weights:{nem:20,ranking:20,lectora:25,m1:10,m2:0,electivo:25}},
-    {nombre:"UdeC", tier:"verified", corte:803.15, electivaTipo:"historia", weights:{nem:15,ranking:25,lectora:25,m1:25,m2:0,electivo:10}},
-    {nombre:"U. de los Andes", tier:"verified", corte:790.40, electivaTipo:"historia", weights:{nem:10,ranking:15,lectora:30,m1:20,m2:0,electivo:25}},
-    {nombre:"UDD", tier:"nodata", corte:null, weights:null, nota:"Corte 2026 no publicado (solo alza reportada). Ponderaciones bloqueadas por JS."}
-  ],
-  psicologia: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:871.65, electivaTipo:"mejor", weights:{nem:20,ranking:20,lectora:25,m1:25,m2:0,electivo:10}},
-    {nombre:"U. de Chile", tier:"verified", corte:null, electivaTipo:"mejor", weights:{nem:10,ranking:30,lectora:25,m1:20,m2:0,electivo:15}},
-    {nombre:"USACH", tier:"partial", corte:null, electivaTipo:"historia", weights:{nem:10,ranking:40,lectora:25,m1:15,m2:0,electivo:10}, nota:"Corte 2026 no publicado. Ponderaciones etiquetadas '2026'."},
-    {nombre:"U. de los Andes", tier:"verified", corte:793.15, electivaTipo:"mejor", weights:{nem:20,ranking:25,lectora:20,m1:20,m2:0,electivo:15}}
-  ],
-  agronomia: [
-    {nombre:"P. U. Católica (UC)", tier:"verified", corte:745.60, electivaTipo:"ciencias", weights:{nem:20,ranking:30,lectora:10,m1:30,m2:0,electivo:10}}
-  ]
-};
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
-
-// Splits a display name like "U. de Chile (FCFM)" into the base university
-// name and the parenthetical sede/facultad label, if present.
-function splitNombreSede(nombre: string): { base: string; sede: string | null } {
-  const match = nombre.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-  if (match) {
-    return { base: match[1].trim(), sede: match[2].trim() };
-  }
-  return { base: nombre.trim(), sede: null };
-}
-
-function buildRelationalModel() {
-  const universidadesSeed: Universidad[] = [];
-  const sedesSeed: Sede[] = [];
-  const carrerasSeed: Carrera[] = [];
-  const ponderacionesSeed: Ponderacion[] = [];
-  const puntajesCorteSeed: PuntajeCorte[] = [];
-
-  const universidadIdByNombre = new Map<string, string>();
-  const sedeIdByKey = new Map<string, string>();
-
-  Object.entries(legacyUniversidadesRaw).forEach(([categoria, entries]) => {
-    entries.forEach((entry) => {
-      const { base, sede: sedeLabel } = splitNombreSede(entry.nombre);
-
-      let universidadId = universidadIdByNombre.get(base);
-      if (!universidadId) {
-        universidadId = slugify(base);
-        universidadIdByNombre.set(base, universidadId);
-        universidadesSeed.push({ id: universidadId, nombre: base, tipo: 'CRUCH' });
-      }
-
-      const sedeNombre = sedeLabel || 'Sede Principal';
-      const sedeKey = `${universidadId}::${sedeNombre}`;
-      let sedeId = sedeIdByKey.get(sedeKey);
-      if (!sedeId) {
-        sedeId = `${universidadId}-${slugify(sedeNombre)}`;
-        sedeIdByKey.set(sedeKey, sedeId);
-        sedesSeed.push({ id: sedeId, universidadId, nombre: sedeNombre, region: null });
-      }
-
-      const carreraId = `${categoria}-${universidadId}`;
-      carrerasSeed.push({
-        id: carreraId,
-        universidadId,
-        sedeId,
-        nombre: careerDisplayNames[categoria] || categoria,
-        jornada: null,
-        duracion: null,
-        vacantes: null,
-        anioAdmision: ANIO_ADMISION_LEGACY,
-        categoria,
-        tier: entry.tier,
-        electivaTipo: entry.electivaTipo,
-        corteNota: entry.corteNota,
-        nota: entry.nota,
-      });
-
-      if (entry.weights) {
-        const cienciasPct = entry.electivaTipo !== 'historia' ? entry.weights.electivo : 0;
-        const historiaPct = entry.electivaTipo !== 'ciencias' ? entry.weights.electivo : 0;
-        ponderacionesSeed.push({
-          carreraId,
-          anioAdmision: ANIO_ADMISION_LEGACY,
-          nemPct: entry.weights.nem,
-          rankingPct: entry.weights.ranking,
-          lecturaPct: entry.weights.lectora,
-          m1Pct: entry.weights.m1,
-          m2Pct: entry.weights.m2,
-          cienciasPct,
-          historiaPct,
-        });
-      }
-
-      puntajesCorteSeed.push({
-        carreraId,
-        anioAdmision: ANIO_ADMISION_LEGACY,
-        puntajeCorte: entry.corte,
-      });
-    });
-  });
-
-  return { universidadesSeed, sedesSeed, carrerasSeed, ponderacionesSeed, puntajesCorteSeed };
-}
-
-export const {
-  universidadesSeed,
-  sedesSeed,
-  carrerasSeed,
-  ponderacionesSeed,
-  puntajesCorteSeed,
-} = buildRelationalModel();
-
-// Generic join: builds the categoria -> CarreraConDetalle[] read model from any
-// set of normalized seeds (works for both the 2027 and 2026 bases).
+// Join: builds the categoria -> CarreraConDetalle[] read model from the normalized seeds.
 function buildCarrerasPorCategoria(
   universidades: Universidad[],
   sedes: Sede[],
@@ -264,6 +72,8 @@ export interface Catalogo {
   etiqueta: string;
   fuente: string;
   tieneCortes: boolean;
+  // Proceso de admisión al que corresponden los puntajes de corte mostrados.
+  anioCortes: number;
   porCategoria: CarrerasPorCategoria;
   categoriaDisplay: Record<string, string>;
   todas: CarreraConDetalle[];
@@ -280,52 +90,40 @@ function flattenCatalogo(porCategoria: CarrerasPorCategoria): CarreraConDetalle[
   return out;
 }
 
-const carrerasPorCategoria2027 = buildCarrerasPorCategoria(
-  universidadesSeed,
-  sedesSeed,
-  carrerasSeed,
-  ponderacionesSeed,
-  puntajesCorteSeed
-);
+// El catálogo (~1 MB) se descarga en un chunk aparte vía import() dinámico, para que la app
+// pinte antes. La promesa se cachea: todas las llamadas comparten la misma descarga.
+let catalogoPromise: Promise<Catalogo> | null = null;
 
-const carrerasPorCategoria2026 = buildCarrerasPorCategoria(
-  universidades2026,
-  sedes2026,
-  carreras2026,
-  ponderaciones2026,
-  puntajesCorte2026
-);
-
-// Registry of admission-year catalogs. Both bases coexist independently.
-export const catalogos: Record<number, Catalogo> = {
-  2026: {
-    anio: 2026,
-    etiqueta: 'Admisión 2026',
-    fuente: 'Ponderaciones DEMRE + cortes 2026',
-    tieneCortes: true,
-    porCategoria: carrerasPorCategoria2026,
-    categoriaDisplay: categoriaDisplay2026,
-    todas: flattenCatalogo(carrerasPorCategoria2026),
-    totalCarreras: carreras2026.length,
-    totalUniversidades: universidades2026.length,
-  },
-  2027: {
-    anio: 2027,
-    etiqueta: 'Admisión 2027',
-    fuente: 'Cortes y ponderaciones recopilados por universidad',
-    tieneCortes: true,
-    porCategoria: carrerasPorCategoria2027,
-    categoriaDisplay: careerDisplayNames,
-    todas: flattenCatalogo(carrerasPorCategoria2027),
-    totalCarreras: carrerasSeed.length,
-    totalUniversidades: universidadesSeed.length,
-  },
-};
-
-export const aniosAdmisionDisponibles: number[] = [2026, 2027];
-
-export function getCatalogo(anio: number): Catalogo {
-  return catalogos[anio] ?? catalogos[2026];
+export function loadCatalogo(): Promise<Catalogo> {
+  if (!catalogoPromise) {
+    catalogoPromise = import('./data2027.generated')
+      .then((d) => {
+        const porCategoria = buildCarrerasPorCategoria(
+          d.universidades2027,
+          d.sedes2027,
+          d.carreras2027,
+          d.ponderaciones2027,
+          d.puntajesCorte2027
+        );
+        return {
+          anio: 2027,
+          etiqueta: 'Admisión 2027',
+          fuente: 'Ponderaciones DEMRE 2027 + cortes 2026',
+          tieneCortes: true,
+          anioCortes: 2026,
+          porCategoria,
+          categoriaDisplay: d.categoriaDisplay2027,
+          todas: flattenCatalogo(porCategoria),
+          totalCarreras: d.carreras2027.length,
+          totalUniversidades: d.universidades2027.length,
+        };
+      })
+      .catch((err) => {
+        catalogoPromise = null; // permite reintentar si falló la red
+        throw err;
+      });
+  }
+  return catalogoPromise;
 }
 
 // Display label for a CarreraConDetalle, mirroring the old "nombre" field

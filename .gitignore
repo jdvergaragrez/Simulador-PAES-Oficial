@@ -6,3 +6,5 @@ dist/
 .env.local
 *.local
 .DS_Store
+# Texto de una publicación de terceros usado solo para extraer cortes; se mantiene local.
+source/scripts/data/cortes2026_filadd.raw.txt

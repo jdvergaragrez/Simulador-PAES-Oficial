@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
+import StepHeader from './StepHeader';
 import { nemFromGrade, grupoEducativoOptions } from '../data';
 import { GrupoEducativo } from '../types';
 
@@ -103,39 +104,32 @@ function GradeInputs({
     }
   };
 
+  const inputCls =
+    'w-full h-11 px-3 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-semibold tabular-nums focus:border-[#CBD5E1] focus:bg-white transition-colors outline-none placeholder:text-[#94A3B8] placeholder:font-normal';
+
   return (
     <Card id="section-notas" className="space-y-5">
-      <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">
-          TUS NOTAS DE ENSEÑANZA MEDIA
-        </div>
-        <h3 className="text-lg font-bold text-[#0F172A]">🎓 Notas de Enseñanza Media (NEM)</h3>
-      </div>
+      <StepHeader n={2} title="Tus notas y ranking" description="Con tus promedios de 1° a 4° medio calculamos tu NEM." />
 
-      {/* Grupo educativo selector */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-          Grupo Educativo
-        </label>
-        <div className="flex gap-2 flex-wrap">
-          {grupoEducativoOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onChangeGrupoEducativo(opt.value)}
-              className={`px-3.5 h-9 rounded-full text-xs font-semibold transition-all duration-200 outline-none ${
-                grupoEducativo === opt.value
-                  ? 'bg-[#3B82F6] text-white shadow-sm'
-                  : 'border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-1.5 flex-wrap" role="group" aria-label="Grupo educativo">
+        {grupoEducativoOptions.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => onChangeGrupoEducativo(opt.value)}
+            aria-pressed={grupoEducativo === opt.value}
+            className={`px-3.5 h-9 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+              grupoEducativo === opt.value
+                ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]'
+                : 'bg-[#F4F3F1] border-transparent text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {/* 4-column grade inputs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         {[
           { key: 'g1', label: '1° Medio' },
           { key: 'g2', label: '2° Medio' },
@@ -145,7 +139,7 @@ function GradeInputs({
           const val = item.key === 'g1' ? g1 : item.key === 'g2' ? g2 : item.key === 'g3' ? g3 : g4;
           return (
             <div key={item.key} className="space-y-1.5">
-              <label className="text-xs font-medium text-[#64748B]">{item.label}</label>
+              <label className="text-[11px] font-medium text-[#64748B]">{item.label}</label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -153,62 +147,47 @@ function GradeInputs({
                 placeholder="6,0"
                 value={val}
                 onChange={(e) => handleGradeChange(item.key as 'g1' | 'g2' | 'g3' | 'g4', e.target.value)}
-                className="w-full h-11 px-3 bg-[#F5F7FA] border-0 rounded-xl text-[#0F172A] font-semibold text-center focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-200 outline-none placeholder:text-[#94A3B8]"
+                aria-label={`Promedio ${item.label}`}
+                className={`${inputCls} text-center`}
               />
             </div>
           );
         })}
       </div>
 
-      {/* Result Strip */}
-      <div className="bg-[#F8FAFC] rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-2 border border-[#F1F5F9]">
-        <span className="text-sm text-[#64748B]">Cálculo de NEM automático</span>
-        <div className="text-sm font-semibold text-[#0F172A]">
-          {promedio !== null && calculatedNemScore !== null ? (
-            <>
-              Promedio: <span className="font-mono text-[#3B82F6]">{promedio.toFixed(2).replace('.', ',')}</span>
-              {' · '}
-              NEM: <span className="font-mono text-[#3B82F6] font-bold">{calculatedNemScore} pts</span>
-            </>
-          ) : (
-            <span className="text-[#94A3B8] font-normal">Ingresa los 4 promedios para autocompletar</span>
-          )}
-        </div>
-      </div>
-
-      {/* Manual Overrides */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+      <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            NEM (puntaje manual)
+          <label className="flex items-center justify-between text-[11px] font-medium text-[#64748B]">
+            <span>Puntaje NEM</span>
+            {promedio !== null && <span className="text-[#94A3B8]">prom. {promedio.toFixed(2).replace('.', ',')}</span>}
           </label>
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="Ej: 922"
+            placeholder="Ej: 850"
             value={manualNem}
             onChange={(e) => handleManualNemChange(e.target.value)}
-            className="w-full h-11 px-4 bg-[#F5F7FA] border-0 rounded-xl text-[#0F172A] font-bold text-left focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-200 outline-none placeholder:text-[#94A3B8]"
+            readOnly={allGradesEntered}
+            className={`${inputCls} ${allGradesEntered ? 'text-[#2563EB]' : ''}`}
           />
+          <p className="text-[11px] text-[#94A3B8] leading-snug">
+            {allGradesEntered ? 'Calculado desde tus notas' : 'O escríbelo directo si ya lo sabes'}
+          </p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            📊 Ranking (puntaje manual)
-          </label>
+          <label className="text-[11px] font-medium text-[#64748B]">Puntaje Ranking</label>
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="Ej: 922"
+            placeholder="Ej: 900"
             value={manualRanking}
             onChange={(e) => handleManualRankingChange(e.target.value)}
-            className="w-full h-11 px-4 bg-[#F5F7FA] border-0 rounded-xl text-[#0F172A] font-bold text-left focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-200 outline-none placeholder:text-[#94A3B8]"
+            className={inputCls}
           />
-          <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-            Si no conoces tu puntaje real, usa el mismo valor que tu NEM.
-          </p>
+          <p className="text-[11px] text-[#94A3B8] leading-snug">Si no lo sabes, usa el mismo valor que tu NEM</p>
         </div>
       </div>
     </Card>

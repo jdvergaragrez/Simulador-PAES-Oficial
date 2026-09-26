@@ -10,7 +10,7 @@ function Card({ id, children, className = '' }: CardProps) {
   return (
     <div
       id={id}
-      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(15,23,42,0.05)] p-5 md:p-6 transition-all duration-300 hover:shadow-[0_6px_24px_rgba(15,23,42,0.08)] ${className}`}
+      className={`bg-white rounded-2xl border border-[#E7E5E1] p-5 md:p-6 transition-colors duration-300 ${className}`}
     >
       {children}
     </div>

@@ -6,6 +6,18 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          // El catálogo generado (~1 MB) va en su propio chunk; se carga con import() en data.ts.
+          manualChunks(id) {
+            if (id.includes('data2027.generated')) return 'catalogo-2027';
+          },
+        },
+      },
+      // Ese chunk de datos supera los 500 kB por diseño (88 kB gzip); el resto queda bajo el límite.
+      chunkSizeWarningLimit: 1100,
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

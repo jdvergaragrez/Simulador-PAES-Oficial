@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Simulador PAES
 
-# Run and deploy your AI Studio app
+Simulador de puntaje ponderado para la Admisión 2027: calcula tu ponderado con las ponderaciones oficiales de cada carrera y compáralo con el puntaje de corte de referencia.
 
-This contains everything you need to run your app locally.
+Producción: https://simuladorpaes.vercel.app
 
-View your app in AI Studio: https://ai.studio/apps/f818db49-5862-4533-befb-d11277fb7238
+## Correr localmente
 
-## Run Locally
+Requisitos: Node.js 20+.
 
-**Prerequisites:**  Node.js
+```bash
+npm install
+npm run dev
+```
 
+La app queda en http://localhost:3000. `npm run lint` corre el typecheck y `npm run build` genera la versión de producción en `dist/`.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Datos
+
+- **Ponderaciones, vacantes y mínimos:** Oferta Definitiva DEMRE, Proceso de Admisión 2027 (24-09-2026). Texto fuente en `scripts/data/oferta2027.raw.txt`.
+- **Puntajes de corte:** Admisión 2026 como referencia, cruzados por código DEMRE. El texto fuente (`scripts/data/cortes2026_filadd.raw.txt`) es de una publicación de terceros y no se versiona; se mantiene solo en local.
+
+`src/data2027.generated.ts` se genera a partir de esos textos; no se edita a mano. Para regenerarlo (requiere ambos textos fuente):
+
+```bash
+node scripts/generate2027.mjs
+```

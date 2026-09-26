@@ -1,5 +1,38 @@
-import { AppState, CarreraConDetalle } from './types';
+import { AppState, CarreraConDetalle, CienciasModule } from './types';
 import { tablasPAES } from './data';
+import { PruebaId } from './constants';
+
+// Puntajes ingresados directamente (modo "Puntaje"), ya validados en rango 100–1000.
+export type PuntajesDirectos = Partial<Record<PruebaId, number>>;
+
+export function tablaPrueba(prueba: PruebaId, mod: CienciasModule): Record<number, number> {
+  return prueba === 'ciencias' ? tablasPAES[`ciencias_${mod}` as const] : tablasPAES[prueba];
+}
+
+export function puntajePrueba(prueba: PruebaId, correctas: number, mod: CienciasModule, directos?: PuntajesDirectos): number {
+  return directos?.[prueba] ?? tablaPrueba(prueba, mod)[correctas] ?? 100;
+}
+
+// Respuestas correctas de la tabla cuyo puntaje es el más cercano al dado.
+export function correctasEquivalentes(prueba: PruebaId, puntaje: number, mod: CienciasModule): number {
+  let best = 0, diff = Infinity;
+  for (const [a, p] of Object.entries(tablaPrueba(prueba, mod))) {
+    const d = Math.abs(p - puntaje);
+    if (d < diff) { diff = d; best = Number(a); }
+  }
+  return best;
+}
+
+// Correctas "actuales" de una prueba: las del slider o, si está en modo puntaje, su equivalente.
+export function correctasActuales(prueba: PruebaId, slider: number, mod: CienciasModule, directos: PuntajesDirectos): number {
+  const d = directos[prueba];
+  return d !== undefined ? correctasEquivalentes(prueba, d, mod) : slider;
+}
+
+export function sinPrueba(directos: PuntajesDirectos, prueba: PruebaId): PuntajesDirectos {
+  const { [prueba]: _, ...resto } = directos;
+  return resto;
+}
 
 /**
  * Calculates the weighted PAES score (Puntaje Ponderado) for a specific university admission requirement.
@@ -13,20 +46,18 @@ export function calculatePonderado(
   m2Correct: number,
   cienciasCorrect: number,
   historiaCorrect: number,
-  cienciasModule: 'biologia' | 'fisica' | 'quimica',
-  carrera: CarreraConDetalle
+  cienciasModule: CienciasModule,
+  carrera: CarreraConDetalle,
+  directos?: PuntajesDirectos
 ): number | null {
   if (!carrera.ponderacion) return null;
   const w = carrera.ponderacion;
 
-  // Map correct answers to PAES scores
-  const scoreLectora = tablasPAES.lectora[lectoraCorrect] ?? 100;
-  const scoreM1 = tablasPAES.m1[m1Correct] ?? 100;
-  const scoreM2 = tablasPAES.m2[m2Correct] ?? 100;
-
-  const cienciasKey = `ciencias_${cienciasModule}` as 'ciencias_biologia' | 'ciencias_fisica' | 'ciencias_quimica';
-  const scoreCiencias = tablasPAES[cienciasKey]?.[cienciasCorrect] ?? 100;
-  const scoreHistoria = tablasPAES.historia[historiaCorrect] ?? 100;
+  const scoreLectora = puntajePrueba('lectora', lectoraCorrect, cienciasModule, directos);
+  const scoreM1 = puntajePrueba('m1', m1Correct, cienciasModule, directos);
+  const scoreM2 = puntajePrueba('m2', m2Correct, cienciasModule, directos);
+  const scoreCiencias = puntajePrueba('ciencias', cienciasCorrect, cienciasModule, directos);
+  const scoreHistoria = puntajePrueba('historia', historiaCorrect, cienciasModule, directos);
 
   // Determine elective score based on university preference
   let scoreElectivo = 100;
@@ -82,6 +113,8 @@ export function encodeState(state: AppState): string {
       ge: state.grupoEducativo,
       pg: state.percentilGeneracion,
       fv: state.favoritos,
+      mp: state.modoPuntaje,
+      pd: state.puntajesDirectos,
     };
     const jsonStr = JSON.stringify(compactObj);
     // Use btoa safely for unicode or base64 representation
@@ -124,6 +157,8 @@ export function decodeState(encoded: string): Partial<AppState> | null {
       grupoEducativo: compactObj.ge ?? 'CH_DIURNO',
       percentilGeneracion: compactObj.pg ?? '',
       favoritos: compactObj.fv ?? [],
+      modoPuntaje: compactObj.mp ?? [],
+      puntajesDirectos: compactObj.pd ?? {},
     };
   } catch (e) {
     console.error('Failed to decode state', e);

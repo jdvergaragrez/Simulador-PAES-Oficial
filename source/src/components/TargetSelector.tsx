@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
+import { GraduationCap, Building2 } from 'lucide-react';
 import Card from './Card';
+import StepHeader from './StepHeader';
 import { displayNombreUniversidad } from '../data';
 import { CarrerasPorCategoria } from '../types';
 import SearchableSelect from './SearchableSelect';
@@ -55,14 +57,13 @@ function TargetSelector({
 
   return (
     <Card id="section-objetivo" className="space-y-4">
-      <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">TU OBJETIVO</div>
-        <h3 className="text-lg font-bold text-[#0F172A]">🎯 Elige tu Meta Universitaria</h3>
-      </div>
+      <StepHeader n={1} title="¿Dónde quieres postular?" description="Elige la carrera y la universidad que te interesan." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Carrera de Interés</label>
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]">
+            <GraduationCap size={14} /> Carrera
+          </label>
           <SearchableSelect
             options={careerOptions}
             value={targetCareer}
@@ -72,7 +73,9 @@ function TargetSelector({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Universidad de Destino</label>
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]">
+            <Building2 size={14} /> Universidad
+          </label>
           <SearchableSelect
             options={uniOptions}
             value={String(targetUniIndex)}

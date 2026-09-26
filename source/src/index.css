@@ -40,6 +40,41 @@ body {
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
 }
 
+/* Slider de puntaje: --c color de la prueba, --p porcentaje relleno */
+.range-prueba {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--c) var(--p), #ECEAE6 var(--p));
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.range-prueba::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--c);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  transition: transform 0.15s ease;
+}
+.range-prueba::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--c);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  transition: transform 0.15s ease;
+}
+.range-prueba:active::-webkit-slider-thumb { transform: scale(1.2); }
+.range-prueba:active::-moz-range-thumb { transform: scale(1.2); }
+.range-prueba:focus-visible { outline: 2px solid var(--c); outline-offset: 6px; }
+:root.dark .range-prueba { background: linear-gradient(to right, var(--c) var(--p), #2A3546 var(--p)); }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
@@ -50,13 +85,50 @@ body {
    para no tener que reescribir cada componente. Los tonos semánticos
    (verde/rojo/azul en pills) se mantienen porque contrastan bien en oscuro.
    ========================================================================== */
+/* Tonos por estado y por prueba (usados vía var() en estilos inline, ver constants.ts).
+   En oscuro: fondo = color al 16-18% sobre la card, texto = tono claro con contraste ≥ 4.5:1 sobre #1E293B. */
+:root {
+  --e-alcanzable-tint: #DCFCE7; --e-alcanzable-ink: #166534;
+  --e-limite-tint: #FEF3C7;     --e-limite-ink: #92400E;
+  --e-noalcanza-tint: #FEE2E2;  --e-noalcanza-ink: #991B1B;
+  --e-sindato-tint: #F1F5F9;    --e-sindato-ink: #475569;
+  --p-lectora-tint: #FFE4E6;    --p-lectora-ink: #9F1239;
+  --p-m1-tint: #DBEAFE;         --p-m1-ink: #1E40AF;
+  --p-m2-tint: #FEF3C7;         --p-m2-ink: #92400E;
+  --p-ciencias-tint: #DCFCE7;   --p-ciencias-ink: #166534;
+  --p-historia-tint: #D1FAE5;   --p-historia-ink: #14532D;
+}
 :root.dark {
   color-scheme: dark;
+  --e-alcanzable-tint: rgba(22, 163, 74, 0.18);  --e-alcanzable-ink: #4ADE80;
+  --e-limite-tint: rgba(217, 119, 6, 0.18);      --e-limite-ink: #FBBF24;
+  --e-noalcanza-tint: rgba(220, 38, 38, 0.2);    --e-noalcanza-ink: #F87171;
+  --e-sindato-tint: rgba(148, 163, 184, 0.16);   --e-sindato-ink: #CBD5E1;
+  --p-lectora-tint: rgba(225, 29, 72, 0.18);     --p-lectora-ink: #FDA4AF;
+  --p-m1-tint: rgba(37, 99, 235, 0.2);           --p-m1-ink: #93C5FD;
+  --p-m2-tint: rgba(217, 119, 6, 0.18);          --p-m2-ink: #FCD34D;
+  --p-ciencias-tint: rgba(34, 197, 94, 0.16);    --p-ciencias-ink: #86EFAC;
+  --p-historia-tint: rgba(16, 185, 129, 0.16);   --p-historia-ink: #6EE7B7;
 }
 /* transición suave al alternar tema */
 :root.dark body, :root.dark [class*="bg-"] { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
 
 /* Fondos / superficies */
+:root.dark .bg-\[\#F4F3F1\] { background-color: #0B1220; }
+:root.dark .bg-\[\#F4F3F1\]\/90 { background-color: rgba(11,18,32,0.92); }
+:root.dark .border-\[\#E7E5E1\] { border-color: #243049; }
+:root.dark .bg-white\/95 { background-color: rgba(30,41,59,0.95); }
+:root.dark .bg-\[\#ECEAE6\] { background-color: #2A3546; }
+:root.dark .hover\:bg-\[\#F4F3F1\]:hover { background-color: #0B1220; }
+/* Avisos semánticos (clases usadas en HeroCard / detalle de carrera) */
+:root.dark .text-\[\#92400E\] { color: #FCD34D; }
+:root.dark .text-\[\#991B1B\] { color: #FCA5A5; }
+:root.dark .bg-\[\#FEF3C7\] { background-color: rgba(217, 119, 6, 0.16); }
+:root.dark .stroke-\[\#ECEAE6\] { stroke: #2A3546; }
+:root.dark .border-\[\#BFDBFE\] { border-color: #1E40AF; }
+:root.dark .text-\[\#1E40AF\] { color: #93C5FD; }
+:root.dark .text-\[\#2563EB\] { color: #60A5FA; }
+:root.dark .bg-\[\#0F1B33\] { background-color: #0A1224; }
 :root.dark .bg-\[\#F8F9FA\] { background-color: #0F172A; }
 :root.dark .bg-\[\#F8F9FA\]\/90 { background-color: rgba(15,23,42,0.92); }
 :root.dark .bg-white { background-color: #1E293B; }

@@ -1,4 +1,8 @@
+import type { PruebaId } from './constants';
+
 export type ElectiveType = 'ciencias' | 'historia' | 'mejor';
+
+export type CienciasModule = 'biologia' | 'fisica' | 'quimica';
 
 export type TierType = 'verified' | 'medium' | 'partial' | 'broken' | 'nodata';
 
@@ -31,7 +35,7 @@ export interface Carrera {
   electivaTipo?: ElectiveType;
   corteNota?: string;
   nota?: string;
-  // Datos oficiales DEMRE (base 2026): puntajes mínimos de postulación y código.
+  // Datos oficiales DEMRE: puntajes mínimos de postulación y código.
   ponderadoMinimo?: number | null;
   promedioMinimo?: number | null;
   codigoDemre?: string;
@@ -99,8 +103,10 @@ export interface AppState {
     ciencias: number; // 0-75
     historia: number; // 0-60
   };
-  cienciasModule: 'biologia' | 'fisica' | 'quimica';
-  anioAdmision: number;
+  cienciasModule: CienciasModule;
+  // Pruebas que se ingresan como puntaje final en vez de respuestas correctas.
+  modoPuntaje: PruebaId[];
+  puntajesDirectos: Partial<Record<PruebaId, string>>;
   targetCareer: string;
   targetUniIndex: number;
   compareSlots: string[]; // encoded strings of "categoria:uniIndex" or ""

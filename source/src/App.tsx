@@ -1,15 +1,21 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Analytics } from '@vercel/analytics/react';
+import { Info, Share2, Link2, RotateCcw, Database, Check } from 'lucide-react';
 import { AppState, CarreraConDetalle } from './types';
-import { getCatalogo, aniosAdmisionDisponibles } from './data';
-import { calculatePonderado, encodeState, decodeState } from './utils';
+import { loadCatalogo, Catalogo } from './data';
+import CatalogoCargando from './components/CatalogoCargando';
+import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos } from './utils';
+import { PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
 
 // Subcomponents
-import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import MobileNav from './components/MobileNav';
+import { NavId } from './components/navItems';
+import TopBar from './components/TopBar';
 import Card from './components/Card';
 import GradeInputs from './components/GradeInputs';
-import SlidersSection from './components/SlidersSection';
+import SlidersSection, { directoValido } from './components/SlidersSection';
 import TargetSelector from './components/TargetSelector';
 import HeroCard from './components/HeroCard';
 import CompatibilitySection from './components/CompatibilitySection';
@@ -17,11 +23,9 @@ import ImproveSection from './components/ImproveSection';
 import CompareSection from './components/CompareSection';
 import BuscadorSection from './components/BuscadorSection';
 import CareerDetailModal from './components/CareerDetailModal';
-import CountdownBanner from './components/CountdownBanner';
 import EnsayosSection from './components/EnsayosSection';
 import SimuladorInversoSection from './components/SimuladorInversoSection';
 import TestVocacionalSection from './components/TestVocacionalSection';
-import TutorIASection from './components/TutorIASection';
 
 const INITIAL_STATE: AppState = {
   grades: {
@@ -42,7 +46,8 @@ const INITIAL_STATE: AppState = {
     historia: 0,
   },
   cienciasModule: 'fisica',
-  anioAdmision: 2027,
+  modoPuntaje: [],
+  puntajesDirectos: {},
   targetCareer: '',
   targetUniIndex: 0,
   compareSlots: ['', '', ''],
@@ -52,9 +57,21 @@ const INITIAL_STATE: AppState = {
 export default function App() {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'puntaje' | 'buscar' | 'comparar' | 'ensayos' | 'extras' | 'compartir'>('puntaje');
+  const [activeTab, setActiveTab] = useState<NavId>('puntaje');
   const [detailCarrera, setDetailCarrera] = useState<CarreraConDetalle | null>(null);
   const [dark, setDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  const [catalogo, setCatalogo] = useState<Catalogo | null>(null);
+  const [catalogoError, setCatalogoError] = useState(false);
+
+  // El catálogo se descarga recién cuando una sección lo necesita ("Mis ensayos" no lo usa).
+  const necesitaCatalogo = activeTab !== 'ensayos';
+  const cargarCatalogo = useCallback(() => {
+    setCatalogoError(false);
+    loadCatalogo().then(setCatalogo, () => setCatalogoError(true));
+  }, []);
+  useEffect(() => {
+    if (necesitaCatalogo && !catalogo) cargarCatalogo();
+  }, [necesitaCatalogo, catalogo, cargarCatalogo]);
 
   // Aplica y persiste el tema
   useEffect(() => {
@@ -140,15 +157,21 @@ export default function App() {
     setState((prev) => ({ ...prev, scores }));
   }, []);
   const handleCienciasModuleChange = useCallback((mod: 'biologia' | 'fisica' | 'quimica') => setState((prev) => ({ ...prev, cienciasModule: mod })), []);
+  const handleModoChange = useCallback((prueba: PruebaId, puntaje: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      modoPuntaje: puntaje ? [...new Set([...prev.modoPuntaje, prueba])] : prev.modoPuntaje.filter((p) => p !== prueba),
+    }));
+  }, []);
+  const handleDirectoChange = useCallback((prueba: PruebaId, valor: string) => {
+    setState((prev) => ({ ...prev, puntajesDirectos: { ...prev.puntajesDirectos, [prueba]: valor } }));
+  }, []);
   const handleCareerChange = useCallback((career: string) => setState((prev) => ({ ...prev, targetCareer: career, targetUniIndex: 0 })), []);
   const handleToggleFav = useCallback((carreraId: string) => {
     setState((prev) => ({
       ...prev,
       favoritos: prev.favoritos.includes(carreraId) ? prev.favoritos.filter((id) => id !== carreraId) : [...prev.favoritos, carreraId],
     }));
-  }, []);
-  const handleAnioChange = useCallback((anio: number) => {
-    setState((prev) => ({ ...prev, anioAdmision: anio, targetCareer: '', targetUniIndex: 0, compareSlots: ['', '', ''] }));
   }, []);
   const handleUniIndexChange = useCallback((index: number) => setState((prev) => ({ ...prev, targetUniIndex: index })), []);
 
@@ -164,28 +187,37 @@ export default function App() {
   const finalNemScore = parseFloat(state.manualNem) || 0;
   const finalRankingScore = parseFloat(state.manualRanking) || 0;
 
-  const totalSliders =
-    state.scores.lectora +
-    state.scores.m1 +
-    state.scores.m2 +
-    state.scores.ciencias +
-    state.scores.historia;
+  // Puntajes ingresados directo, solo para las pruebas en modo "Puntaje" y con valor válido.
+  const directos = useMemo(() => {
+    const out: PuntajesDirectos = {};
+    for (const p of state.modoPuntaje) {
+      const v = directoValido(state.puntajesDirectos[p]);
+      if (v !== null) out[p] = v;
+    }
+    return out;
+  }, [state.modoPuntaje, state.puntajesDirectos]);
 
-  const isEmpty = finalNemScore === 0 && finalRankingScore === 0 && totalSliders === 0;
+  const puntajes = useMemo(() => {
+    const out = {} as Record<PruebaId, number>;
+    for (const p of PRUEBAS_ORDEN) out[p] = puntajePrueba(p, state.scores[p], state.cienciasModule, directos);
+    return out;
+  }, [state.scores, state.cienciasModule, directos]);
 
-  // Active admission-year catalog (estable: getCatalogo devuelve objeto memoizado)
-  const catalogo = useMemo(() => getCatalogo(state.anioAdmision), [state.anioAdmision]);
+  const pruebaIngresada = (p: PruebaId) => (state.modoPuntaje.includes(p) ? directos[p] !== undefined : state.scores[p] > 0);
+
+  const isEmpty = finalNemScore === 0 && finalRankingScore === 0 && !PRUEBAS_ORDEN.some(pruebaIngresada);
+
   // Resolve target category: fall back to the first available if the stored
   // one isn't present in the active catalog (e.g. right after switching years).
-  const resolvedCareer = useMemo(
-    () => (state.targetCareer && catalogo.porCategoria[state.targetCareer])
+  const resolvedCareer = useMemo(() => {
+    if (!catalogo) return state.targetCareer;
+    return state.targetCareer && catalogo.porCategoria[state.targetCareer]
       ? state.targetCareer
-      : (Object.keys(catalogo.porCategoria)[0] || ''),
-    [catalogo, state.targetCareer]
-  );
+      : (Object.keys(catalogo.porCategoria)[0] || '');
+  }, [catalogo, state.targetCareer]);
 
   // Selected Target University and its weighted score calculation
-  const targetUniList = catalogo.porCategoria[resolvedCareer] || [];
+  const targetUniList = catalogo?.porCategoria[resolvedCareer] ?? [];
   const targetUni = targetUniList[state.targetUniIndex] || null;
 
   const targetPonderado = targetUni
@@ -198,9 +230,22 @@ export default function App() {
         state.scores.ciencias,
         state.scores.historia,
         state.cienciasModule,
-        targetUni
+        targetUni,
+        directos
       )
     : null;
+
+  const pesosObjetivo = useMemo(() => {
+    const w = targetUni?.ponderacion;
+    if (!w) return null;
+    return {
+      lectora: w.lecturaPct,
+      m1: w.m1Pct,
+      m2: w.m2Pct,
+      ciencias: targetUni.electivaTipo === 'historia' ? 0 : w.cienciasPct,
+      historia: targetUni.electivaTipo === 'ciencias' ? 0 : w.historiaPct,
+    };
+  }, [targetUni]);
 
   // Action handlers
   const handleShareLink = useCallback(() => {
@@ -214,91 +259,50 @@ export default function App() {
     window.location.href = `${window.location.origin}${window.location.pathname}`;
   }, []);
 
+
+  // Mini barra de puntaje en pantallas sin columna lateral: visible cuando la tarjeta de resultado sale de vista.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+  useEffect(() => {
+    const check = () => {
+      const el = heroRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setHeroVisible(r.bottom > 80 && r.top < window.innerHeight - 120);
+    };
+    check();
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    return () => {
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, [activeTab]);
+
+  const estadoMini = targetUni && targetPonderado !== null ? ESTADOS[estadoCorte(targetPonderado, targetUni.puntajeCorte)] : null;
+  const mostrarMini = activeTab === 'puntaje' && !heroVisible && !isEmpty && targetPonderado !== null;
+
+  const perfilProps = {
+    nemScore: finalNemScore,
+    rankingScore: finalRankingScore,
+    lectoraCorrect: state.scores.lectora,
+    m1Correct: state.scores.m1,
+    m2Correct: state.scores.m2,
+    cienciasCorrect: state.scores.ciencias,
+    historiaCorrect: state.scores.historia,
+    cienciasModule: state.cienciasModule,
+    directos,
+  };
+
   return (
     <>
       <Analytics />
-      <div className="min-h-dvh bg-[#F8F9FA] font-sans text-[#0F172A] selection:bg-blue-100 pb-16">
-      {/* Centered container: max-width is beautifully optimized for desktop and mobile */}
-      <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-6">
-        
-        {/* Header Title with Custom styling */}
-        <Header dark={dark} onToggleDark={toggleDark} />
-
-        {/* Admission-year (database) selector — both bases coexist */}
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_2px_10px_rgba(15,23,42,0.02)] p-3 flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">
-              Año de admisión
-            </span>
-          </div>
-          <div className="bg-[#F5F7FA] p-1 rounded-xl flex gap-1 flex-1">
-            {aniosAdmisionDisponibles.map((anio) => {
-              const cat = getCatalogo(anio);
-              const active = state.anioAdmision === anio;
-              return (
-                <button
-                  key={anio}
-                  onClick={() => handleAnioChange(anio)}
-                  className={`flex-1 h-10 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer flex flex-col items-center justify-center leading-tight ${
-                    active ? 'bg-white text-[#0F172A] shadow-[0_2px_8px_rgba(15,23,42,0.08)] border border-slate-100' : 'text-[#64748B] hover:text-[#0F172A]'
-                  }`}
-                >
-                  <span>Admisión {anio}</span>
-                  <span className="text-[9px] font-medium text-[#94A3B8]">
-                    {cat.totalUniversidades} U · {cat.totalCarreras} carreras
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-[10px] text-[#94A3B8] sm:max-w-[180px] leading-snug">
-            {catalogo.fuente}
-            {!catalogo.tieneCortes && ' · sin puntaje de corte publicado'}
-          </p>
-        </div>
-
-        {/* Aviso al usar la base del año pasado (2026) */}
-        {state.anioAdmision === 2026 && (
-          <div className="flex items-start gap-2.5 bg-[#EFF6FF] border border-blue-100 rounded-2xl px-4 py-3">
-            <span className="text-lg leading-none mt-0.5" aria-hidden>📅</span>
-            <p className="text-xs text-[#3B82F6] font-medium leading-snug">
-              Simula tu puntaje con las ponderaciones del <strong className="font-bold">año pasado</strong> para tener una referencia en base a sus puntajes de corte.
-            </p>
-          </div>
-        )}
-
-        {/* Sticky Tab Bar — 3x2 en móvil, una fila en desktop */}
-        <div className="sticky top-0 z-40 bg-[#F8F9FA]/90 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 border-b border-transparent">
-          <div className="bg-white p-1 rounded-2xl grid grid-cols-3 sm:grid-cols-6 gap-1 relative border border-[#E2E8F0] shadow-[0_2px_10px_rgba(15,23,42,0.02)]">
-            {([
-              ['puntaje', 'Mi puntaje', '🎯'],
-              ['buscar', 'Buscar', '🔍'],
-              ['comparar', 'Comparar', '⚖️'],
-              ['ensayos', 'Ensayos', '📚'],
-              ['extras', 'Extras', '🛠️'],
-              ['compartir', 'Compartir', '🔗'],
-            ] as const).map(([id, label, icon]) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`h-11 text-[13px] sm:text-sm font-semibold rounded-xl flex items-center justify-center gap-1 transition-all duration-200 cursor-pointer relative z-10 whitespace-nowrap px-1 ${
-                  activeTab === id ? 'text-[#0F172A]' : 'text-[#64748B] hover:text-[#0F172A]'
-                }`}
-                style={{ minHeight: '44px' }}
-              >
-                {activeTab === id && (
-                  <motion.div
-                    layoutId="active-tab-pill"
-                    className="absolute inset-0 bg-white rounded-xl shadow-[0_4px_12px_rgba(15,23,42,0.08)] border border-slate-100"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-20 text-[13px]" aria-hidden>{icon}</span>
-                <span className="relative z-20 truncate">{label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="min-h-dvh bg-[#F4F3F1] font-sans text-[#0F172A] selection:bg-blue-100">
+      <Sidebar active={activeTab} onChange={setActiveTab} dark={dark} onToggleDark={toggleDark} />
+      <MobileNav active={activeTab} onChange={setActiveTab} dark={dark} onToggleDark={toggleDark} />
+      <div className="lg:pl-64">
+      <div className="max-w-[1180px] mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-28 lg:pb-16 space-y-6">
+        <TopBar />
 
         <motion.div
           key={activeTab}
@@ -309,265 +313,253 @@ export default function App() {
         >
           {activeTab === 'puntaje' && (
             <>
-              {/* Section 1: Tus notas (NEM y Ranking) */}
-              <GradeInputs
-                g1={state.grades.g1}
-                g2={state.grades.g2}
-                g3={state.grades.g3}
-                g4={state.grades.g4}
-                manualNem={state.manualNem}
-                manualRanking={state.manualRanking}
-                grupoEducativo={state.grupoEducativo}
-                onChangeGrades={handleGradesChange}
-                onChangeManualNem={handleManualNemChange}
-                onChangeManualRanking={handleManualRankingChange}
-                onChangeGrupoEducativo={handleGrupoEducativoChange}
-              />
+              <div className="pt-2">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-[1.1] text-[#0F172A]">
+                  Tu puntaje,<br /><span className="text-[#2563EB]">tu próximo paso.</span>
+                </h1>
+                <p className="text-sm text-[#64748B] mt-3 max-w-lg">
+                  Calcula tu ponderado con las ponderaciones oficiales de cada carrera y mira qué tan cerca estás del corte.
+                </p>
+                <p className="inline-flex items-start gap-1.5 mt-3 text-xs text-[#64748B]">
+                  <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
+                  <span>
+                    Ponderaciones oficiales Admisión 2027
+                    {catalogo && <> · {catalogo.totalUniversidades} universidades · {catalogo.totalCarreras.toLocaleString('es-CL')} carreras</>}.
+                    Los cortes son los de la Admisión 2026, como referencia.
+                  </span>
+                </p>
+              </div>
 
-              {/* Section 2: Tus puntajes de prueba */}
-              <SlidersSection
-                lectora={state.scores.lectora}
-                m1={state.scores.m1}
-                m2={state.scores.m2}
-                ciencias={state.scores.ciencias}
-                historia={state.scores.historia}
-                cienciasModule={state.cienciasModule}
-                onChangeScores={handleScoresChange}
-                onChangeCienciasModule={handleCienciasModuleChange}
-              />
+              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
+                <div className="space-y-6 min-w-0">
+                  {catalogo ? <TargetSelector
+                    porCategoria={catalogo.porCategoria}
+                    categoriaDisplay={catalogo.categoriaDisplay}
+                    targetCareer={resolvedCareer}
+                    targetUniIndex={state.targetUniIndex}
+                    onChangeCareer={handleCareerChange}
+                    onChangeUniIndex={handleUniIndexChange}
+                  /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} />}
+                  <GradeInputs
+                    g1={state.grades.g1}
+                    g2={state.grades.g2}
+                    g3={state.grades.g3}
+                    g4={state.grades.g4}
+                    manualNem={state.manualNem}
+                    manualRanking={state.manualRanking}
+                    grupoEducativo={state.grupoEducativo}
+                    onChangeGrades={handleGradesChange}
+                    onChangeManualNem={handleManualNemChange}
+                    onChangeManualRanking={handleManualRankingChange}
+                    onChangeGrupoEducativo={handleGrupoEducativoChange}
+                  />
+                  <SlidersSection
+                    scores={state.scores}
+                    cienciasModule={state.cienciasModule}
+                    modoPuntaje={state.modoPuntaje}
+                    puntajesDirectos={state.puntajesDirectos}
+                    pesos={pesosObjetivo}
+                    onChangeScores={handleScoresChange}
+                    onChangeCienciasModule={handleCienciasModuleChange}
+                    onChangeModo={handleModoChange}
+                    onChangeDirecto={handleDirectoChange}
+                  />
+                </div>
 
-              {/* Section 3: Tu objetivo (Appears ABOVE the hero) */}
-              <TargetSelector
-                porCategoria={catalogo.porCategoria}
-                categoriaDisplay={catalogo.categoriaDisplay}
-                targetCareer={resolvedCareer}
-                targetUniIndex={state.targetUniIndex}
-                onChangeCareer={handleCareerChange}
-                onChangeUniIndex={handleUniIndexChange}
-              />
+                <div ref={heroRef} className="xl:sticky xl:top-6 xl:row-span-2 min-w-0">
+                  {catalogo ? <HeroCard
+                    score={targetPonderado}
+                    targetCareer={resolvedCareer}
+                    categoriaDisplay={catalogo.categoriaDisplay}
+                    targetUni={targetUni}
+                    isEmpty={isEmpty}
+                    anioCortes={catalogo.anioCortes}
+                    puntajes={puntajes}
+                    m2Ingresada={pruebaIngresada('m2')}
+                    nemScore={finalNemScore}
+                    rankingScore={finalRankingScore}
+                  /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} compact />}
+                </div>
 
-              {/* HERO CARD: Displays calculated score, gap, and info */}
-              <HeroCard
-                score={targetPonderado}
-                targetCareer={resolvedCareer}
-                categoriaDisplay={catalogo.categoriaDisplay}
-                targetUni={targetUni}
-                isEmpty={isEmpty}
-              />
-
-              {/* Section 5: Qué te conviene mejorar */}
-              <ImproveSection
-                state={state}
-                targetCareer={resolvedCareer}
-                categoriaDisplay={catalogo.categoriaDisplay}
-                finalNemScore={finalNemScore}
-                finalRankingScore={finalRankingScore}
-                targetUni={targetUni}
-                currentPonderado={targetPonderado}
-                isEmpty={isEmpty}
-              />
+                <div className="xl:col-start-1 min-w-0">
+                  {catalogo && <ImproveSection
+                    state={state}
+                    targetCareer={resolvedCareer}
+                    categoriaDisplay={catalogo.categoriaDisplay}
+                    finalNemScore={finalNemScore}
+                    finalRankingScore={finalRankingScore}
+                    targetUni={targetUni}
+                    currentPonderado={targetPonderado}
+                    isEmpty={isEmpty}
+                    directos={directos}
+                  />}
+                </div>
+              </div>
             </>
           )}
 
           {activeTab === 'buscar' && (
-            <>
-              <BuscadorSection
+            <div className="max-w-[880px]">
+              {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <BuscadorSection
                 carreras={catalogo.todas}
                 categoriaDisplay={catalogo.categoriaDisplay}
                 anioAdmision={catalogo.anio}
                 tieneCortes={catalogo.tieneCortes}
-                nemScore={finalNemScore}
-                rankingScore={finalRankingScore}
-                lectoraCorrect={state.scores.lectora}
-                m1Correct={state.scores.m1}
-                m2Correct={state.scores.m2}
-                cienciasCorrect={state.scores.ciencias}
-                historiaCorrect={state.scores.historia}
-                cienciasModule={state.cienciasModule}
+                {...perfilProps}
                 favoritos={state.favoritos}
                 onToggleFav={handleToggleFav}
                 onOpenDetail={setDetailCarrera}
-              />
-            </>
+              />}
+            </div>
           )}
 
           {activeTab === 'comparar' && (
-            <>
-              {/* Comparador por universidad: busca una carrera y compara todas las universidades que la dictan */}
+            <div className="max-w-[880px] space-y-6">
+              {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <>
               <CompatibilitySection
                 porCategoria={catalogo.porCategoria}
                 categoriaDisplay={catalogo.categoriaDisplay}
                 anioAdmision={catalogo.anio}
-                nemScore={finalNemScore}
-                rankingScore={finalRankingScore}
-                lectoraCorrect={state.scores.lectora}
-                m1Correct={state.scores.m1}
-                m2Correct={state.scores.m2}
-                cienciasCorrect={state.scores.ciencias}
-                historiaCorrect={state.scores.historia}
-                cienciasModule={state.cienciasModule}
+                {...perfilProps}
                 favoritos={state.favoritos}
                 onToggleFav={handleToggleFav}
                 onOpenDetail={setDetailCarrera}
               />
-
-              {/* Modo Versus: comparar combinaciones lado a lado */}
               <CompareSection
                 porCategoria={catalogo.porCategoria}
                 categoriaDisplay={catalogo.categoriaDisplay}
-                nemScore={finalNemScore}
-                rankingScore={finalRankingScore}
-                lectoraCorrect={state.scores.lectora}
-                m1Correct={state.scores.m1}
-                m2Correct={state.scores.m2}
-                cienciasCorrect={state.scores.ciencias}
-                historiaCorrect={state.scores.historia}
-                cienciasModule={state.cienciasModule}
+                {...perfilProps}
                 compareSlots={state.compareSlots}
                 onChangeCompareSlot={handleCompareSlotChange}
                 onOpenDetail={setDetailCarrera}
               />
-            </>
+              </>}
+            </div>
           )}
 
           {activeTab === 'ensayos' && (
-            <EnsayosSection />
+            <div className="max-w-[880px]">
+              <EnsayosSection />
+            </div>
           )}
 
-          {activeTab === 'extras' && (
-            <div className="space-y-6">
-              <CountdownBanner />
-              <SimuladorInversoSection
+          {activeTab === 'inverso' && (
+            <div className="max-w-[880px]">
+              {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <SimuladorInversoSection
                 porCategoria={catalogo.porCategoria}
                 categoriaDisplay={catalogo.categoriaDisplay}
                 anioAdmision={catalogo.anio}
-                nemScore={finalNemScore}
-                rankingScore={finalRankingScore}
-                lectoraCorrect={state.scores.lectora}
-                m1Correct={state.scores.m1}
-                m2Correct={state.scores.m2}
-                cienciasCorrect={state.scores.ciencias}
-                historiaCorrect={state.scores.historia}
-                cienciasModule={state.cienciasModule}
-              />
-              <TestVocacionalSection carreras={catalogo.todas} onOpenDetail={setDetailCarrera} />
-              <TutorIASection />
+                {...perfilProps}
+              />}
+            </div>
+          )}
+
+          {activeTab === 'vocacional' && (
+            <div className="max-w-[880px]">
+              {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <TestVocacionalSection carreras={catalogo.todas} onOpenDetail={setDetailCarrera} />}
             </div>
           )}
 
           {activeTab === 'compartir' && (
-            <>
-              {/* Section 7: Guardar y compartir */}
+            <div className="max-w-[880px] space-y-6">
               <Card id="section-guardar" className="space-y-4">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                  GUARDAR Y COMPARTIR
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Share2 size={18} className="text-[#64748B]" />
+                    <h3 className="text-base font-semibold text-[#0F172A]">Guardar y compartir</h3>
+                  </div>
+                  <p className="text-xs text-[#64748B] mt-1.5">
+                    Tus datos se guardan solos en este dispositivo. Con el link puedes abrirlos en otro o compartirlos.
+                  </p>
                 </div>
-                <p className="text-xs text-[#64748B]">
-                  Guarda tu progreso de forma segura. Puedes generar un link único con tus puntajes y configuraciones para compartirlo o abrirlo en otros dispositivos.
-                </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleShareLink}
-                    className="flex-1 h-12 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-200 active:scale-[0.99] cursor-pointer"
+                    className="flex-1 h-12 inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded-full transition-colors active:scale-[0.99] cursor-pointer"
                   >
-                    Copiar link con mis datos
+                    <Link2 size={17} /> Copiar link con mis datos
                   </button>
                   <button
                     onClick={handleReset}
-                    className="px-6 h-12 bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
+                    className="px-6 h-12 inline-flex items-center justify-center gap-2 bg-[#F4F3F1] text-[#64748B] hover:text-[#0F172A] text-sm font-semibold rounded-full transition-colors cursor-pointer"
                   >
-                    Empezar de cero
+                    <RotateCcw size={16} /> Empezar de cero
                   </button>
                 </div>
               </Card>
 
-              {/* Section 8: Estado de la data */}
-              <Card id="section-estado-data" className="!bg-[#F8FAFC] border border-[#E2E8F0] space-y-4">
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] mb-1">
-                    ESTADO DE LA DATA
-                  </div>
-                  <h4 className="text-xs font-bold text-[#64748B]">Metodología y Veracidad</h4>
+              <Card id="section-datos" className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Database size={18} className="text-[#64748B]" />
+                  <h3 className="text-base font-semibold text-[#0F172A]">De dónde salen los datos</h3>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#64748B]">
-                  <div className="flex items-start gap-2">
-                    <span className="text-emerald-500 text-sm mt-[-2px]">●</span>
-                    <span>
-                      <strong className="font-semibold text-[#0F172A]">Verificada:</strong> confirmada en fuente oficial de la universidad.
-                    </span>
+                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                    <dt className="text-[11px] text-[#64748B]">Ponderaciones, vacantes y mínimos</dt>
+                    <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Oferta Definitiva DEMRE, Admisión 2027</dd>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-500 text-sm mt-[-2px]">●</span>
-                    <span>
-                      <strong className="font-semibold text-[#0F172A]">Referencia:</strong> reportada por búsqueda pero sin verificación cruzada directa.
-                    </span>
+                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                    <dt className="text-[11px] text-[#64748B]">Cobertura</dt>
+                    <dd className="text-sm font-semibold text-[#0F172A] mt-0.5 tabular-nums">
+                      {catalogo ? `${catalogo.totalUniversidades} universidades · ${catalogo.totalCarreras.toLocaleString('es-CL')} carreras` : 'Cargando…'}
+                    </dd>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-amber-500 text-sm mt-[-2px]">●</span>
-                    <span>
-                      <strong className="font-semibold text-[#0F172A]">Incompleta:</strong> falta algún dato (usualmente ponderaciones bloqueadas por JS).
-                    </span>
+                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                    <dt className="text-[11px] text-[#64748B]">Puntajes de corte</dt>
+                    <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Admisión 2026, datos DEMRE</dd>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-slate-400 text-sm mt-[-2px]">●</span>
-                    <span>
-                      <strong className="font-semibold text-[#0F172A]">No disponible:</strong> no publicado oficialmente.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-[#94A3B8] leading-relaxed border-t border-slate-200/60 pt-3 space-y-2">
-                  <p>
-                    Tablas de conversión: proceso Admisión 2027 (PAES a rendir 2026). Ciencias separada en 3 módulos. M2 tope 49 correctas por pregunta anulada este proceso.
-                  </p>
-                  <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-100 text-amber-800 flex gap-2">
-                    <span className="text-sm shrink-0">⚠️</span>
-                    <span>
-                      <strong className="font-bold">UANDES ponderaciones:</strong> el pie del sitio oficial dice "Admisión 2025" aunque el encabezado dice 2026 — posible desactualización del sitio oficial.
-                    </span>
-                  </div>
-                </div>
+                </dl>
+                <p className="text-xs text-[#64748B] leading-relaxed">
+                  Los cortes de la Admisión 2027 se conocerán cuando termine el proceso, en enero; mientras tanto se muestran los del año anterior como referencia.
+                  Tablas de conversión del proceso Admisión 2027 (PAES rendida en 2026), con Ciencias separada en sus 3 módulos y M2 con tope de 49 correctas.
+                </p>
               </Card>
-            </>
+            </div>
           )}
         </motion.div>
 
-        {/* Disclaimer legal (transversal) */}
         <footer className="pt-4 pb-2 text-center space-y-1">
           <p className="text-[11px] text-[#94A3B8] leading-relaxed max-w-lg mx-auto">
-            ⚖️ Herramienta orientativa e <strong className="font-semibold text-[#64748B]">independiente del DEMRE</strong> y de las universidades.
-            Los puntajes de corte son referenciales y el Ranking es una <strong className="font-semibold text-[#64748B]">aproximación por percentil</strong>, no un valor oficial.
+            Herramienta orientativa e <strong className="font-semibold text-[#64748B]">independiente del DEMRE</strong> y de las universidades.
+            Los puntajes de corte son referenciales y el Ranking es una <strong className="font-semibold text-[#64748B]">aproximación</strong>, no un valor oficial.
             Verifica siempre en las fuentes oficiales antes de postular.
           </p>
-          <p className="text-[10px] text-[#CBD5E1]">Hecho por Juan Diego Vergara · simuladorpaes.vercel.app</p>
+          <p className="text-[10px] text-[#94A3B8]">Hecho por Juan Diego Vergara · simuladorpaes.vercel.app</p>
         </footer>
 
       </div>
+      </div>
 
-      {/* Career detail modal (opened from any card) */}
-      {detailCarrera && (
+      {mostrarMini && estadoMini && (
+        <button
+          onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+          className="xl:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-6 z-30 flex items-center gap-3 pl-4 pr-3 h-11 rounded-full bg-[#0F172A] text-white shadow-lg cursor-pointer"
+          aria-label="Ver mi resultado"
+        >
+          <span className="text-[11px] text-white/60">Ponderado</span>
+          <span className="text-base font-bold tabular-nums">
+            {targetPonderado!.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: estadoMini.tint, color: estadoMini.ink }}>
+            {estadoMini.label}
+          </span>
+        </button>
+      )}
+
+      {detailCarrera && catalogo && (
         <CareerDetailModal
           carrera={detailCarrera}
           categoriaDisplay={catalogo.categoriaDisplay}
-          nemScore={finalNemScore}
-          rankingScore={finalRankingScore}
-          lectoraCorrect={state.scores.lectora}
-          m1Correct={state.scores.m1}
-          m2Correct={state.scores.m2}
-          cienciasCorrect={state.scores.ciencias}
-          historiaCorrect={state.scores.historia}
-          cienciasModule={state.cienciasModule}
+          {...perfilProps}
           isFav={state.favoritos.includes(detailCarrera.id)}
           onToggleFav={() => handleToggleFav(detailCarrera.id)}
           onClose={() => setDetailCarrera(null)}
         />
       )}
 
-      {/* Floating Toast notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#0F172A] text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 animate-fade-in flex items-center gap-1.5 border border-slate-800">
-          <span>✨</span>
+        <div className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 bg-[#0F172A] text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 animate-fade-in flex items-center gap-1.5">
+          <Check size={14} />
           <span>{toastMessage}</span>
         </div>
       )}

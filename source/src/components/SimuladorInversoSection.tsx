@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Undo2, Check, TriangleAlert, Flag } from 'lucide-react';
 import Card from './Card';
-import { displayNombreUniversidad, tablasPAES } from '../data';
-import { calculatePonderado } from '../utils';
+import { displayNombreUniversidad } from '../data';
+import { calculatePonderado, correctasActuales, sinPrueba, tablaPrueba, PuntajesDirectos } from '../utils';
 import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
+import { PRUEBAS, PruebaId } from '../constants';
 import SearchableSelect from './SearchableSelect';
 
 interface Props {
@@ -17,20 +19,18 @@ interface Props {
   cienciasCorrect: number;
   historiaCorrect: number;
   cienciasModule: 'biologia' | 'fisica' | 'quimica';
+  directos: PuntajesDirectos;
 }
 
-type PruebaVar = 'lectora' | 'm1' | 'm2' | 'ciencias' | 'historia';
-const PRUEBA_META: Record<PruebaVar, { label: string; max: number }> = {
-  lectora: { label: 'Competencia Lectora', max: 60 },
-  m1: { label: 'Matemática M1', max: 60 },
-  m2: { label: 'Matemática M2', max: 49 },
-  ciencias: { label: 'Ciencias', max: 75 },
-  historia: { label: 'Historia y Cs. Sociales', max: 60 },
-};
+type PruebaVar = PruebaId;
+
+const fmt = (n: number, dec = 2) => n.toLocaleString('es-CL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+const labelCls = 'text-[11px] font-medium text-[#64748B]';
 
 function SimuladorInversoSection({
   porCategoria, categoriaDisplay, anioAdmision,
-  nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule,
+  nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule, directos,
 }: Props) {
   const opciones = useMemo(
     () => Object.keys(porCategoria).map((k) => ({ value: k, label: categoriaDisplay[k] || k })).sort((a, b) => a.label.localeCompare(b.label, 'es')),
@@ -63,43 +63,49 @@ function SimuladorInversoSection({
     if (pruebasDisponibles.length && !pruebasDisponibles.includes(variable)) setVariable(pruebasDisponibles[0]);
   }, [pruebasDisponibles]);
 
-  const target = carrera ? (carrera.puntajeCorte ?? carrera.promedioMinimo ?? null) : null;
+  // Meta: corte 2026; si no hay, el ponderado mínimo de postulación (misma escala que el ponderado).
+  const target = carrera ? (carrera.puntajeCorte ?? carrera.ponderadoMinimo ?? null) : null;
+  const targetLabel = carrera?.puntajeCorte != null ? 'Corte 2026' : 'Mín. postulación';
 
   // Escanea aciertos 0..max de la prueba variable (resto fijo) hasta alcanzar el target
   const resultado = useMemo(() => {
     if (!carrera?.ponderacion || target === null) return null;
-    const max = PRUEBA_META[variable].max;
+    const max = PRUEBAS[variable].max;
     const scores = { lectora: lectoraCorrect, m1: m1Correct, m2: m2Correct, ciencias: cienciasCorrect, historia: historiaCorrect };
+    const actual = correctasActuales(variable, scores[variable], cienciasModule, directos);
+    const otros = sinPrueba(directos, variable);
     for (let a = 0; a <= max; a++) {
       const s = { ...scores, [variable]: a };
-      const pond = calculatePonderado(nemScore, rankingScore, s.lectora, s.m1, s.m2, s.ciencias, s.historia, cienciasModule, carrera);
+      const pond = calculatePonderado(nemScore, rankingScore, s.lectora, s.m1, s.m2, s.ciencias, s.historia, cienciasModule, carrera, otros);
       if (pond !== null && pond >= target) {
-        const tabla = variable === 'ciencias' ? tablasPAES[`ciencias_${cienciasModule}` as 'ciencias_fisica'] : tablasPAES[variable as 'lectora'];
-        return { alcanzable: true, aciertos: a, max, puntaje: tabla[a] ?? 0, actual: scores[variable] };
+        return { alcanzable: true, aciertos: a, max, puntaje: tablaPrueba(variable, cienciasModule)[a] ?? 0, actual };
       }
     }
-    return { alcanzable: false, aciertos: max, max, puntaje: 0, actual: scores[variable] };
-  }, [carrera, target, variable, nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule]);
+    return { alcanzable: false, aciertos: max, max, puntaje: 0, actual };
+  }, [carrera, target, variable, nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule, directos]);
 
   const faltan = resultado ? Math.max(0, resultado.aciertos - resultado.actual) : 0;
+  const pv = PRUEBAS[variable];
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-5">
       <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">SIMULADOR INVERSO</div>
-        <h3 className="text-lg font-bold text-[#0F172A]">🎯 ¿Cuánto necesito para mi meta?</h3>
-        <p className="text-xs text-[#64748B] mt-1">
-          Elige tu carrera meta y una prueba a resolver. Fijamos tus notas y el resto de tus puntajes actuales (pestaña Mi puntaje) y calculamos lo que te falta · Admisión {anioAdmision}.
+        <div className="flex items-center gap-2">
+          <Undo2 size={18} className="text-[#64748B]" />
+          <h3 className="text-base font-semibold text-[#0F172A]">Cuánto necesitas para tu meta</h3>
+        </div>
+        <p className="text-xs text-[#64748B] mt-1.5">
+          Elige tu carrera meta y una prueba a resolver. Fijamos tus notas y el resto de tus puntajes actuales (Mi puntaje) y calculamos lo que te falta · Admisión {anioAdmision}.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Carrera meta</label>
+          <span className={labelCls}>Carrera meta</span>
           <div className="mt-1"><SearchableSelect options={opciones} value={career} onChange={(v) => { setCareer(v); setUniIdx(0); }} placeholder="Busca tu carrera..." /></div>
         </div>
         <div>
-          <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Universidad</label>
+          <span className={labelCls}>Universidad</span>
           <div className="mt-1"><SearchableSelect options={uniOptions} value={String(uniIdx)} onChange={(v) => setUniIdx(parseInt(v, 10))} placeholder="Busca la universidad..." /></div>
         </div>
       </div>
@@ -107,42 +113,69 @@ function SimuladorInversoSection({
       {carrera && (
         <>
           <div>
-            <label className="text-[10px] font-bold uppercase text-[#94A3B8]">Prueba a resolver</label>
-            <div className="flex flex-wrap gap-2 mt-1.5">
-              {pruebasDisponibles.map((pv) => (
-                <button key={pv} onClick={() => setVariable(pv)} className={`px-3 h-9 rounded-full text-xs font-semibold transition-all ${variable === pv ? 'bg-[#3B82F6] text-white shadow-sm' : 'border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9]'}`}>
-                  {PRUEBA_META[pv].label}
-                </button>
-              ))}
+            <span className={labelCls}>Prueba a resolver</span>
+            <div className="flex flex-wrap gap-1.5 mt-1" role="group" aria-label="Prueba a resolver">
+              {pruebasDisponibles.map((id) => {
+                const p = PRUEBAS[id];
+                const activo = variable === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setVariable(id)}
+                    aria-pressed={activo}
+                    className={`inline-flex items-center gap-1.5 px-3 h-10 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                      activo ? '' : 'bg-[#F4F3F1] border-transparent text-[#64748B] hover:text-[#0F172A]'
+                    }`}
+                    style={activo ? { background: p.tint, color: p.ink, borderColor: p.color } : undefined}
+                  >
+                    <span className="w-2 h-2 rounded-full" style={{ background: p.color }} aria-hidden />
+                    {p.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {target === null ? (
-            <div className="bg-slate-50 rounded-2xl p-4 text-sm text-[#94A3B8] text-center">Esta carrera no tiene corte ni mínimo publicado para calcular la meta.</div>
+            <div className="bg-[#F4F3F1] rounded-2xl p-4 text-sm text-[#94A3B8] text-center">
+              Esta carrera no tiene corte 2026 ni mínimo publicado para calcular la meta.
+            </div>
           ) : resultado && (
-            <div className={`rounded-2xl p-5 border-2 ${resultado.alcanzable ? 'border-[#3B82F6] bg-gradient-to-b from-white to-[#F8FAFC]' : 'border-amber-200 bg-amber-50/50'}`}>
-              <div className="text-xs font-bold uppercase tracking-widest text-[#64748B] mb-2">
-                Meta: {carrera.puntajeCorte !== null ? 'corte' : 'mínimo'} {target.toFixed(2)} pts
+            <div className="rounded-2xl border border-[#E7E5E1] p-5 space-y-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-[#64748B]">
+                <Flag size={13} /> Meta · {targetLabel} <span className="tabular-nums normal-case tracking-normal font-sans font-semibold text-[#0F172A]">{fmt(target)}</span>
               </div>
               {resultado.alcanzable ? (
                 <>
                   <div className="text-sm text-[#0F172A]">
-                    En <strong className="font-bold">{PRUEBA_META[variable].label}</strong> necesitas al menos:
+                    En <strong className="font-semibold" style={{ color: pv.ink }}>{pv.label}</strong> necesitas al menos
                   </div>
-                  <div className="flex items-baseline gap-3 mt-2 flex-wrap">
-                    <div className="text-4xl font-extrabold text-[#3B82F6] font-mono tabular-nums">{resultado.aciertos}<span className="text-lg text-[#94A3B8]"> / {resultado.max}</span></div>
-                    <div className="text-sm text-[#64748B]">respuestas correctas (~<strong className="text-[#0F172A] font-bold">{resultado.puntaje} pts</strong>)</div>
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <div className="text-4xl font-bold text-[#0F172A] tabular-nums leading-none">
+                      {resultado.aciertos}<span className="text-lg font-semibold text-[#94A3B8]"> / {resultado.max}</span>
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      respuestas correctas (~<strong className="text-[#0F172A] font-semibold tabular-nums">{resultado.puntaje} pts</strong>)
+                    </div>
                   </div>
-                  <div className="text-xs text-[#64748B] mt-2">
+                  <div className="w-full h-1.5 bg-[#ECEAE6] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(resultado.aciertos / resultado.max) * 100}%`, background: pv.color }} />
+                  </div>
+                  <div className="text-xs text-[#64748B]">
                     {faltan === 0
-                      ? <span className="text-[#10B981] font-semibold">✓ Con tu puntaje actual ya alcanzas la meta.</span>
-                      : <>Desde tu nivel actual ({resultado.actual} correctas) te faltan <strong className="text-[#0F172A] font-bold">+{faltan} buenas</strong>.</>}
+                      ? (
+                        <span className="inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534]">
+                          <Check size={13} strokeWidth={2.5} /> Con tu puntaje actual ya alcanzas la meta
+                        </span>
+                      )
+                      : <>Desde tu nivel actual ({resultado.actual} correctas) te faltan <strong className="text-[#0F172A] font-semibold">+{faltan} buenas</strong>.</>}
                   </div>
                 </>
               ) : (
-                <div className="text-sm text-[#0F172A]">
-                  Aunque logres el máximo en <strong>{PRUEBA_META[variable].label}</strong>, no alcanzas la meta solo con esa prueba. Necesitas subir también en las demás.
-                </div>
+                <p className="flex items-start gap-2 text-sm text-[#92400E] bg-[#FEF3C7] rounded-xl px-3 py-2.5">
+                  <TriangleAlert size={16} className="shrink-0 mt-0.5" />
+                  <span>Aunque logres el máximo en <strong className="font-semibold">{pv.label}</strong>, no alcanzas la meta solo con esa prueba. Necesitas subir también en las demás.</span>
+                </p>
               )}
             </div>
           )}

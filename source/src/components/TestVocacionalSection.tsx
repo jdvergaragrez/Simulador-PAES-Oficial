@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Compass, ChevronRight, Building2, RotateCcw } from 'lucide-react';
 import Card from './Card';
 import { displayNombreUniversidad, normalizar } from '../data';
 import { CarreraConDetalle } from '../types';
@@ -101,54 +102,72 @@ function TestVocacionalSection({ carreras, onOpenDetail }: Props) {
   }, [topArea, carreras]);
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-5">
       <div>
-        <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-1">TEST VOCACIONAL</div>
-        <h3 className="text-lg font-bold text-[#0F172A]">🧭 Descubre tu área</h3>
-        <div className="mt-2 flex items-start gap-2 bg-[#EFF6FF] border border-blue-100 rounded-xl px-3 py-2">
-          <span className="text-base leading-none mt-0.5">💡</span>
-          <p className="text-xs font-semibold text-[#3B82F6] leading-snug">
-            Responde este cuestionario vocacional para recomendarte una carrera.
-          </p>
+        <div className="flex items-center gap-2">
+          <Compass size={18} className="text-[#64748B]" />
+          <h3 className="text-base font-semibold text-[#0F172A]">Descubre tu área</h3>
         </div>
+        <p className="text-xs text-[#64748B] mt-1.5">
+          Responde {PREGUNTAS.length} preguntas breves y te sugerimos carreras del catálogo según tu área de mayor afinidad.
+        </p>
       </div>
 
       {!done ? (
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-[#F1F5F9] rounded-full overflow-hidden">
-              <div className="h-full bg-[#3B82F6] rounded-full transition-all" style={{ width: `${(step / PREGUNTAS.length) * 100}%` }} />
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-1.5 bg-[#ECEAE6] rounded-full overflow-hidden">
+              <div className="h-full bg-[#2563EB] rounded-full transition-all" style={{ width: `${(step / PREGUNTAS.length) * 100}%` }} />
             </div>
-            <span className="text-[11px] text-[#94A3B8] font-semibold">{step + 1}/{PREGUNTAS.length}</span>
+            <span className="text-[11px] text-[#94A3B8] font-medium tabular-nums">{step + 1} de {PREGUNTAS.length}</span>
           </div>
-          <div className="text-base font-bold text-[#0F172A]">{PREGUNTAS[step].q}</div>
+          <div className="text-base font-semibold text-[#0F172A]">{PREGUNTAS[step].q}</div>
           <div className="grid grid-cols-1 gap-2">
             {PREGUNTAS[step].opciones.map((o, i) => (
-              <button key={i} onClick={() => answer(o.area)} className="text-left px-4 py-3 rounded-xl border border-[#E2E8F0] text-sm font-medium text-[#0F172A] hover:border-[#3B82F6] hover:bg-[#EFF6FF] transition-colors">
+              <button
+                key={i}
+                onClick={() => answer(o.area)}
+                className="group flex items-center justify-between gap-3 text-left px-4 min-h-[48px] py-3 rounded-xl border border-[#E7E5E1] text-sm font-medium text-[#0F172A] hover:border-[#2563EB] hover:bg-[#EFF6FF] transition-colors cursor-pointer"
+              >
                 {o.txt}
+                <ChevronRight size={16} className="shrink-0 text-[#94A3B8] group-hover:text-[#2563EB]" />
               </button>
             ))}
           </div>
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="bg-gradient-to-b from-[#EFF6FF] to-white border border-blue-100 rounded-2xl p-5 text-center">
-            <div className="text-xs font-semibold text-[#64748B]">Tu área de mayor afinidad es</div>
-            <div className="text-2xl font-extrabold text-[#3B82F6] mt-1">{topArea ? AREA_LABEL[topArea] : '—'}</div>
+          <div className="bg-[#EFF6FF] rounded-2xl p-5 text-center">
+            <div className="text-xs font-medium text-[#64748B]">Tu área de mayor afinidad es</div>
+            <div className="text-2xl font-bold text-[#2563EB] mt-1">{topArea ? AREA_LABEL[topArea] : '—'}</div>
           </div>
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-2">Carreras sugeridas del catálogo</div>
+            <div className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8] mb-2">Carreras sugeridas del catálogo</div>
             <div className="space-y-2">
               {sugerencias.map((c) => (
-                <button key={c.id} onClick={() => onOpenDetail(c)} className="w-full text-left bg-white border border-[#F1F5F9] rounded-xl p-3 hover:shadow-md hover:border-[#E2E8F0] transition-all">
-                  <div className="text-sm font-bold text-[#0F172A]">{c.nombre}</div>
-                  <div className="text-xs text-[#64748B]">{displayNombreUniversidad(c)}</div>
+                <button
+                  key={c.id}
+                  onClick={() => onOpenDetail(c)}
+                  className="w-full flex items-center justify-between gap-3 text-left bg-white border border-[#E7E5E1] rounded-xl p-3 hover:border-[#CBD5E1] transition-colors cursor-pointer"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-[#0F172A]">{c.nombre}</div>
+                    <div className="text-xs text-[#64748B] flex items-center gap-1 mt-0.5">
+                      <Building2 size={12} className="shrink-0" /> {displayNombreUniversidad(c)}
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="shrink-0 text-[#94A3B8]" />
                 </button>
               ))}
               {sugerencias.length === 0 && <p className="text-sm text-[#94A3B8]">No encontramos coincidencias en este año de admisión.</p>}
             </div>
           </div>
-          <button onClick={reset} className="w-full h-10 border border-[#E2E8F0] text-[#64748B] text-sm font-semibold rounded-xl hover:bg-[#F8FAFC]">Repetir test</button>
+          <button
+            onClick={reset}
+            className="w-full h-11 inline-flex items-center justify-center gap-1.5 border border-[#E7E5E1] text-[#64748B] text-sm font-medium rounded-xl hover:text-[#0F172A] transition-colors cursor-pointer"
+          >
+            <RotateCcw size={15} /> Repetir test
+          </button>
         </div>
       )}
     </Card>
