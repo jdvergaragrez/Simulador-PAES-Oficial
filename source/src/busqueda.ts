@@ -153,11 +153,34 @@ export interface ConsultaInterpretada {
   universidades: string[]; // nombres oficiales filtrados por sigla
 }
 
+// Nombres escritos completos o en forma coloquial que equivalen a una universidad, como su sigla.
+const FRASES_EXTRA: Record<string, string> = {
+  'u de chile': 'Universidad de Chile',
+  'u chile': 'Universidad de Chile',
+  'u catolica': 'Pontificia Universidad Católica de Chile',
+  'la catolica': 'Pontificia Universidad Católica de Chile',
+  'u de santiago': 'Universidad de Santiago de Chile',
+  'u de concepcion': 'Universidad de Concepción',
+  'santa maria': 'Universidad Técnica Federico Santa María',
+};
+const FRASES_UNIVERSIDAD: [string, string][] = [
+  ...new Set(Object.values(SIGLAS_UNIVERSIDAD)),
+].map((n): [string, string] => [palabras(n).join(' '), n])
+  .concat(Object.entries(FRASES_EXTRA))
+  .sort((a, b) => b[0].length - a[0].length);
+
 export function interpretar(query: string): ConsultaInterpretada {
-  const tokens = palabras(query);
+  const universidades: string[] = [];
+  // Primero las frases (nombre completo de la universidad); lo que queda se interpreta palabra a palabra.
+  let resto = ` ${palabras(query).join(' ')} `;
+  for (const [frase, nombre] of FRASES_UNIVERSIDAD) {
+    if (!resto.includes(` ${frase} `)) continue;
+    resto = resto.replace(` ${frase} `, ' ');
+    if (!universidades.includes(nombre)) universidades.push(nombre);
+  }
+  const tokens = resto.split(' ').filter(Boolean);
   const sinStop = tokens.filter((t) => !STOPWORDS.has(t));
   const terminos: Termino[] = [];
-  const universidades: string[] = [];
   for (const t of sinStop.length ? sinStop : tokens) {
     const uni = SIGLAS_UNIVERSIDAD[t];
     if (uni) {

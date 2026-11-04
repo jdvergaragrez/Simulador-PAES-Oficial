@@ -23,6 +23,12 @@ describe('buscarCarreras', () => {
     expect(primera('medicina uc').categoria).toBe('medicina');
   });
 
+  it('el nombre completo de la universidad filtra como la sigla', () => {
+    const r = buscar('medicina universidad de santiago de chile').resultados;
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((x) => x.carrera.universidadNombre === 'Universidad de Santiago de Chile')).toBe(true);
+  });
+
   it('"uc" es sigla completa, no un pedazo de "educación"', () => {
     const { resultados } = buscar('educacion uc');
     expect(resultados.every((r) => r.carrera.universidadNombre === 'Pontificia Universidad Católica de Chile')).toBe(true);
@@ -47,6 +53,14 @@ describe('buscarCarreras', () => {
     expect(c.categoria).toBe('psicologia');
     expect(c.universidadNombre).toBe('Universidad de Chile');
     expect(primera('psico uchile').id).toBe(c.id);
+  });
+
+  it('"ingenieria civil uchile" encuentra el plan común de la U. de Chile', () => {
+    for (const q of ['ingenieria civil uchile', 'ing civil universidad de chile', 'ingenieria civil u de chile']) {
+      const c = primera(q);
+      expect(c.universidadNombre, q).toBe('Universidad de Chile');
+      expect(c.codigoDemre, q).toBe('11045');
+    }
   });
 
   it('"civil informatica" -> Ingeniería Civil Informática primero', () => {

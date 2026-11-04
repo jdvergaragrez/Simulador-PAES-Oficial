@@ -20,6 +20,7 @@ export const categoriasAlias: Record<string, AliasCategoria> = {
   'ingenieria-civil-plan-comun-curico': ING_CIVIL,
   'ingenieria-civil-plan-comun-talca': ING_CIVIL,
   'plan-comun-ingenieria-civil': ING_CIVIL,
+  'ingenieria-y-ciencias': ING_CIVIL, // U. de Chile: "Ingeniería y Ciencias - Plan Común"
 
   // Ingeniería Civil Informática / Computación
   'ingenieria-civil-en-informatica': ING_CIVIL_INFORMATICA,
