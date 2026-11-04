@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { School, Star, MapPin, Users, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
 import Card from './Card';
 import { displayNombreUniversidad } from '../data';
@@ -6,6 +6,7 @@ import { calculatePonderado, PuntajesDirectos } from '../utils';
 import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
 import { ESTADOS, EstadoCorte, estadoCorte } from '../constants';
 import SearchableSelect from './SearchableSelect';
+import { buscarCategorias } from '../busqueda';
 
 interface CompatibilitySectionProps {
   porCategoria: CarrerasPorCategoria;
@@ -62,6 +63,9 @@ function CompatibilitySection({
     [porCategoria, categoriaDisplay]
   );
 
+  const carreras = useMemo(() => Object.values(porCategoria).flat(), [porCategoria]);
+  const buscar = useCallback((q: string) => buscarCategorias(carreras, categoriaDisplay, q), [carreras, categoriaDisplay]);
+
   const [selectedCareer, setSelectedCareer] = useState<string>(opciones[0]?.value || '');
 
   useEffect(() => {
@@ -113,7 +117,8 @@ function CompatibilitySection({
         options={opciones}
         value={selectedCareer}
         onChange={setSelectedCareer}
-        placeholder="Busca una carrera..."
+        buscar={buscar}
+        placeholder="Busca una carrera (ej: ing comercial)..."
       />
 
       <div className="text-xs text-[#94A3B8] tabular-nums">

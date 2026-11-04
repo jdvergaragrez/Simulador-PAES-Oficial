@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadCatalogo, Catalogo } from './data';
-import { agruparPorCategoria, buscarCarreras, distancia, resaltar, SIGLAS_UNIVERSIDAD } from './busqueda';
+import { agruparPorCategoria, buscarCarreras, buscarCategorias, buscarIds, distancia, resaltar, SIGLAS_UNIVERSIDAD } from './busqueda';
 
 let cat: Catalogo;
 beforeAll(async () => {
@@ -76,6 +76,14 @@ describe('buscarCarreras', () => {
     const t = performance.now();
     for (const q of ['ingeneria comercial', 'psicologia uchile', 'medicina uc', 'pedagogia en matematica']) buscar(q);
     expect((performance.now() - t) / 4).toBeLessThan(50);
+  });
+});
+
+describe('selectores de comparar, compatibilidad e inverso', () => {
+  it('buscarCategorias y buscarIds usan la misma búsqueda', () => {
+    expect(buscarCategorias(cat.todas, cat.categoriaDisplay, 'ing comercial')[0]).toBe('ingenieria-comercial');
+    const ids = buscarIds(cat.todas, cat.categoriaDisplay, 'psicologia uchile');
+    expect(cat.todas.find((c) => c.id === ids[0])?.universidadNombre).toBe('Universidad de Chile');
   });
 });
 

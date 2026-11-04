@@ -15,6 +15,9 @@ interface SearchableSelectProps {
   placeholder?: string;
   emptyText?: string;
   maxResults?: number;
+  // Búsqueda propia (p. ej. la de busqueda.ts): devuelve los values que calzan, en orden de relevancia.
+  buscar?: (query: string) => string[];
+  ariaLabel?: string;
 }
 
 /**
@@ -29,6 +32,8 @@ function SearchableSelect({
   placeholder = 'Buscar...',
   emptyText = 'Sin coincidencias',
   maxResults = 50,
+  buscar,
+  ariaLabel,
 }: SearchableSelectProps) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -48,6 +53,10 @@ function SearchableSelect({
   const matches = useMemo(() => {
     const q = normalizar(query);
     if (!q) return options.slice(0, maxResults);
+    if (buscar) {
+      const porValue = new Map(options.map((o) => [o.value, o]));
+      return buscar(query).map((v) => porValue.get(v)).filter((o): o is SearchOption => !!o).slice(0, maxResults);
+    }
     const toks = q.split(/\s+/).filter(Boolean);
     return options
       .filter((o) => {
@@ -55,7 +64,7 @@ function SearchableSelect({
         return toks.every((t) => n.includes(t));
       })
       .slice(0, maxResults);
-  }, [query, options, maxResults]);
+  }, [query, options, maxResults, buscar]);
 
   const pick = (v: string) => {
     onChange(v);
@@ -72,6 +81,8 @@ function SearchableSelect({
         onFocus={() => { setOpen(true); setQuery(''); }}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         placeholder={placeholder}
+        aria-label={ariaLabel ?? placeholder}
+        autoComplete="off"
         className="w-full h-11 pl-10 pr-9 bg-[#F4F3F1] text-[#0F172A] text-sm font-medium rounded-xl border border-transparent focus:border-[#2563EB] focus:bg-white outline-none transition-colors duration-200 placeholder:text-[#94A3B8] placeholder:font-normal truncate"
       />
       <ChevronDown
@@ -90,7 +101,7 @@ function SearchableSelect({
               <button
                 key={o.value}
                 onClick={() => pick(o.value)}
-                className={`w-full text-left px-4 py-2.5 min-h-[40px] text-sm transition-colors cursor-pointer ${
+                className={`w-full text-left px-4 py-2.5 min-h-[44px] text-sm transition-colors cursor-pointer ${
                   o.value === value ? 'bg-[#EFF6FF] text-[#2563EB] font-semibold' : 'text-[#0F172A] hover:bg-[#F4F3F1]'
                 }`}
               >

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Undo2, Check, TriangleAlert, Flag } from 'lucide-react';
 import Card from './Card';
 import { displayNombreUniversidad } from '../data';
@@ -6,6 +6,7 @@ import { calculatePonderado, correctasActuales, sinPrueba, tablaPrueba, Puntajes
 import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
 import { PRUEBAS, PruebaId } from '../constants';
 import SearchableSelect from './SearchableSelect';
+import { buscarCategorias, buscarIds, compararPorCorte } from '../busqueda';
 
 interface Props {
   porCategoria: CarrerasPorCategoria;
@@ -37,14 +38,17 @@ function SimuladorInversoSection({
     [porCategoria, categoriaDisplay]
   );
   const [career, setCareer] = useState(opciones[0]?.value || '');
-  const [uniIdx, setUniIdx] = useState(0);
+  const [uniId, setUniId] = useState('');
   const [variable, setVariable] = useState<PruebaVar>('m1');
 
   useEffect(() => { if (!porCategoria[career]) setCareer(opciones[0]?.value || ''); }, [anioAdmision]);
 
-  const unis = (porCategoria[career] || []).filter((u) => u.ponderacion);
-  const uniOptions = unis.map((u, i) => ({ value: String(i), label: displayNombreUniversidad(u), sublabel: u.region || undefined }));
-  const carrera: CarreraConDetalle | undefined = unis[uniIdx];
+  const todas = useMemo(() => Object.values(porCategoria).flat(), [porCategoria]);
+  const buscarCarrera = useCallback((q: string) => buscarCategorias(todas, categoriaDisplay, q), [todas, categoriaDisplay]);
+  const unis = useMemo(() => (porCategoria[career] || []).filter((u) => u.ponderacion).sort(compararPorCorte), [porCategoria, career]);
+  const buscarUni = useCallback((q: string) => buscarIds(unis, categoriaDisplay, q), [unis, categoriaDisplay]);
+  const uniOptions = unis.map((u) => ({ value: u.id, label: displayNombreUniversidad(u), sublabel: u.region || undefined }));
+  const carrera: CarreraConDetalle | undefined = unis.find((u) => u.id === uniId) ?? unis[0];
 
   // Pruebas que la carrera pondera (candidatas a resolver)
   const pruebasDisponibles = useMemo(() => {
@@ -102,11 +106,11 @@ function SimuladorInversoSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <span className={labelCls}>Carrera meta</span>
-          <div className="mt-1"><SearchableSelect options={opciones} value={career} onChange={(v) => { setCareer(v); setUniIdx(0); }} placeholder="Busca tu carrera..." /></div>
+          <div className="mt-1"><SearchableSelect options={opciones} value={career} onChange={(v) => { setCareer(v); setUniId(''); }} buscar={buscarCarrera} placeholder="Busca tu carrera..." /></div>
         </div>
         <div>
           <span className={labelCls}>Universidad</span>
-          <div className="mt-1"><SearchableSelect options={uniOptions} value={String(uniIdx)} onChange={(v) => setUniIdx(parseInt(v, 10))} placeholder="Busca la universidad..." /></div>
+          <div className="mt-1"><SearchableSelect options={uniOptions} value={carrera?.id ?? ''} onChange={setUniId} buscar={buscarUni} placeholder="Busca la universidad (ej: uc, usach)..." /></div>
         </div>
       </div>
 

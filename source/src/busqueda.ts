@@ -358,3 +358,13 @@ export function guardarLista(clave: string, lista: string[]): void {
 export function agregarReciente(lista: string[], valor: string, max = 5): string[] {
   return [valor, ...lista.filter((x) => x !== valor)].slice(0, max);
 }
+
+// Categorías que calzan con la búsqueda, por relevancia (para listas de "elige una carrera").
+export function buscarCategorias(carreras: CarreraConDetalle[], categoriaDisplay: Record<string, string>, query: string): string[] {
+  return agruparPorCategoria(buscarCarreras(carreras, categoriaDisplay, query).resultados).map((g) => g.categoria);
+}
+
+// Ids de las carreras que calzan con la búsqueda, por relevancia.
+export function buscarIds(carreras: CarreraConDetalle[], categoriaDisplay: Record<string, string>, query: string): string[] {
+  return buscarCarreras(carreras, categoriaDisplay, query).resultados.map((r) => r.carrera.id);
+}

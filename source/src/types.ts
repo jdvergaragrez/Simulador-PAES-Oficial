@@ -110,6 +110,6 @@ export interface AppState {
   puntajesDirectos: Partial<Record<PruebaId, string>>;
   targetCareer: string;
   targetCarreraId: string; // id fijo de la carrera elegida ('' = ninguna)
-  compareSlots: string[]; // encoded strings of "categoria:uniIndex" or ""
+  compareSlots: string[]; // ids de carrera ('' = vacío; enlaces antiguos traen "categoria:indice")
   favoritos: string[]; // carrera ids marcadas como favoritas
 }

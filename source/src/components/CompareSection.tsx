@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Columns3, X, Plus, MapPin, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
 import Card from './Card';
 import { displayNombreUniversidad } from '../data';
@@ -6,6 +6,7 @@ import { calculatePonderado, carreraPorIndice, PuntajesDirectos } from '../utils
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
 import { ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
 import SearchableSelect from './SearchableSelect';
+import { buscarIds } from '../busqueda';
 
 interface CompareSectionProps {
   porCategoria: CarrerasPorCategoria;
@@ -19,7 +20,7 @@ interface CompareSectionProps {
   historiaCorrect: number;
   cienciasModule: 'biologia' | 'fisica' | 'quimica';
   directos: PuntajesDirectos;
-  compareSlots: string[]; // ["career:idx", ...]
+  compareSlots: string[]; // ids de carrera (o "categoria:indice" en enlaces antiguos)
   onChangeCompareSlot: (slotIndex: number, value: string) => void;
   onOpenDetail: (carrera: CarreraConDetalle) => void;
 }
@@ -74,10 +75,10 @@ function CompareSection({
   const opciones = useMemo(() => {
     const out: { value: string; label: string; sublabel: string }[] = [];
     Object.entries(porCategoria).forEach(([careerKey, list]) => {
-      list.forEach((uni, idx) => {
+      list.forEach((uni) => {
         if (!uni.ponderacion) return;
         out.push({
-          value: `${careerKey}:${idx}`,
+          value: uni.id,
           label: categoriaDisplay[careerKey] || uni.nombre || careerKey,
           sublabel: displayNombreUniversidad(uni),
         });
@@ -86,10 +87,16 @@ function CompareSection({
     return out.sort((a, b) => (a.label + a.sublabel).localeCompare(b.label + b.sublabel, 'es'));
   }, [porCategoria, categoriaDisplay]);
 
+  const carreras = useMemo(() => Object.values(porCategoria).flat().filter((c) => c.ponderacion), [porCategoria]);
+  const porId = useMemo(() => new Map(carreras.map((c) => [c.id, c])), [carreras]);
+  const buscar = useCallback((q: string) => buscarIds(carreras, categoriaDisplay, q), [carreras, categoriaDisplay]);
+
   const resolve = (comboVal: string): CarreraConDetalle | null => {
     if (!comboVal) return null;
+    if (porId.has(comboVal)) return porId.get(comboVal)!;
+    // Formato antiguo "categoria:indice"
     const [careerKey, idxStr] = comboVal.split(':');
-    return carreraPorIndice(porCategoria, careerKey, parseInt(idxStr, 10));
+    return idxStr === undefined ? null : carreraPorIndice(porCategoria, careerKey, parseInt(idxStr, 10));
   };
 
   const ponderadoDe = (uni: CarreraConDetalle) =>
@@ -113,8 +120,9 @@ function CompareSection({
           <div key={slotIndex}>
             <SearchableSelect
               options={opciones}
-              value={compareSlots[slotIndex] || ''}
+              value={resolve(compareSlots[slotIndex])?.id ?? ''}
               onChange={(v) => onChangeCompareSlot(slotIndex, v)}
+              buscar={buscar}
               placeholder={`Opción ${slotIndex + 1}...`}
             />
           </div>
