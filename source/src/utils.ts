@@ -1,4 +1,4 @@
-import { AppState, CarreraConDetalle, CienciasModule } from './types';
+import { AppState, CarreraConDetalle, CarrerasPorCategoria, CienciasModule } from './types';
 import { tablasPAES } from './data';
 import { PruebaId } from './constants';
 
@@ -90,6 +90,15 @@ export function calculatePonderado(
   return Math.round(scoreTotal) / 100;
 }
 
+// Estado parcial leído de un enlace o del localStorage. legacyUniIndex viene del formato
+// antiguo (tc + tui) y se traduce a targetCarreraId cuando el catálogo está cargado.
+export type EstadoDecodificado = Partial<AppState> & { legacyUniIndex?: number };
+
+// Traduce el formato antiguo (categoría + índice de universidad) al id fijo de la carrera.
+export function resolverCarreraLegacy(porCategoria: CarrerasPorCategoria, categoria: string, uniIndex: number): string {
+  return porCategoria[categoria]?.[uniIndex]?.id ?? '';
+}
+
 /**
  * Encodes AppState to base64 compact representation for clean URLs
  */
@@ -108,7 +117,7 @@ export function encodeState(state: AppState): string {
       ],
       cm: state.cienciasModule,
       tc: state.targetCareer,
-      tui: state.targetUniIndex,
+      tid: state.targetCarreraId,
       cs: state.compareSlots,
       ge: state.grupoEducativo,
       pg: state.percentilGeneracion,
@@ -128,7 +137,7 @@ export function encodeState(state: AppState): string {
 /**
  * Decodes base64 string to partial AppState
  */
-export function decodeState(encoded: string): Partial<AppState> | null {
+export function decodeState(encoded: string): EstadoDecodificado | null {
   try {
     const jsonStr = decodeURIComponent(escape(atob(encoded)));
     const compactObj = JSON.parse(jsonStr);
@@ -152,7 +161,9 @@ export function decodeState(encoded: string): Partial<AppState> | null {
       },
       cienciasModule: compactObj.cm ?? 'fisica',
       targetCareer: compactObj.tc ?? 'civil',
-      targetUniIndex: compactObj.tui ?? 0,
+      targetCarreraId: typeof compactObj.tid === 'string' ? compactObj.tid : '',
+      // Enlaces antiguos guardaban la posición de la universidad dentro de la categoría.
+      legacyUniIndex: typeof compactObj.tid !== 'string' && typeof compactObj.tui === 'number' ? compactObj.tui : undefined,
       compareSlots: compactObj.cs ?? ['', '', ''],
       grupoEducativo: compactObj.ge ?? 'CH_DIURNO',
       percentilGeneracion: compactObj.pg ?? '',

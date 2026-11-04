@@ -10,18 +10,18 @@ interface TargetSelectorProps {
   porCategoria: CarrerasPorCategoria;
   categoriaDisplay: Record<string, string>;
   targetCareer: string;
-  targetUniIndex: number;
+  targetCarreraId: string;
   onChangeCareer: (career: string) => void;
-  onChangeUniIndex: (index: number) => void;
+  onChangeCarreraId: (id: string) => void;
 }
 
 function TargetSelector({
   porCategoria,
   categoriaDisplay,
   targetCareer,
-  targetUniIndex,
+  targetCarreraId,
   onChangeCareer,
-  onChangeUniIndex,
+  onChangeCarreraId,
 }: TargetSelectorProps) {
   const currentUnis = porCategoria[targetCareer] || [];
 
@@ -37,12 +37,11 @@ function TargetSelector({
   const uniOptions = useMemo(
     () =>
       currentUnis
-        .map((uni, idx) => ({ uni, idx }))
-        .filter((x) => x.uni.ponderacion !== null)
-        .map((x) => ({
-          value: String(x.idx),
-          label: displayNombreUniversidad(x.uni),
-          sublabel: x.uni.region || undefined,
+        .filter((uni) => uni.ponderacion !== null)
+        .map((uni) => ({
+          value: uni.id,
+          label: displayNombreUniversidad(uni),
+          sublabel: uni.region || undefined,
         })),
     [currentUnis]
   );
@@ -50,10 +49,10 @@ function TargetSelector({
   // Auto-correct university selection if it becomes invalid on career change
   useEffect(() => {
     if (uniOptions.length > 0) {
-      const isValid = uniOptions.some((o) => o.value === String(targetUniIndex));
-      if (!isValid) onChangeUniIndex(parseInt(uniOptions[0].value, 10));
+      const isValid = uniOptions.some((o) => o.value === targetCarreraId);
+      if (!isValid) onChangeCarreraId(uniOptions[0].value);
     }
-  }, [targetCareer, targetUniIndex, uniOptions]);
+  }, [targetCareer, targetCarreraId, uniOptions]);
 
   return (
     <Card id="section-objetivo" className="space-y-4">
@@ -78,8 +77,8 @@ function TargetSelector({
           </label>
           <SearchableSelect
             options={uniOptions}
-            value={String(targetUniIndex)}
-            onChange={(v) => onChangeUniIndex(parseInt(v, 10))}
+            value={targetCarreraId}
+            onChange={onChangeCarreraId}
             placeholder="Busca la universidad..."
           />
         </div>

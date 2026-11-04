@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { calculatePonderado, correctasEquivalentes, puntajePrueba } from './utils';
+import { calculatePonderado, correctasEquivalentes, decodeState, encodeState, puntajePrueba, resolverCarreraLegacy } from './utils';
 import { tablasPAES } from './data';
-import { CarreraConDetalle, ElectiveType, Ponderacion } from './types';
+import { AppState, CarreraConDetalle, ElectiveType, Ponderacion } from './types';
 
 function carrera(electivaTipo: ElectiveType, w: Partial<Ponderacion>): CarreraConDetalle {
   return {
@@ -106,5 +106,32 @@ describe('conversión de correctas a puntaje', () => {
   it('correctasEquivalentes es la inversa aproximada', () => {
     expect(correctasEquivalentes('m1', 664, 'fisica')).toBe(40);
     expect(correctasEquivalentes('m1', 665, 'fisica')).toBe(40);
+  });
+});
+
+describe('enlaces compartidos', () => {
+  const base: AppState = {
+    grades: { g1: '6,5', g2: '', g3: '', g4: '' },
+    manualNem: '', manualRanking: '', grupoEducativo: 'CH_DIURNO', percentilGeneracion: '',
+    scores: { lectora: 1, m1: 2, m2: 3, ciencias: 4, historia: 5 },
+    cienciasModule: 'fisica', modoPuntaje: [], puntajesDirectos: {},
+    targetCareer: 'medicina', targetCarreraId: 'uc-medicina', compareSlots: ['', '', ''], favoritos: [],
+  };
+
+  it('codifica y decodifica el id fijo de la carrera', () => {
+    const d = decodeState(encodeState(base))!;
+    expect(d.targetCareer).toBe('medicina');
+    expect(d.targetCarreraId).toBe('uc-medicina');
+    expect(d.legacyUniIndex).toBeUndefined();
+  });
+
+  it('traduce el formato antiguo tc + tui', () => {
+    const antiguo = btoa(JSON.stringify({ tc: 'medicina', tui: 1 }));
+    const d = decodeState(antiguo)!;
+    expect(d.targetCarreraId).toBe('');
+    expect(d.legacyUniIndex).toBe(1);
+    const porCategoria = { medicina: [carrera('ciencias', {}), { ...carrera('ciencias', {}), id: 'uch-medicina' }] };
+    expect(resolverCarreraLegacy(porCategoria, d.targetCareer!, d.legacyUniIndex!)).toBe('uch-medicina');
+    expect(resolverCarreraLegacy(porCategoria, 'no-existe', 0)).toBe('');
   });
 });

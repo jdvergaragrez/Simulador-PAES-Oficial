@@ -5,7 +5,7 @@ import { Info, Share2, Link2, RotateCcw, Database, Check } from 'lucide-react';
 import { AppState, CarreraConDetalle } from './types';
 import { loadCatalogo, Catalogo } from './data';
 import CatalogoCargando from './components/CatalogoCargando';
-import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos } from './utils';
+import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos, EstadoDecodificado, resolverCarreraLegacy } from './utils';
 import { PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
 
 // Subcomponents
@@ -49,7 +49,7 @@ const INITIAL_STATE: AppState = {
   modoPuntaje: [],
   puntajesDirectos: {},
   targetCareer: '',
-  targetUniIndex: 0,
+  targetCarreraId: '',
   compareSlots: ['', '', ''],
   favoritos: [],
 };
@@ -80,6 +80,22 @@ export default function App() {
   }, [dark]);
   const toggleDark = useCallback(() => setDark((d) => !d), []);
 
+  // Enlace o estado guardado con el formato antiguo (tc + tui): se traduce al id fijo
+  // de la carrera en cuanto el catálogo está cargado.
+  const legacyUniIndex = useRef<number | null>(null);
+  const aplicarEstado = useCallback((decoded: EstadoDecodificado) => {
+    const { legacyUniIndex: idx, targetUniIndex: indiceViejo, ...resto } = decoded as EstadoDecodificado & { targetUniIndex?: number };
+    const indiceAntiguo = idx ?? (typeof indiceViejo === 'number' && !resto.targetCarreraId ? indiceViejo : undefined);
+    if (indiceAntiguo !== undefined) legacyUniIndex.current = indiceAntiguo;
+    setState((prev) => ({ ...prev, ...resto }));
+  }, []);
+  useEffect(() => {
+    if (!catalogo || legacyUniIndex.current === null) return;
+    const idx = legacyUniIndex.current;
+    legacyUniIndex.current = null;
+    setState((prev) => ({ ...prev, targetCarreraId: resolverCarreraLegacy(catalogo.porCategoria, prev.targetCareer, idx) }));
+  }, [catalogo]);
+
   // Load initial state from URL query or localStorage on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -96,10 +112,7 @@ export default function App() {
             g4: (decoded.grades.g4 || '').replace(/\./g, ','),
           };
         }
-        setState((prev) => ({
-          ...prev,
-          ...decoded,
-        }));
+        aplicarEstado(decoded);
         // Clean up the URL query param for aesthetics but keep loaded state
         window.history.replaceState({}, document.title, window.location.pathname);
         showToast('Datos cargados desde el enlace compartido');
@@ -121,10 +134,7 @@ export default function App() {
               g4: (parsed.grades.g4 || '').replace(/\./g, ','),
             };
           }
-          setState((prev) => ({
-            ...prev,
-            ...parsed,
-          }));
+          aplicarEstado(parsed);
         }
       } catch (e) {
         console.error('Error parsing cached state', e);
@@ -166,14 +176,14 @@ export default function App() {
   const handleDirectoChange = useCallback((prueba: PruebaId, valor: string) => {
     setState((prev) => ({ ...prev, puntajesDirectos: { ...prev.puntajesDirectos, [prueba]: valor } }));
   }, []);
-  const handleCareerChange = useCallback((career: string) => setState((prev) => ({ ...prev, targetCareer: career, targetUniIndex: 0 })), []);
+  const handleCareerChange = useCallback((career: string) => setState((prev) => ({ ...prev, targetCareer: career, targetCarreraId: '' })), []);
   const handleToggleFav = useCallback((carreraId: string) => {
     setState((prev) => ({
       ...prev,
       favoritos: prev.favoritos.includes(carreraId) ? prev.favoritos.filter((id) => id !== carreraId) : [...prev.favoritos, carreraId],
     }));
   }, []);
-  const handleUniIndexChange = useCallback((index: number) => setState((prev) => ({ ...prev, targetUniIndex: index })), []);
+  const handleCarreraIdChange = useCallback((id: string) => setState((prev) => ({ ...prev, targetCarreraId: id })), []);
 
   const handleCompareSlotChange = useCallback((slotIndex: number, value: string) => {
     setState((prev) => {
@@ -218,7 +228,7 @@ export default function App() {
 
   // Selected Target University and its weighted score calculation
   const targetUniList = catalogo?.porCategoria[resolvedCareer] ?? [];
-  const targetUni = targetUniList[state.targetUniIndex] || null;
+  const targetUni = targetUniList.find((c) => c.id === state.targetCarreraId) || null;
 
   const targetPonderado = targetUni
     ? calculatePonderado(
@@ -336,9 +346,9 @@ export default function App() {
                     porCategoria={catalogo.porCategoria}
                     categoriaDisplay={catalogo.categoriaDisplay}
                     targetCareer={resolvedCareer}
-                    targetUniIndex={state.targetUniIndex}
+                    targetCarreraId={state.targetCarreraId}
                     onChangeCareer={handleCareerChange}
-                    onChangeUniIndex={handleUniIndexChange}
+                    onChangeCarreraId={handleCarreraIdChange}
                   /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} />}
                   <GradeInputs
                     g1={state.grades.g1}
