@@ -1,6 +1,7 @@
 import { AppState, CarreraConDetalle, CarrerasPorCategoria, CienciasModule } from './types';
 import { tablasPAES } from './data';
 import { PruebaId } from './constants';
+import { categoriaGenerica } from './categoriasAlias';
 
 // Puntajes ingresados directamente (modo "Puntaje"), ya validados en rango 100–1000.
 export type PuntajesDirectos = Partial<Record<PruebaId, number>>;
@@ -94,9 +95,18 @@ export function calculatePonderado(
 // antiguo (tc + tui) y se traduce a targetCarreraId cuando el catálogo está cargado.
 export type EstadoDecodificado = Partial<AppState> & { legacyUniIndex?: number };
 
+// Carrera guardada como "categoría + índice". Si la categoría es una variante que hoy se agrupa
+// en otra (categoriasAlias.ts), el índice se cuenta dentro de esa variante, como antes de agrupar.
+export function carreraPorIndice(porCategoria: CarrerasPorCategoria, categoria: string, indice: number): CarreraConDetalle | null {
+  const generica = categoriaGenerica(categoria);
+  const lista = porCategoria[generica] ?? [];
+  if (generica === categoria) return lista[indice] ?? null;
+  return lista.filter((c) => c.categoriaOriginal === categoria)[indice] ?? null;
+}
+
 // Traduce el formato antiguo (categoría + índice de universidad) al id fijo de la carrera.
 export function resolverCarreraLegacy(porCategoria: CarrerasPorCategoria, categoria: string, uniIndex: number): string {
-  return porCategoria[categoria]?.[uniIndex]?.id ?? '';
+  return carreraPorIndice(porCategoria, categoria, uniIndex)?.id ?? '';
 }
 
 /**

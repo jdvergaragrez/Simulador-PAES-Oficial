@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { Info, Share2, Link2, RotateCcw, Database, Check } from 'lucide-react';
 import { AppState, CarreraConDetalle } from './types';
 import { loadCatalogo, Catalogo } from './data';
+import { categoriaGenerica } from './categoriasAlias';
 import CatalogoCargando from './components/CatalogoCargando';
 import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos, EstadoDecodificado, resolverCarreraLegacy } from './utils';
 import { PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
@@ -93,7 +94,11 @@ export default function App() {
     if (!catalogo || legacyUniIndex.current === null) return;
     const idx = legacyUniIndex.current;
     legacyUniIndex.current = null;
-    setState((prev) => ({ ...prev, targetCarreraId: resolverCarreraLegacy(catalogo.porCategoria, prev.targetCareer, idx) }));
+    setState((prev) => ({
+      ...prev,
+      targetCareer: categoriaGenerica(prev.targetCareer),
+      targetCarreraId: resolverCarreraLegacy(catalogo.porCategoria, prev.targetCareer, idx),
+    }));
   }, [catalogo]);
 
   // Load initial state from URL query or localStorage on mount

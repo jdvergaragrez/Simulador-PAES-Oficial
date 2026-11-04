@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Columns3, X, Plus, MapPin, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
 import Card from './Card';
 import { displayNombreUniversidad } from '../data';
-import { calculatePonderado, PuntajesDirectos } from '../utils';
+import { calculatePonderado, carreraPorIndice, PuntajesDirectos } from '../utils';
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
 import { ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
 import SearchableSelect from './SearchableSelect';
@@ -89,7 +89,7 @@ function CompareSection({
   const resolve = (comboVal: string): CarreraConDetalle | null => {
     if (!comboVal) return null;
     const [careerKey, idxStr] = comboVal.split(':');
-    return porCategoria[careerKey]?.[parseInt(idxStr, 10)] || null;
+    return carreraPorIndice(porCategoria, careerKey, parseInt(idxStr, 10));
   };
 
   const ponderadoDe = (uni: CarreraConDetalle) =>

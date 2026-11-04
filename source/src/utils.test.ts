@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { calculatePonderado, correctasEquivalentes, decodeState, encodeState, puntajePrueba, resolverCarreraLegacy } from './utils';
+import { calculatePonderado, carreraPorIndice, correctasEquivalentes, decodeState, encodeState, puntajePrueba, resolverCarreraLegacy } from './utils';
+import { categoriaGenerica } from './categoriasAlias';
 import { tablasPAES } from './data';
 import { AppState, CarreraConDetalle, ElectiveType, Ponderacion } from './types';
 
@@ -8,6 +9,7 @@ function carrera(electivaTipo: ElectiveType, w: Partial<Ponderacion>): CarreraCo
     id: 'test',
     nombre: 'Carrera de prueba',
     categoria: 'test',
+    categoriaOriginal: 'test',
     universidadNombre: 'Universidad de prueba',
     universidadTipo: 'CRUCH',
     sedeNombre: 'Sede Principal',
@@ -133,5 +135,26 @@ describe('enlaces compartidos', () => {
     const porCategoria = { medicina: [carrera('ciencias', {}), { ...carrera('ciencias', {}), id: 'uch-medicina' }] };
     expect(resolverCarreraLegacy(porCategoria, d.targetCareer!, d.legacyUniIndex!)).toBe('uch-medicina');
     expect(resolverCarreraLegacy(porCategoria, 'no-existe', 0)).toBe('');
+  });
+});
+
+describe('categorías agrupadas', () => {
+  const c = (id: string, categoria: string, categoriaOriginal: string) => ({ ...carrera('ciencias', {}), id, categoria, categoriaOriginal });
+  const porCategoria = {
+    'ingenieria-comercial': [c('a', 'ingenieria-comercial', 'ingenieria-comercial'), c('b', 'ingenieria-comercial', 'ingenieria-comercial-con'), c('d', 'ingenieria-comercial', 'ingenieria-comercial-con')],
+  };
+
+  it('los índices antiguos de una variante agrupada siguen apuntando a la misma carrera', () => {
+    expect(carreraPorIndice(porCategoria, 'ingenieria-comercial', 0)?.id).toBe('a');
+    expect(carreraPorIndice(porCategoria, 'ingenieria-comercial-con', 1)?.id).toBe('d');
+    expect(resolverCarreraLegacy(porCategoria, 'ingenieria-comercial-con', 0)).toBe('b');
+  });
+
+  it('no fusiona civil con ejecución, bachilleratos ni pedagogías distintas', () => {
+    expect(categoriaGenerica('ingenieria-civil-en-informatica')).toBe('ingenieria-civil-informatica');
+    expect(categoriaGenerica('ingenieria-en-informatica')).toBe('ingenieria-en-informatica');
+    expect(categoriaGenerica('bachillerato-de-ingenieria-comercial')).toBe('bachillerato-de-ingenieria-comercial');
+    expect(categoriaGenerica('pedagogia-en-educacion-basica-con')).toBe('pedagogia-en-educacion-basica');
+    expect(categoriaGenerica('pedagogia-en-educacion-general-basica-con')).toBe('pedagogia-en-educacion-general-basica');
   });
 });

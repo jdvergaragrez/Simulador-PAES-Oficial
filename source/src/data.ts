@@ -8,6 +8,7 @@ import {
   CarrerasPorCategoria,
   GrupoEducativo,
 } from './types';
+import { categoriasAlias, categoriaGenerica } from './categoriasAlias';
 
 export const tablasPAES = {
   lectora: {0:100,1:149,2:172,3:193,4:214,5:234,6:253,7:269,8:284,9:298,10:313,11:330,12:347,13:361,14:373,15:383,16:393,17:404,18:417,19:432,20:447,21:461,22:472,23:480,24:487,25:495,26:504,27:516,28:531,29:546,30:560,31:571,32:580,33:587,34:594,35:603,36:614,37:629,38:644,39:659,40:671,41:680,42:689,43:699,44:711,45:725,46:741,47:758,48:772,49:786,50:799,51:814,52:832,53:852,54:871,55:892,56:913,57:936,58:963,59:991,60:1000} as Record<number, number>,
@@ -20,6 +21,9 @@ export const tablasPAES = {
 };
 
 // Join: builds the categoria -> CarreraConDetalle[] read model from the normalized seeds.
+// Las categorías equivalentes se agrupan (categoriasAlias.ts). Dentro de cada grupo van primero
+// las carreras de la categoría genérica y luego las unidas, para que los índices antiguos
+// "categoria:indice" de la categoría genérica sigan apuntando a la misma carrera.
 function buildCarrerasPorCategoria(
   universidades: Universidad[],
   sedes: Sede[],
@@ -32,7 +36,7 @@ function buildCarrerasPorCategoria(
   const ponderacionByCarreraId = new Map(ponderaciones.map((p) => [p.carreraId, p]));
   const corteByCarreraId = new Map(puntajesCorte.map((c) => [c.carreraId, c]));
 
-  const result: CarrerasPorCategoria = {};
+  const porOriginal: CarrerasPorCategoria = {};
 
   carreras.forEach((carrera) => {
     const universidad = universidadesById.get(carrera.universidadId);
@@ -42,7 +46,8 @@ function buildCarrerasPorCategoria(
     const view: CarreraConDetalle = {
       id: carrera.id,
       nombre: carrera.nombre,
-      categoria: carrera.categoria,
+      categoria: categoriaGenerica(carrera.categoria),
+      categoriaOriginal: carrera.categoria,
       universidadNombre: universidad?.nombre ?? '—',
       universidadTipo: universidad?.tipo ?? 'PRIVADA_ADSCRITA',
       sedeNombre: sede?.nombre ?? 'Sede Principal',
@@ -60,10 +65,18 @@ function buildCarrerasPorCategoria(
       puntajeCorte: corte?.puntajeCorte ?? null,
     };
 
-    if (!result[carrera.categoria]) result[carrera.categoria] = [];
-    result[carrera.categoria].push(view);
+    (porOriginal[carrera.categoria] ??= []).push(view);
   });
 
+  const result: CarrerasPorCategoria = {};
+  const originales = Object.keys(porOriginal);
+  for (const key of originales) {
+    if (categoriaGenerica(key) === key) result[key] = [...porOriginal[key]];
+  }
+  for (const key of originales) {
+    const generica = categoriaGenerica(key);
+    if (generica !== key) (result[generica] ??= []).push(...porOriginal[key]);
+  }
   return result;
 }
 
@@ -79,6 +92,13 @@ export interface Catalogo {
   todas: CarreraConDetalle[];
   totalCarreras: number;
   totalUniversidades: number;
+}
+
+// Nombre a mostrar de cada categoría: el de la genérica cuando agrupa variantes.
+function displayAgrupado(display: Record<string, string>): Record<string, string> {
+  const out = { ...display };
+  for (const alias of Object.values(categoriasAlias)) out[alias.generica] = alias.nombre;
+  return out;
 }
 
 // Flattens the categoria map into a single list for global search.
@@ -112,7 +132,7 @@ export function loadCatalogo(): Promise<Catalogo> {
           tieneCortes: true,
           anioCortes: 2026,
           porCategoria,
-          categoriaDisplay: d.categoriaDisplay2027,
+          categoriaDisplay: displayAgrupado(d.categoriaDisplay2027),
           todas: flattenCatalogo(porCategoria),
           totalCarreras: d.carreras2027.length,
           totalUniversidades: d.universidades2027.length,

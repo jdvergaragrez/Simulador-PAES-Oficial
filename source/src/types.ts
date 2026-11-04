@@ -65,7 +65,8 @@ export interface PuntajeCorte {
 export interface CarreraConDetalle {
   id: string;
   nombre: string;
-  categoria: string;
+  categoria: string; // categoría agrupada (ver categoriasAlias.ts)
+  categoriaOriginal: string; // categoría DEMRE tal como viene en los datos
   universidadNombre: string;
   universidadTipo: 'CRUCH' | 'PRIVADA_ADSCRITA';
   sedeNombre: string;
