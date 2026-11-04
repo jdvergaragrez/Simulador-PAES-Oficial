@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Star, ChevronDown, MapPin, Users, Info, Check, TriangleAlert, CircleX, Minus, Clock, TrendingUp, X, Landmark, type LucideIcon } from 'lucide-react';
+import { Search, Star, ChevronDown, MapPin, Users, Info, Check, Clock, TrendingUp, X, Landmark } from 'lucide-react';
+import { EstadoBadge, Resaltado } from './BusquedaUI';
 import Card from './Card';
 import { CarreraConDetalle } from '../types';
 import { calculatePonderado, PuntajesDirectos } from '../utils';
 import { displayNombreUniversidad } from '../data';
-import { ANIO_CORTES, ESTADOS, EstadoCorte, estadoCorte } from '../constants';
+import { ANIO_CORTES, ESTADOS, estadoCorte } from '../constants';
 import {
   agregarReciente, agruparPorCategoria, buscarCarreras, CATEGORIAS_POPULARES, compararPorCorte,
-  guardarLista, leerLista, resaltar, UNIVERSIDADES_ESTATALES,
+  guardarLista, leerLista, UNIVERSIDADES_ESTATALES,
 } from '../busqueda';
 
 interface BuscadorSectionProps {
@@ -35,39 +36,6 @@ const CLAVE_REGION = 'paes_mi_region';
 
 const fmt = (n: number, dec = 2) => n.toLocaleString('es-CL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 const fmtDelta = (d: number) => `${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}`;
-
-const ICONO_ESTADO: Record<EstadoCorte, LucideIcon> = {
-  alcanzable: Check,
-  limite: TriangleAlert,
-  noalcanza: CircleX,
-  sindato: Minus,
-};
-
-export function EstadoBadge({ estado }: { estado: EstadoCorte }) {
-  const meta = ESTADOS[estado];
-  const Icon = ICONO_ESTADO[estado];
-  return (
-    <span
-      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
-      style={{ background: meta.tint, color: meta.ink }}
-    >
-      <Icon size={12} strokeWidth={2.5} />
-      {meta.label}
-    </span>
-  );
-}
-
-// Texto con las partes que coinciden con la búsqueda resaltadas.
-export function Resaltado({ texto, query }: { texto: string; query: string }) {
-  if (!query.trim()) return <>{texto}</>;
-  return (
-    <>
-      {resaltar(texto, query).map((s, i) =>
-        s.resaltado ? <mark key={i} className="bg-transparent text-[#2563EB] font-semibold">{s.texto}</mark> : <React.Fragment key={i}>{s.texto}</React.Fragment>
-      )}
-    </>
-  );
-}
 
 const selectCls =
   'w-full h-11 pl-3 pr-9 bg-[#F4F3F1] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';

@@ -5,7 +5,7 @@ import StepHeader from './StepHeader';
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
 import { ANIO_CORTES, estadoCorte } from '../constants';
 import { agregarReciente, agruparPorCategoria, buscarCarreras, compararPorCorte, guardarLista, leerLista } from '../busqueda';
-import { EstadoBadge, Resaltado } from './BuscadorSection';
+import { EstadoBadge, Resaltado } from './BusquedaUI';
 
 interface TargetSelectorProps {
   carreras: CarreraConDetalle[];

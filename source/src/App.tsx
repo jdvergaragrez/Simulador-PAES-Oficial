@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { Info, Share2, Link2, RotateCcw, Database, Check } from 'lucide-react';
 import { AppState, CarreraConDetalle } from './types';
@@ -9,7 +8,7 @@ import CatalogoCargando from './components/CatalogoCargando';
 import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos, EstadoDecodificado, resolverCarreraLegacy } from './utils';
 import { ANIO_CORTES, PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
 
-// Subcomponents
+// Subcomponents (las secciones fuera de "Mi puntaje" se descargan al abrirlas)
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import { NavId } from './components/navItems';
@@ -19,14 +18,14 @@ import GradeInputs from './components/GradeInputs';
 import SlidersSection, { directoValido } from './components/SlidersSection';
 import TargetSelector from './components/TargetSelector';
 import HeroCard from './components/HeroCard';
-import CompatibilitySection from './components/CompatibilitySection';
+const CompatibilitySection = lazy(() => import('./components/CompatibilitySection'));
 import ImproveSection from './components/ImproveSection';
-import CompareSection from './components/CompareSection';
-import BuscadorSection from './components/BuscadorSection';
-import CareerDetailModal from './components/CareerDetailModal';
-import EnsayosSection from './components/EnsayosSection';
-import SimuladorInversoSection from './components/SimuladorInversoSection';
-import TestVocacionalSection from './components/TestVocacionalSection';
+const CompareSection = lazy(() => import('./components/CompareSection'));
+const BuscadorSection = lazy(() => import('./components/BuscadorSection'));
+const CareerDetailModal = lazy(() => import('./components/CareerDetailModal'));
+const EnsayosSection = lazy(() => import('./components/EnsayosSection'));
+const SimuladorInversoSection = lazy(() => import('./components/SimuladorInversoSection'));
+const TestVocacionalSection = lazy(() => import('./components/TestVocacionalSection'));
 
 const INITIAL_STATE: AppState = {
   grades: {
@@ -325,13 +324,8 @@ export default function App() {
       <div className="max-w-[1180px] mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-28 lg:pb-16 space-y-6">
         <TopBar />
 
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18 }}
-          className="space-y-6"
-        >
+        <Suspense fallback={<CatalogoCargando error={false} onRetry={cargarCatalogo} />}>
+        <div key={activeTab} className="space-y-6 entrada-seccion">
           {activeTab === 'puntaje' && (
             <>
               <div className="pt-2">
@@ -539,7 +533,8 @@ export default function App() {
               </Card>
             </div>
           )}
-        </motion.div>
+        </div>
+        </Suspense>
 
         <footer className="pt-4 pb-2 text-center space-y-1">
           <p className="text-[11px] text-[#94A3B8] leading-relaxed max-w-lg mx-auto">
@@ -570,6 +565,7 @@ export default function App() {
       )}
 
       {detailCarrera && catalogo && (
+        <Suspense fallback={null}>
         <CareerDetailModal
           carrera={detailCarrera}
           categoriaDisplay={catalogo.categoriaDisplay}
@@ -578,6 +574,7 @@ export default function App() {
           onToggleFav={() => handleToggleFav(detailCarrera.id)}
           onClose={() => setDetailCarrera(null)}
         />
+        </Suspense>
       )}
 
       {toastMessage && (

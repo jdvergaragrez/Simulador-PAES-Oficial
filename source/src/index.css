@@ -163,3 +163,8 @@ body {
 /* Superficie del año-selector y otros contenedores con borde claro */
 :root.dark .bg-white.border { border-color: #334155; }
 
+
+/* Entrada suave al cambiar de sección (reemplaza la animación de motion en App). */
+@keyframes entrada-seccion { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.entrada-seccion { animation: entrada-seccion 0.18s ease-out; }
+@media (prefers-reduced-motion: reduce) { .entrada-seccion { animation: none; } }
