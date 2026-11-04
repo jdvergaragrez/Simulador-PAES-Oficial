@@ -94,9 +94,22 @@ export interface Catalogo {
   totalUniversidades: number;
 }
 
-// Nombre a mostrar de cada categoría: el de la genérica cuando agrupa variantes.
+const PALABRAS_MENORES = new Set(['a', 'al', 'and', 'con', 'de', 'del', 'e', 'el', 'en', 'la', 'las', 'los', 'o', 'para', 'u', 'y']);
+
+// "INGENIERÍA EN ALIMENTOS" -> "Ingeniería en Alimentos" (DEMRE publica las categorías en mayúsculas).
+export function formatoTitulo(s: string): string {
+  let primera = true;
+  return s.toLocaleLowerCase('es-CL').replace(/\p{L}+/gu, (w) => {
+    const menor = !primera && PALABRAS_MENORES.has(w);
+    primera = false;
+    return menor ? w : w[0].toLocaleUpperCase('es-CL') + w.slice(1);
+  });
+}
+
+// Nombre a mostrar de cada categoría, en formato título; el de la genérica cuando agrupa variantes.
 function displayAgrupado(display: Record<string, string>): Record<string, string> {
-  const out = { ...display };
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(display)) out[k] = formatoTitulo(v);
   for (const alias of Object.values(categoriasAlias)) out[alias.generica] = alias.nombre;
   return out;
 }

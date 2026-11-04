@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Star, X, Building2, Info, TriangleAlert, Check, CircleX, Minus, ChartColumn, type LucideIcon } from 'lucide-react';
 import { CarreraConDetalle } from '../types';
-import { displayNombreUniversidad } from '../data';
+import { displayNombreUniversidad, normalizar } from '../data';
 import { calculatePonderado, puntajePrueba, PuntajesDirectos } from '../utils';
 import { ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
 
@@ -128,7 +128,7 @@ function CareerDetailModal({
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F4F3F1] text-[#64748B]">
                 Admisión {carrera.anioAdmision}
               </span>
-              {categoriaDisplay[carrera.categoria] && categoriaDisplay[carrera.categoria] !== carrera.nombre && (
+              {categoriaDisplay[carrera.categoria] && normalizar(categoriaDisplay[carrera.categoria]) !== normalizar(carrera.nombre) && (
                 <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F4F3F1] text-[#64748B] truncate max-w-[180px]">
                   {categoriaDisplay[carrera.categoria]}
                 </span>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calculatePonderado, carreraPorIndice, correctasEquivalentes, decodeState, encodeState, puntajePrueba, resolverCarreraLegacy } from './utils';
 import { categoriaGenerica } from './categoriasAlias';
-import { tablasPAES } from './data';
+import { formatoTitulo, tablasPAES } from './data';
 import { AppState, CarreraConDetalle, ElectiveType, Ponderacion } from './types';
 
 function carrera(electivaTipo: ElectiveType, w: Partial<Ponderacion>): CarreraConDetalle {
@@ -156,5 +156,13 @@ describe('categorías agrupadas', () => {
     expect(categoriaGenerica('bachillerato-de-ingenieria-comercial')).toBe('bachillerato-de-ingenieria-comercial');
     expect(categoriaGenerica('pedagogia-en-educacion-basica-con')).toBe('pedagogia-en-educacion-basica');
     expect(categoriaGenerica('pedagogia-en-educacion-general-basica-con')).toBe('pedagogia-en-educacion-general-basica');
+  });
+});
+
+describe('nombres de categoría', () => {
+  it('pasa los nombres DEMRE a formato título', () => {
+    expect(formatoTitulo('INGENIERÍA EN ALIMENTOS')).toBe('Ingeniería en Alimentos');
+    expect(formatoTitulo('PEDAGOGÍA EN EDUCACIÓN BÁSICA CON MENCIÓN')).toBe('Pedagogía en Educación Básica con Mención');
+    expect(formatoTitulo('DE LA ÑUBLE Y M/LENGUAJE')).toBe('De la Ñuble y M/Lenguaje');
   });
 });
