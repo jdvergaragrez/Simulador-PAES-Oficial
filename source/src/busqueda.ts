@@ -323,3 +323,38 @@ export function resaltar(texto: string, query: string): Segmento[] {
   });
   return out;
 }
+
+// Universidades del Estado (Ley 21.094).
+export const UNIVERSIDADES_ESTATALES = new Set([
+  'Universidad de Chile', 'Universidad de Santiago de Chile', 'Universidad de Valparaíso',
+  'Universidad de Antofagasta', 'Universidad de La Serena', 'Universidad del Bío-Bío',
+  'Universidad de La Frontera', 'Universidad de Magallanes', 'Universidad de Talca',
+  'Universidad de Atacama', 'Universidad de Tarapacá', 'Universidad Arturo Prat',
+  'Universidad de Los Lagos', 'Universidad de Playa Ancha', 'Universidad Tecnológica Metropolitana',
+  'Universidad Metropolitana de Ciencias de la Educación', "Universidad de O'Higgins", 'Universidad de Aysén',
+]);
+
+// Carreras sugeridas cuando el buscador está vacío.
+export const CATEGORIAS_POPULARES = [
+  'medicina', 'psicologia', 'derecho', 'ingenieria-comercial', 'ingenieria-civil-industrial',
+  'enfermeria', 'ingenieria-civil', 'arquitectura',
+];
+
+// Listas cortas en localStorage (recientes, región). Nunca rompen si el almacenamiento falla.
+export function leerLista(clave: string): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(clave) ?? '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export function guardarLista(clave: string, lista: string[]): void {
+  try { localStorage.setItem(clave, JSON.stringify(lista)); } catch {}
+}
+
+// Agrega al comienzo sin repetir y deja como máximo `max` elementos.
+export function agregarReciente(lista: string[], valor: string, max = 5): string[] {
+  return [valor, ...lista.filter((x) => x !== valor)].slice(0, max);
+}

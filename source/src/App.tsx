@@ -181,14 +181,13 @@ export default function App() {
   const handleDirectoChange = useCallback((prueba: PruebaId, valor: string) => {
     setState((prev) => ({ ...prev, puntajesDirectos: { ...prev.puntajesDirectos, [prueba]: valor } }));
   }, []);
-  const handleCareerChange = useCallback((career: string) => setState((prev) => ({ ...prev, targetCareer: career, targetCarreraId: '' })), []);
+  const handleElegirCarrera = useCallback((c: CarreraConDetalle) => setState((prev) => ({ ...prev, targetCareer: c.categoria, targetCarreraId: c.id })), []);
   const handleToggleFav = useCallback((carreraId: string) => {
     setState((prev) => ({
       ...prev,
       favoritos: prev.favoritos.includes(carreraId) ? prev.favoritos.filter((id) => id !== carreraId) : [...prev.favoritos, carreraId],
     }));
   }, []);
-  const handleCarreraIdChange = useCallback((id: string) => setState((prev) => ({ ...prev, targetCarreraId: id })), []);
 
   const handleCompareSlotChange = useCallback((slotIndex: number, value: string) => {
     setState((prev) => {
@@ -222,13 +221,10 @@ export default function App() {
 
   const isEmpty = finalNemScore === 0 && finalRankingScore === 0 && !PRUEBAS_ORDEN.some(pruebaIngresada);
 
-  // Resolve target category: fall back to the first available if the stored
-  // one isn't present in the active catalog (e.g. right after switching years).
+  // Categoría objetivo: si la guardada no existe en el catálogo queda vacía (sin elegir otra por el usuario).
   const resolvedCareer = useMemo(() => {
     if (!catalogo) return state.targetCareer;
-    return state.targetCareer && catalogo.porCategoria[state.targetCareer]
-      ? state.targetCareer
-      : (Object.keys(catalogo.porCategoria)[0] || '');
+    return catalogo.porCategoria[state.targetCareer] ? state.targetCareer : '';
   }, [catalogo, state.targetCareer]);
 
   // Selected Target University and its weighted score calculation
@@ -261,6 +257,16 @@ export default function App() {
       historia: targetUni.electivaTipo === 'ciencias' ? 0 : w.historiaPct,
     };
   }, [targetUni]);
+
+  // Ponderado del usuario en cualquier carrera (null mientras no ingrese puntajes); lo usa el selector.
+  const ponderadoObjetivo = useCallback(
+    (c: CarreraConDetalle) =>
+      isEmpty
+        ? null
+        : calculatePonderado(finalNemScore, finalRankingScore, state.scores.lectora, state.scores.m1, state.scores.m2,
+            state.scores.ciencias, state.scores.historia, state.cienciasModule, c, directos),
+    [isEmpty, finalNemScore, finalRankingScore, state.scores, state.cienciasModule, directos]
+  );
 
   // Action handlers
   const handleShareLink = useCallback(() => {
@@ -348,12 +354,14 @@ export default function App() {
               <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
                 <div className="space-y-6 min-w-0">
                   {catalogo ? <TargetSelector
+                    carreras={catalogo.todas}
                     porCategoria={catalogo.porCategoria}
                     categoriaDisplay={catalogo.categoriaDisplay}
                     targetCareer={resolvedCareer}
                     targetCarreraId={state.targetCarreraId}
-                    onChangeCareer={handleCareerChange}
-                    onChangeCarreraId={handleCarreraIdChange}
+                    favoritos={state.favoritos}
+                    ponderadoDe={ponderadoObjetivo}
+                    onElegir={handleElegirCarrera}
                   /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} />}
                   <GradeInputs
                     g1={state.grades.g1}

@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Star, ChevronDown, MapPin, Users, Info, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
+import { Search, Star, ChevronDown, MapPin, Users, Info, Check, TriangleAlert, CircleX, Minus, Clock, TrendingUp, X, Landmark, type LucideIcon } from 'lucide-react';
 import Card from './Card';
 import { CarreraConDetalle } from '../types';
 import { calculatePonderado, PuntajesDirectos } from '../utils';
-import { displayNombreUniversidad, normalizar } from '../data';
+import { displayNombreUniversidad } from '../data';
 import { ESTADOS, EstadoCorte, estadoCorte } from '../constants';
+import {
+  agregarReciente, agruparPorCategoria, buscarCarreras, CATEGORIAS_POPULARES, compararPorCorte,
+  guardarLista, leerLista, resaltar, UNIVERSIDADES_ESTATALES,
+} from '../busqueda';
 
 interface BuscadorSectionProps {
   carreras: CarreraConDetalle[];
@@ -25,14 +29,9 @@ interface BuscadorSectionProps {
   onOpenDetail: (carrera: CarreraConDetalle) => void;
 }
 
-type OrdenTipo =
-  | 'alfabetico'
-  | 'corte-desc'
-  | 'corte-asc'
-  | 'vacantes-desc'
-  | 'min-asc';
-
-const MAX_RESULTADOS = 60;
+const MAX_GRUPOS = 30;
+const CLAVE_RECIENTES = 'paes_buscador_recientes';
+const CLAVE_REGION = 'paes_mi_region';
 
 const fmt = (n: number, dec = 2) => n.toLocaleString('es-CL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 const fmtDelta = (d: number) => `${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}`;
@@ -44,7 +43,7 @@ const ICONO_ESTADO: Record<EstadoCorte, LucideIcon> = {
   sindato: Minus,
 };
 
-function EstadoBadge({ estado }: { estado: EstadoCorte }) {
+export function EstadoBadge({ estado }: { estado: EstadoCorte }) {
   const meta = ESTADOS[estado];
   const Icon = ICONO_ESTADO[estado];
   return (
@@ -58,10 +57,30 @@ function EstadoBadge({ estado }: { estado: EstadoCorte }) {
   );
 }
 
+// Texto con las partes que coinciden con la búsqueda resaltadas.
+export function Resaltado({ texto, query }: { texto: string; query: string }) {
+  if (!query.trim()) return <>{texto}</>;
+  return (
+    <>
+      {resaltar(texto, query).map((s, i) =>
+        s.resaltado ? <mark key={i} className="bg-transparent text-[#2563EB] font-semibold">{s.texto}</mark> : <React.Fragment key={i}>{s.texto}</React.Fragment>
+      )}
+    </>
+  );
+}
+
 const selectCls =
-  'w-full h-10 pl-3 pr-9 bg-[#F4F3F1] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';
+  'w-full h-11 pl-3 pr-9 bg-[#F4F3F1] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';
 
 const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F4F3F1] px-2 py-0.5 rounded-full inline-flex items-center gap-1';
+
+const filtroCls = (activo: boolean) =>
+  `flex items-center gap-1.5 text-xs font-medium rounded-full px-3.5 h-11 border transition-colors cursor-pointer ${
+    activo ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
+  }`;
+
+const sugerenciaCls =
+  'inline-flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-full bg-[#F4F3F1] text-sm font-medium text-[#0F172A] hover:bg-[#ECEAE6] transition-colors cursor-pointer';
 
 function BuscadorSection({
   carreras,
@@ -83,19 +102,36 @@ function BuscadorSection({
 }: BuscadorSectionProps) {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [orden, setOrden] = useState<OrdenTipo>('alfabetico');
-  const [soloConPonderacion, setSoloConPonderacion] = useState(true);
-  const [soloConCorte, setSoloConCorte] = useState(false);
+  const [miRegion, setMiRegion] = useState(() => leerLista(CLAVE_REGION)[0] ?? '');
+  const [soloMiRegion, setSoloMiRegion] = useState(false);
+  const [soloEstatales, setSoloEstatales] = useState(false);
+  const [soloSobreCorte, setSoloSobreCorte] = useState(false);
   const [soloFavoritas, setSoloFavoritas] = useState(false);
-  const [region, setRegion] = useState('');
-  const [tipoU, setTipoU] = useState<'' | 'CRUCH' | 'PRIVADA_ADSCRITA'>('');
-  const favSet = new Set(favoritos);
+  const [recientes, setRecientes] = useState(() => leerLista(CLAVE_RECIENTES));
+  const [abiertos, setAbiertos] = useState<Set<string>>(new Set());
+  const favSet = useMemo(() => new Set(favoritos), [favoritos]);
 
-  // Debounce the query (200ms) per spec.
+  // Debounce de la búsqueda (200 ms).
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 200);
     return () => clearTimeout(t);
   }, [query]);
+
+  // Guarda como reciente lo que el usuario dejó escrito por un momento.
+  useEffect(() => {
+    const q = debouncedQuery.trim();
+    if (q.length < 3) return;
+    const t = setTimeout(() => {
+      setRecientes((prev) => {
+        const next = agregarReciente(prev, q);
+        guardarLista(CLAVE_RECIENTES, next);
+        return next;
+      });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [debouncedQuery]);
+
+  useEffect(() => setAbiertos(new Set()), [debouncedQuery]);
 
   const regiones = useMemo(
     () => [...new Set(carreras.map((c) => c.region).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'es')),
@@ -107,65 +143,146 @@ function BuscadorSection({
     m2Correct > 0 || cienciasCorrect > 0 || historiaCorrect > 0 ||
     Object.keys(directos).length > 0;
 
-  const resultados = useMemo(() => {
-    const q = normalizar(debouncedQuery);
-    const tokens = q.split(/\s+/).filter(Boolean);
-
-    let base = carreras.filter((c) => {
-      if (soloConPonderacion && !c.ponderacion) return false;
-      if (soloConCorte && c.puntajeCorte === null) return false;
-      if (soloFavoritas && !favSet.has(c.id)) return false;
-      if (region && c.region !== region) return false;
-      if (tipoU && c.universidadTipo !== tipoU) return false;
-      if (tokens.length === 0) return true;
-      const haystack = normalizar(
-        `${c.nombre} ${c.universidadNombre} ${c.sedeNombre} ${c.region || ''} ${categoriaDisplay[c.categoria] || ''}`
-      );
-      return tokens.every((t) => haystack.includes(t));
-    });
-
-    const cmpNum = (a: number | null, b: number | null, dir: number) => {
-      const av = a === null ? (dir > 0 ? -Infinity : Infinity) : a;
-      const bv = b === null ? (dir > 0 ? -Infinity : Infinity) : b;
-      return (av - bv) * dir;
-    };
-
-    base = [...base].sort((a, b) => {
-      switch (orden) {
-        case 'corte-desc':
-          return cmpNum(a.puntajeCorte, b.puntajeCorte, -1);
-        case 'corte-asc':
-          return cmpNum(a.puntajeCorte, b.puntajeCorte, 1);
-        case 'vacantes-desc':
-          return cmpNum(a.vacantes, b.vacantes, -1);
-        case 'min-asc':
-          return cmpNum(a.promedioMinimo ?? null, b.promedioMinimo ?? null, 1);
-        default:
-          return a.nombre.localeCompare(b.nombre, 'es');
-      }
-    });
-
-    return base;
-  }, [carreras, debouncedQuery, orden, soloConPonderacion, soloConCorte, soloFavoritas, favoritos, region, tipoU, categoriaDisplay]);
-
-  const visibles = resultados.slice(0, MAX_RESULTADOS);
-
   const ponderadoDe = (c: CarreraConDetalle) =>
     calculatePonderado(
       nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct,
       cienciasCorrect, historiaCorrect, cienciasModule, c, directos
     );
 
-  const opcionesOrden: { value: OrdenTipo; label: string }[] = [
-    { value: 'alfabetico', label: 'Alfabético (A-Z)' },
-    ...(tieneCortes
-      ? ([
-          { value: 'corte-desc', label: 'Corte más alto' },
-          { value: 'corte-asc', label: 'Corte más bajo' },
-        ] as { value: OrdenTipo; label: string }[])
-      : ([{ value: 'min-asc', label: 'Menor puntaje mínimo' }] as { value: OrdenTipo; label: string }[])),
-    { value: 'vacantes-desc', label: 'Más vacantes' },
-  ];
+  const conPonderacion = useMemo(() => carreras.filter((c) => c.ponderacion), [carreras]);
+  const busqueda = useMemo(
+    () => buscarCarreras(conPonderacion, categoriaDisplay, debouncedQuery),
+    [conPonderacion, categoriaDisplay, debouncedQuery]
+  );
+
+  const hayTexto = debouncedQuery.trim().length > 0;
+  const hayFiltros = (soloMiRegion && !!miRegion) || soloEstatales || soloSobreCorte || soloFavoritas;
+
+  const grupos = useMemo(() => {
+    const pasa = (c: CarreraConDetalle) => {
+      if (soloMiRegion && miRegion && c.region !== miRegion) return false;
+      if (soloEstatales && !UNIVERSIDADES_ESTATALES.has(c.universidadNombre)) return false;
+      if (soloFavoritas && !favSet.has(c.id)) return false;
+      if (soloSobreCorte) {
+        const p = hayPuntajes ? ponderadoDe(c) : null;
+        if (p === null || estadoCorte(p, c.puntajeCorte) !== 'alcanzable') return false;
+      }
+      return true;
+    };
+    if (hayTexto) return agruparPorCategoria(busqueda.resultados.filter((r) => pasa(r.carrera)));
+    if (!hayFiltros) return [];
+    // Sin texto pero con filtros: todas las carreras que pasan, agrupadas alfabéticamente.
+    const porCat = new Map<string, CarreraConDetalle[]>();
+    for (const c of conPonderacion) if (pasa(c)) (porCat.get(c.categoria) ?? porCat.set(c.categoria, []).get(c.categoria)!).push(c);
+    return [...porCat.entries()]
+      .map(([categoria, lista]) => ({ categoria, carreras: lista.sort(compararPorCorte), puntaje: 0 }))
+      .sort((a, b) => (categoriaDisplay[a.categoria] ?? a.categoria).localeCompare(categoriaDisplay[b.categoria] ?? b.categoria, 'es'));
+  }, [busqueda, hayTexto, hayFiltros, conPonderacion, soloMiRegion, miRegion, soloEstatales, soloSobreCorte, soloFavoritas, favSet, hayPuntajes, nemScore, rankingScore, lectoraCorrect, m1Correct, m2Correct, cienciasCorrect, historiaCorrect, cienciasModule, directos, categoriaDisplay]);
+
+  const visibles = grupos.slice(0, MAX_GRUPOS);
+  // El primer grupo se muestra abierto; el resto se abre con un toque.
+  const estaAbierto = (cat: string, i: number) => abiertos.has(cat) !== (i === 0);
+  const alternar = (cat: string) =>
+    setAbiertos((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat); else next.add(cat);
+      return next;
+    });
+
+  const nombreCategoria = (cat: string) => categoriaDisplay[cat] || cat;
+  const populares = CATEGORIAS_POPULARES.filter((k) => conPonderacion.some((c) => c.categoria === k));
+  const borrarRecientes = () => {
+    setRecientes([]);
+    guardarLista(CLAVE_RECIENTES, []);
+  };
+  const elegirRegion = (r: string) => {
+    setMiRegion(r);
+    setSoloMiRegion(!!r);
+    guardarLista(CLAVE_REGION, r ? [r] : []);
+  };
+
+  const renderCarrera = (c: CarreraConDetalle) => {
+    const ponderado = hayPuntajes ? ponderadoDe(c) : null;
+    const corte = c.puntajeCorte;
+    const estado = ponderado !== null ? estadoCorte(ponderado, corte) : null;
+    const delta = ponderado !== null && corte !== null ? ponderado - corte : null;
+    const barColor = estado ? ESTADOS[estado].color : '#E7E5E1';
+
+    let electiveText = '';
+    if (c.electivaTipo === 'ciencias') electiveText = 'Ciencias';
+    else if (c.electivaTipo === 'historia') electiveText = 'Historia';
+    else if (c.electivaTipo === 'mejor') electiveText = 'Ciencias o Historia';
+
+    const minimo = c.ponderadoMinimo != null
+      ? { label: 'Mín. postulación', valor: c.ponderadoMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
+      : c.promedioMinimo != null
+        ? { label: 'Mín. prom. Leng.+M1', valor: c.promedioMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
+        : null;
+
+    const isFav = favSet.has(c.id);
+    return (
+      <div
+        key={c.id}
+        role="button"
+        tabIndex={0}
+        aria-label={`${c.nombre}, ${displayNombreUniversidad(c)}. Ver detalle`}
+        onClick={() => onOpenDetail(c)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenDetail(c); } }}
+        className="relative overflow-hidden bg-white border border-[#E7E5E1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer outline-none focus-visible:border-[#2563EB]"
+      >
+        <div className="absolute top-0 left-0 w-1 h-full" style={{ background: barColor }} aria-hidden />
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFav(c.id); }}
+          title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
+          aria-label={isFav ? `Quitar ${c.nombre} de favoritas` : `Agregar ${c.nombre} a favoritas`}
+          aria-pressed={isFav}
+          className="absolute top-1 right-1 w-11 h-11 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
+        >
+          <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
+        </button>
+        <div className="space-y-1 min-w-0">
+          <div className="font-semibold text-[#0F172A] text-[15px] leading-snug"><Resaltado texto={c.nombre} query={debouncedQuery} /></div>
+          <div className="text-xs text-[#64748B]"><Resaltado texto={displayNombreUniversidad(c)} query={debouncedQuery} /></div>
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {c.region && (
+              <span className={chipCls}><MapPin size={11} />{c.region}</span>
+            )}
+            {electiveText && <span className={chipCls}>{electiveText}</span>}
+            {c.vacantes !== null && (
+              <span className={`${chipCls} tabular-nums`}><Users size={11} />{c.vacantes} vac.</span>
+            )}
+          </div>
+        </div>
+
+        <div className="text-left md:text-right shrink-0 space-y-1">
+          {ponderado !== null && (
+            <div className="text-xl font-bold text-[#0F172A] tabular-nums leading-none">
+              {fmt(ponderado)} <span className="text-[11px] font-medium text-[#94A3B8]">pts</span>
+            </div>
+          )}
+          <div className="text-[11px] text-[#64748B] tabular-nums">
+            {corte !== null ? (
+              <>Corte ref. 2026: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
+            ) : minimo ? (
+              <>{minimo.label}: <strong className="font-semibold text-[#0F172A]">{minimo.valor}</strong></>
+            ) : (
+              <span className="text-[#94A3B8]">Sin corte 2026</span>
+            )}
+          </div>
+          {estado && estado !== 'sindato' && (
+            <div className="flex items-center md:justify-end gap-1.5">
+              <EstadoBadge estado={estado} />
+              {delta !== null && (
+                <span className="text-xs font-semibold tabular-nums" style={{ color: ESTADOS[estado].ink }}>
+                  {fmtDelta(delta)}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Card id="section-buscador" className="space-y-5">
@@ -175,8 +292,8 @@ function BuscadorSection({
           <h3 className="text-base font-semibold text-[#0F172A]">Explora todo el catálogo</h3>
         </div>
         <p className="text-xs text-[#64748B] mt-1.5">
-          Busca entre <strong className="font-semibold text-[#0F172A]">{carreras.length.toLocaleString('es-CL')}</strong> carreras
-          por nombre, universidad, sede o región · Admisión {anioAdmision}.
+          Busca entre <strong className="font-semibold text-[#0F172A]">{conPonderacion.length.toLocaleString('es-CL')}</strong> carreras
+          por nombre, universidad o sigla (uc, usach, udec…) · Admisión {anioAdmision}.
         </p>
       </div>
 
@@ -184,182 +301,150 @@ function BuscadorSection({
       <div className="relative">
         <Search size={18} strokeWidth={2} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" aria-hidden />
         <input
-          type="text"
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ej: medicina, Universidad de Chile, Valparaíso..."
-          aria-label="Buscar carrera"
-          className="w-full h-12 pl-11 pr-4 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal"
+          placeholder="Ej: medicina uc, ing civil usach…"
+          aria-label="Buscar carrera o universidad"
+          autoComplete="off"
+          enterKeyHint="search"
+          className="w-full h-12 pl-11 pr-12 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal [&::-webkit-search-cancel-button]:hidden"
         />
+        {query && (
+          <button
+            onClick={() => { setQuery(''); setDebouncedQuery(''); }}
+            aria-label="Borrar búsqueda"
+            className="absolute right-0.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#0F172A] cursor-pointer"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      {/* Región + tipo universidad */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="relative">
-          <select value={region} onChange={(e) => setRegion(e.target.value)} className={selectCls} aria-label="Región">
-            <option value="">Todas las regiones</option>
+      {/* Chips de filtro */}
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtros">
+        <button onClick={() => (miRegion ? setSoloMiRegion((v) => !v) : setSoloMiRegion(true))} aria-pressed={soloMiRegion && !!miRegion} className={filtroCls(soloMiRegion && !!miRegion)}>
+          <MapPin size={14} /> {miRegion && soloMiRegion ? miRegion : 'Mi región'}
+        </button>
+        <button onClick={() => setSoloEstatales((v) => !v)} aria-pressed={soloEstatales} className={filtroCls(soloEstatales)}>
+          <Landmark size={14} /> Estatales
+        </button>
+        {tieneCortes && (
+          <button
+            onClick={() => setSoloSobreCorte((v) => !v)}
+            aria-pressed={soloSobreCorte}
+            disabled={!hayPuntajes}
+            title={hayPuntajes ? undefined : 'Ingresa tus puntajes para usar este filtro'}
+            className={`${filtroCls(soloSobreCorte)} disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <Check size={14} /> Sobre el corte
+          </button>
+        )}
+        <button
+          onClick={() => setSoloFavoritas((v) => !v)}
+          aria-pressed={soloFavoritas}
+          className={`flex items-center gap-1.5 text-xs font-medium rounded-full px-3.5 h-11 border transition-colors cursor-pointer ${
+            soloFavoritas ? 'bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
+          }`}
+        >
+          <Star size={14} strokeWidth={2} className={soloFavoritas ? 'fill-[#F59E0B] text-[#D97706]' : ''} />
+          Favoritas
+        </button>
+      </div>
+      {soloMiRegion && (
+        <div className="relative max-w-xs">
+          <select value={miRegion} onChange={(e) => elegirRegion(e.target.value)} className={selectCls} aria-label="Mi región">
+            <option value="">Elige tu región…</option>
             {regiones.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
           <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]" aria-hidden />
         </div>
-        <div className="bg-[#F4F3F1] p-0.5 rounded-full flex gap-0.5" role="group" aria-label="Tipo de universidad">
-          {([['', 'Todas'], ['CRUCH', 'CRUCH'], ['PRIVADA_ADSCRITA', 'Privadas']] as const).map(([val, lbl]) => (
-            <button
-              key={val}
-              onClick={() => setTipoU(val)}
-              aria-pressed={tipoU === val}
-              className={`flex-1 h-9 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                tipoU === val ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B] hover:text-[#0F172A]'
-              }`}
-            >
-              {lbl}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Sort + filters */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div className="relative flex-1">
-          <select value={orden} onChange={(e) => setOrden(e.target.value as OrdenTipo)} className={selectCls} aria-label="Ordenar">
-            {opcionesOrden.map((o) => (
-              <option key={o.value} value={o.value}>Ordenar: {o.label}</option>
-            ))}
-          </select>
-          <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]" aria-hidden />
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          {tieneCortes && (
-            <label className="flex items-center gap-2 min-h-[40px] text-xs font-medium text-[#64748B] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={soloConCorte}
-                onChange={(e) => setSoloConCorte(e.target.checked)}
-                className="w-4 h-4 accent-[#2563EB] cursor-pointer"
-              />
-              Solo con corte
-            </label>
-          )}
-          <label className="flex items-center gap-2 min-h-[40px] text-xs font-medium text-[#64748B] cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={soloConPonderacion}
-              onChange={(e) => setSoloConPonderacion(e.target.checked)}
-              className="w-4 h-4 accent-[#2563EB] cursor-pointer"
-            />
-            Solo con ponderación
-          </label>
-          <button
-            onClick={() => setSoloFavoritas((v) => !v)}
-            aria-pressed={soloFavoritas}
-            className={`flex items-center gap-1.5 text-xs font-medium rounded-full px-3 h-9 border transition-colors cursor-pointer ${
-              soloFavoritas ? 'bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
-            }`}
-          >
-            <Star size={14} strokeWidth={2} className={soloFavoritas ? 'fill-[#F59E0B] text-[#D97706]' : ''} />
-            Favoritas
-          </button>
-        </div>
-      </div>
-
-      {/* Results meta */}
-      <div className="text-xs text-[#94A3B8] tabular-nums">
-        {resultados.length === 0
-          ? 'Sin resultados. Prueba otro término.'
-          : `${resultados.length.toLocaleString('es-CL')} resultado${resultados.length === 1 ? '' : 's'}${
-              resultados.length > MAX_RESULTADOS ? ` · mostrando los primeros ${MAX_RESULTADOS}` : ''
-            }`}
-      </div>
-
-      {/* Results list */}
-      <div className="space-y-2">
-        {visibles.map((c) => {
-          const ponderado = hayPuntajes ? ponderadoDe(c) : null;
-          const corte = c.puntajeCorte;
-          const estado = ponderado !== null ? estadoCorte(ponderado, corte) : null;
-          const delta = ponderado !== null && corte !== null ? ponderado - corte : null;
-          const barColor = estado ? ESTADOS[estado].color : '#E7E5E1';
-
-          let electiveText = '';
-          if (c.electivaTipo === 'ciencias') electiveText = 'Ciencias';
-          else if (c.electivaTipo === 'historia') electiveText = 'Historia';
-          else if (c.electivaTipo === 'mejor') electiveText = 'Ciencias o Historia';
-
-          const minimo = c.ponderadoMinimo != null
-            ? { label: 'Mín. postulación', valor: c.ponderadoMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
-            : c.promedioMinimo != null
-              ? { label: 'Mín. prom. Leng.+M1', valor: c.promedioMinimo.toLocaleString('es-CL', { maximumFractionDigits: 2 }) }
-              : null;
-
-          const isFav = favSet.has(c.id);
-          return (
-            <div
-              key={c.id}
-              onClick={() => onOpenDetail(c)}
-              className="relative overflow-hidden bg-white border border-[#E7E5E1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer"
-            >
-              <div className="absolute top-0 left-0 w-1 h-full" style={{ background: barColor }} aria-hidden />
-              <button
-                onClick={(e) => { e.stopPropagation(); onToggleFav(c.id); }}
-                title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
-                aria-label={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
-                aria-pressed={isFav}
-                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
-              >
-                <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
-              </button>
-              <div className="space-y-1 min-w-0">
-                <div className="font-semibold text-[#0F172A] text-[15px] leading-snug">{c.nombre}</div>
-                <div className="text-xs text-[#64748B]">{displayNombreUniversidad(c)}</div>
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                  {c.region && (
-                    <span className={chipCls}><MapPin size={11} />{c.region}</span>
-                  )}
-                  {electiveText && <span className={chipCls}>{electiveText}</span>}
-                  {c.vacantes !== null && (
-                    <span className={`${chipCls} tabular-nums`}><Users size={11} />{c.vacantes} vac.</span>
-                  )}
-                </div>
+      {/* Sin texto ni filtros: populares y recientes */}
+      {!hayTexto && !hayFiltros && (
+        <div className="space-y-4">
+          {recientes.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]"><Clock size={14} /> Búsquedas recientes</span>
+                <button onClick={borrarRecientes} className="min-h-[44px] px-2 text-xs text-[#94A3B8] hover:text-[#0F172A] cursor-pointer">Borrar</button>
               </div>
-
-              <div className="text-left md:text-right shrink-0 space-y-1">
-                {ponderado !== null && (
-                  <div className="text-xl font-bold text-[#0F172A] tabular-nums leading-none">
-                    {fmt(ponderado)} <span className="text-[11px] font-medium text-[#94A3B8]">pts</span>
-                  </div>
-                )}
-                <div className="text-[11px] text-[#64748B] tabular-nums">
-                  {corte !== null ? (
-                    <>Corte 2026: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
-                  ) : minimo ? (
-                    <>{minimo.label}: <strong className="font-semibold text-[#0F172A]">{minimo.valor}</strong></>
-                  ) : (
-                    <span className="text-[#94A3B8]">Sin corte 2026</span>
-                  )}
-                </div>
-                {estado && estado !== 'sindato' && (
-                  <div className="flex items-center md:justify-end gap-1.5">
-                    <EstadoBadge estado={estado} />
-                    {delta !== null && (
-                      <span className="text-xs font-semibold tabular-nums" style={{ color: ESTADOS[estado].ink }}>
-                        {fmtDelta(delta)}
-                      </span>
-                    )}
-                  </div>
-                )}
+              <div className="flex flex-wrap gap-2">
+                {recientes.map((r) => (
+                  <button key={r} onClick={() => setQuery(r)} className={sugerenciaCls} aria-label={`Buscar ${r}`}>{r}</button>
+                ))}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+          <div className="space-y-2">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]"><TrendingUp size={14} /> Populares</span>
+            <div className="flex flex-wrap gap-2">
+              {populares.map((k) => (
+                <button key={k} onClick={() => setQuery(nombreCategoria(k))} className={sugerenciaCls} aria-label={`Buscar ${nombreCategoria(k)}`}>
+                  {nombreCategoria(k)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-      {!hayPuntajes && resultados.length > 0 && (
+      {/* Resultados agrupados por carrera */}
+      {(hayTexto || hayFiltros) && (
+        <>
+          <div className="text-xs text-[#94A3B8] tabular-nums" aria-live="polite">
+            {grupos.length === 0 ? (
+              busqueda.sugerencia ? (
+                <span>
+                  Sin resultados. ¿Quisiste decir{' '}
+                  <button onClick={() => setQuery(busqueda.sugerencia!)} className="min-h-[44px] font-semibold text-[#2563EB] underline underline-offset-2 cursor-pointer">
+                    {busqueda.sugerencia}
+                  </button>
+                  ?
+                </span>
+              ) : 'Sin resultados. Prueba otro término o quita filtros.'
+            ) : (
+              `${grupos.length.toLocaleString('es-CL')} carrera${grupos.length === 1 ? '' : 's'}${
+                grupos.length > MAX_GRUPOS ? ` · mostrando las primeras ${MAX_GRUPOS}` : ''
+              } · universidades de corte más alto a más bajo`
+            )}
+          </div>
+
+          <div className="space-y-3">
+            {visibles.map((g, i) => {
+              const abierto = estaAbierto(g.categoria, i);
+              const n = g.carreras.length;
+              return (
+                <div key={g.categoria} className="space-y-2">
+                  <button
+                    onClick={() => alternar(g.categoria)}
+                    aria-expanded={abierto}
+                    className="w-full min-h-[44px] flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[#F4F3F1] hover:bg-[#ECEAE6] text-left cursor-pointer transition-colors"
+                  >
+                    <span className="text-sm text-[#0F172A] min-w-0">
+                      <span className="font-semibold"><Resaltado texto={nombreCategoria(g.categoria)} query={debouncedQuery} /></span>
+                      <span className="text-[#64748B]"> · {n} universidad{n === 1 ? '' : 'es'}</span>
+                    </span>
+                    <ChevronDown size={16} className={`shrink-0 text-[#64748B] transition-transform ${abierto ? 'rotate-180' : ''}`} aria-hidden />
+                  </button>
+                  {abierto && <div className="space-y-2">{g.carreras.map(renderCarrera)}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {tieneCortes && (hayTexto || hayFiltros) && grupos.length > 0 && (
         <p className="flex items-start gap-2 text-xs text-[#64748B] bg-[#F4F3F1] rounded-xl px-3 py-2.5">
           <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
           <span>
-            Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y la distancia al corte en cada carrera.
+            {hayPuntajes
+              ? 'El corte es de referencia (Admisión 2026): el de 2027 se conocerá al terminar el proceso.'
+              : <>El corte es de referencia (Admisión 2026). Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y la distancia al corte.</>}
           </span>
         </p>
       )}
