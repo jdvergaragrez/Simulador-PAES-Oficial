@@ -4,7 +4,7 @@ import Card from './Card';
 import { displayNombreUniversidad } from '../data';
 import { calculatePonderado, PuntajesDirectos } from '../utils';
 import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
-import { ESTADOS, EstadoCorte, estadoCorte } from '../constants';
+import { ANIO_CORTES, ESTADOS, EstadoCorte, estadoCorte } from '../constants';
 import SearchableSelect from './SearchableSelect';
 import { buscarCategorias } from '../busqueda';
 
@@ -80,7 +80,7 @@ function CompatibilitySection({
     m2Correct > 0 || cienciasCorrect > 0 || historiaCorrect > 0 ||
     Object.keys(directos).length > 0;
 
-  // Compute ponderado + gap vs corte 2026 for each university, sort best-fit first.
+  // Compute ponderado + gap vs corte de referencia for each university, sort best-fit first.
   const filas = useMemo(() => {
     const rows = currentUnis.map((uni) => {
       const ponderado = hayPuntajes
@@ -109,7 +109,7 @@ function CompatibilitySection({
           <h3 className="text-base font-semibold text-[#0F172A]">Una carrera en todas sus universidades</h3>
         </div>
         <p className="text-xs text-[#64748B] mt-1.5">
-          Busca una carrera y compara dónde te conviene postular según tu ponderado y el corte 2026 · Admisión {anioAdmision}.
+          Busca una carrera y compara dónde te conviene postular según tu ponderado y el corte {ANIO_CORTES} · Admisión {anioAdmision}.
         </p>
       </div>
 
@@ -167,11 +167,11 @@ function CompatibilitySection({
                 )}
                 <div className="text-[11px] text-[#64748B] tabular-nums">
                   {corte !== null ? (
-                    <>Corte 2026: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
+                    <>Corte {ANIO_CORTES}: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
                   ) : minimo ? (
                     <>{minimo.label}: <strong className="font-semibold text-[#0F172A]">{minimo.valor}</strong></>
                   ) : (
-                    <span className="text-[#94A3B8]">Sin corte 2026</span>
+                    <span className="text-[#94A3B8]">Sin corte {ANIO_CORTES}</span>
                   )}
                 </div>
                 {meta && EstadoIcon && estado !== 'sindato' && (

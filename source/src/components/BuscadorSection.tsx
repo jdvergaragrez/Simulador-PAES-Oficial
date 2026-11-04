@@ -4,7 +4,7 @@ import Card from './Card';
 import { CarreraConDetalle } from '../types';
 import { calculatePonderado, PuntajesDirectos } from '../utils';
 import { displayNombreUniversidad } from '../data';
-import { ESTADOS, EstadoCorte, estadoCorte } from '../constants';
+import { ANIO_CORTES, ESTADOS, EstadoCorte, estadoCorte } from '../constants';
 import {
   agregarReciente, agruparPorCategoria, buscarCarreras, CATEGORIAS_POPULARES, compararPorCorte,
   guardarLista, leerLista, resaltar, UNIVERSIDADES_ESTATALES,
@@ -262,11 +262,11 @@ function BuscadorSection({
           )}
           <div className="text-[11px] text-[#64748B] tabular-nums">
             {corte !== null ? (
-              <>Corte ref. 2026: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
+              <>Corte ref. {ANIO_CORTES}: <strong className="font-semibold text-[#0F172A]">{fmt(corte)}</strong></>
             ) : minimo ? (
               <>{minimo.label}: <strong className="font-semibold text-[#0F172A]">{minimo.valor}</strong></>
             ) : (
-              <span className="text-[#94A3B8]">Sin corte 2026</span>
+              <span className="text-[#94A3B8]">Sin corte {ANIO_CORTES}</span>
             )}
           </div>
           {estado && estado !== 'sindato' && (
@@ -443,8 +443,8 @@ function BuscadorSection({
           <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
           <span>
             {hayPuntajes
-              ? 'El corte es de referencia (Admisión 2026): el de 2027 se conocerá al terminar el proceso.'
-              : <>El corte es de referencia (Admisión 2026). Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y la distancia al corte.</>}
+              ? `El corte es de referencia (Admisión ${ANIO_CORTES}): el de ${anioAdmision} se conocerá al terminar el proceso.`
+              : <>El corte es de referencia (Admisión {ANIO_CORTES}). Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y la distancia al corte.</>}
           </span>
         </p>
       )}

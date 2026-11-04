@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { pathToFileURL } from 'url';
 
 // ---------------------------------------------------------------------------
 // Genera src/data2027.generated.ts a partir del texto extraído del PDF oficial
@@ -354,7 +355,12 @@ for (let i = 0; i < lines.length; i++) {
 // Se cruza por código DEMRE, que se mantiene estable entre procesos. Un código
 // con dos cortes distintos en la fuente se descarta por ambiguo.
 // ---------------------------------------------------------------------------
-const CORTES_TXT = new URL('./data/cortes2026_filadd.raw.txt', import.meta.url);
+// Archivo de cortes: por defecto el de 2026; otro con `node scripts/generate2027.mjs --cortes <archivo>`.
+// Formato esperado: una fila por carrera, código DEMRE de 5 dígitos al inicio y el corte en la última columna (tabs).
+const argCortes = process.argv.indexOf('--cortes');
+const CORTES_TXT = argCortes > -1
+  ? new URL(process.argv[argCortes + 1], pathToFileURL(process.cwd() + '/'))
+  : new URL('./data/cortes2026_filadd.raw.txt', import.meta.url);
 const cortesRef = new Map();
 const cortesAmbiguos = new Set();
 for (const rawLine of fs.readFileSync(CORTES_TXT, 'utf8').split('\n')) {
@@ -371,6 +377,7 @@ for (const rawLine of fs.readFileSync(CORTES_TXT, 'utf8').split('\n')) {
   else cortesRef.set(m[1], corte);
 }
 for (const cod of cortesAmbiguos) cortesRef.delete(cod);
+console.log(`Cortes leídos de ${CORTES_TXT.pathname}: ${cortesRef.size} códigos (${cortesAmbiguos.size} ambiguos descartados)`);
 
 // ---------------------------------------------------------------------------
 // 5) Construcción del modelo relacional

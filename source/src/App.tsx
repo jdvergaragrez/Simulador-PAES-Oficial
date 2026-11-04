@@ -7,7 +7,7 @@ import { loadCatalogo, Catalogo } from './data';
 import { categoriaGenerica } from './categoriasAlias';
 import CatalogoCargando from './components/CatalogoCargando';
 import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos, EstadoDecodificado, resolverCarreraLegacy } from './utils';
-import { PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
+import { ANIO_CORTES, PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
 
 // Subcomponents
 import Sidebar from './components/Sidebar';
@@ -346,7 +346,7 @@ export default function App() {
                   <span>
                     Ponderaciones oficiales Admisión 2027
                     {catalogo && <> · {catalogo.totalUniversidades} universidades · {catalogo.totalCarreras.toLocaleString('es-CL')} carreras</>}.
-                    Los cortes son los de la Admisión 2026, como referencia.
+                    Los cortes son los de la Admisión {ANIO_CORTES}, como referencia.
                   </span>
                 </p>
               </div>
@@ -529,7 +529,7 @@ export default function App() {
                   </div>
                   <div className="rounded-xl bg-[#F4F3F1] p-3">
                     <dt className="text-[11px] text-[#64748B]">Puntajes de corte</dt>
-                    <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Admisión 2026, datos DEMRE</dd>
+                    <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Admisión {ANIO_CORTES}, datos DEMRE</dd>
                   </div>
                 </dl>
                 <p className="text-xs text-[#64748B] leading-relaxed">

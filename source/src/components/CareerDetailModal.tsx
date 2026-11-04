@@ -4,7 +4,7 @@ import { Star, X, Building2, Info, TriangleAlert, Check, CircleX, Minus, ChartCo
 import { CarreraConDetalle } from '../types';
 import { displayNombreUniversidad, normalizar } from '../data';
 import { calculatePonderado, puntajePrueba, PuntajesDirectos } from '../utils';
-import { ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
+import { ANIO_CORTES, ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
 
 interface CareerDetailModalProps {
   carrera: CarreraConDetalle;
@@ -170,7 +170,7 @@ function CareerDetailModal({
             </div>
             <div className="bg-[#F4F3F1] rounded-2xl p-3.5">
               <div className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8] mb-1">
-                {corte !== null ? 'Corte 2026' : minimo?.label ?? 'Corte 2026'}
+                {corte !== null ? `Corte ${ANIO_CORTES}` : minimo?.label ?? `Corte ${ANIO_CORTES}`}
               </div>
               <div className="text-2xl font-bold text-[#0F172A] tabular-nums leading-tight">
                 {corte !== null ? fmt(corte) : minimo ? minimo.valor : '—'}
@@ -189,7 +189,7 @@ function CareerDetailModal({
               </span>
               {delta !== null && (
                 <span className="text-sm font-semibold tabular-nums" style={{ color: estadoMeta.ink }}>
-                  {delta >= 0 ? '+' : '−'}{fmt(Math.abs(delta))} pts {delta >= 0 ? 'sobre' : 'bajo'} el corte 2026
+                  {delta >= 0 ? '+' : '−'}{fmt(Math.abs(delta))} pts {delta >= 0 ? 'sobre' : 'bajo'} el corte {ANIO_CORTES}
                 </span>
               )}
             </div>
@@ -278,7 +278,7 @@ function CareerDetailModal({
             </p>
           )}
           <p className="text-[11px] text-[#94A3B8]">
-            Ponderaciones Admisión {carrera.anioAdmision}. El corte es el del último seleccionado en Admisión 2026, como referencia.
+            Ponderaciones Admisión {carrera.anioAdmision}. El corte es el del último seleccionado en Admisión {ANIO_CORTES}, como referencia.
           </p>
         </div>
       </motion.div>

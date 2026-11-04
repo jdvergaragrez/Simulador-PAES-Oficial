@@ -4,7 +4,7 @@ import Card from './Card';
 import { displayNombreUniversidad } from '../data';
 import { calculatePonderado, carreraPorIndice, PuntajesDirectos } from '../utils';
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
-import { ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
+import { ANIO_CORTES, ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
 import SearchableSelect from './SearchableSelect';
 import { buscarIds } from '../busqueda';
 
@@ -210,7 +210,7 @@ function CompareSection({
                   <span className="text-xl font-bold text-[#0F172A] tabular-nums">{ponderado !== null ? fmt(ponderado) : '—'}</span>
                 </div>
                 <div className="flex justify-between items-baseline gap-2">
-                  <span className="text-xs text-[#64748B]">{corte !== null ? 'Corte 2026' : minimo?.label ?? 'Corte 2026'}</span>
+                  <span className="text-xs text-[#64748B]">{corte !== null ? `Corte ${ANIO_CORTES}` : minimo?.label ?? `Corte ${ANIO_CORTES}`}</span>
                   <span className="text-sm font-semibold text-[#0F172A] tabular-nums">
                     {corte !== null ? fmt(corte) : minimo ? minimo.valor : 'Sin dato'}
                   </span>

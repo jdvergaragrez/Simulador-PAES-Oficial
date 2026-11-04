@@ -9,6 +9,7 @@ import {
   GrupoEducativo,
 } from './types';
 import { categoriasAlias, categoriaGenerica } from './categoriasAlias';
+import { ANIO_CORTES } from './constants';
 
 export const tablasPAES = {
   lectora: {0:100,1:149,2:172,3:193,4:214,5:234,6:253,7:269,8:284,9:298,10:313,11:330,12:347,13:361,14:373,15:383,16:393,17:404,18:417,19:432,20:447,21:461,22:472,23:480,24:487,25:495,26:504,27:516,28:531,29:546,30:560,31:571,32:580,33:587,34:594,35:603,36:614,37:629,38:644,39:659,40:671,41:680,42:689,43:699,44:711,45:725,46:741,47:758,48:772,49:786,50:799,51:814,52:832,53:852,54:871,55:892,56:913,57:936,58:963,59:991,60:1000} as Record<number, number>,
@@ -141,9 +142,9 @@ export function loadCatalogo(): Promise<Catalogo> {
         return {
           anio: 2027,
           etiqueta: 'Admisión 2027',
-          fuente: 'Ponderaciones DEMRE 2027 + cortes 2026',
+          fuente: `Ponderaciones DEMRE 2027 + cortes ${ANIO_CORTES}`,
           tieneCortes: true,
-          anioCortes: 2026,
+          anioCortes: ANIO_CORTES,
           porCategoria,
           categoriaDisplay: displayAgrupado(d.categoriaDisplay2027),
           todas: flattenCatalogo(porCategoria),

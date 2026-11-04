@@ -4,7 +4,7 @@ import Card from './Card';
 import { displayNombreUniversidad } from '../data';
 import { calculatePonderado, correctasActuales, sinPrueba, tablaPrueba, PuntajesDirectos } from '../utils';
 import { CarrerasPorCategoria, CarreraConDetalle } from '../types';
-import { PRUEBAS, PruebaId } from '../constants';
+import { ANIO_CORTES, PRUEBAS, PruebaId } from '../constants';
 import SearchableSelect from './SearchableSelect';
 import { buscarCategorias, buscarIds, compararPorCorte } from '../busqueda';
 
@@ -67,9 +67,9 @@ function SimuladorInversoSection({
     if (pruebasDisponibles.length && !pruebasDisponibles.includes(variable)) setVariable(pruebasDisponibles[0]);
   }, [pruebasDisponibles]);
 
-  // Meta: corte 2026; si no hay, el ponderado mínimo de postulación (misma escala que el ponderado).
+  // Meta: corte de referencia; si no hay, el ponderado mínimo de postulación (misma escala que el ponderado).
   const target = carrera ? (carrera.puntajeCorte ?? carrera.ponderadoMinimo ?? null) : null;
-  const targetLabel = carrera?.puntajeCorte != null ? 'Corte 2026' : 'Mín. postulación';
+  const targetLabel = carrera?.puntajeCorte != null ? `Corte ${ANIO_CORTES}` : 'Mín. postulación';
 
   // Escanea aciertos 0..max de la prueba variable (resto fijo) hasta alcanzar el target
   const resultado = useMemo(() => {
@@ -142,7 +142,7 @@ function SimuladorInversoSection({
 
           {target === null ? (
             <div className="bg-[#F4F3F1] rounded-2xl p-4 text-sm text-[#94A3B8] text-center">
-              Esta carrera no tiene corte 2026 ni mínimo publicado para calcular la meta.
+              Esta carrera no tiene corte {ANIO_CORTES} ni mínimo publicado para calcular la meta.
             </div>
           ) : resultado && (
             <div className="rounded-2xl border border-[#E7E5E1] p-5 space-y-3">

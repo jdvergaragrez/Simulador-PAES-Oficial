@@ -3,7 +3,7 @@ import { Search, Star, Clock, ChevronLeft, ChevronRight, X, ListOrdered, Pencil 
 import Card from './Card';
 import StepHeader from './StepHeader';
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
-import { estadoCorte } from '../constants';
+import { ANIO_CORTES, estadoCorte } from '../constants';
 import { agregarReciente, agruparPorCategoria, buscarCarreras, compararPorCorte, guardarLista, leerLista } from '../busqueda';
 import { EstadoBadge, Resaltado } from './BuscadorSection';
 
@@ -152,8 +152,8 @@ function TargetSelector({
     return (
       <span className="shrink-0 flex flex-col items-end gap-1 text-[11px] text-[#64748B] tabular-nums text-right">
         {c.puntajeCorte !== null
-          ? <span>Corte ref. 2026: <strong className="font-semibold text-[#0F172A]">{fmt(c.puntajeCorte)}</strong></span>
-          : <span className="text-[#94A3B8]">Sin corte 2026</span>}
+          ? <span>Corte ref. {ANIO_CORTES}: <strong className="font-semibold text-[#0F172A]">{fmt(c.puntajeCorte)}</strong></span>
+          : <span className="text-[#94A3B8]">Sin corte {ANIO_CORTES}</span>}
         {estado && estado !== 'sindato' && <EstadoBadge estado={estado} />}
       </span>
     );
@@ -316,7 +316,7 @@ function TargetSelector({
               </ul>
             </div>
           )}
-          <p className="px-1 text-[11px] text-[#94A3B8]">Los cortes son de la Admisión 2026 y sirven solo como referencia.</p>
+          <p className="px-1 text-[11px] text-[#94A3B8]">Los cortes son de la Admisión {ANIO_CORTES} y sirven solo como referencia.</p>
         </div>
       )}
     </Card>

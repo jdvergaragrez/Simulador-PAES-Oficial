@@ -33,6 +33,10 @@ export const PRUEBAS: Record<PruebaId, PruebaMeta> = {
 
 export const PRUEBAS_ORDEN: PruebaId[] = ['lectora', 'm1', 'm2', 'ciencias', 'historia'];
 
+// Proceso de admisión de los puntajes de corte que muestra la app (hoy, referencia del proceso anterior).
+// Al publicarse cortes nuevos: regenerar los datos (ver README, "Actualizar puntajes de corte") y cambiar este valor.
+export const ANIO_CORTES = 2026;
+
 export type EstadoCorte = 'alcanzable' | 'limite' | 'noalcanza' | 'sindato';
 
 // Margen en puntos bajo el corte que todavía se considera "al límite".
