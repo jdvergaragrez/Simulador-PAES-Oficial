@@ -58,22 +58,39 @@ function CampoBusqueda({ value, onChange, placeholder, label }: { value: string;
   );
 }
 
-function TargetSelector({
+export interface SelectorCarreraProps {
+  carreras: CarreraConDetalle[];
+  porCategoria: CarrerasPorCategoria;
+  categoriaDisplay: Record<string, string>;
+  favoritos: string[];
+  // Ponderado del usuario en una carrera, o null si aún no ingresa puntajes.
+  ponderadoDe: (c: CarreraConDetalle) => number | null;
+  onElegir: (carrera: CarreraConDetalle) => void;
+  // Carreras que no deben aparecer (p. ej. las que ya están en la postulación).
+  excluir?: ReadonlySet<string>;
+  // Abre directo en el paso 2 con esta carrera genérica.
+  carreraInicial?: string;
+  // Si se pasa, muestra una X para cerrar sin elegir.
+  onCerrar?: () => void;
+  placeholder?: string;
+}
+
+// Buscador de carrera y universidad: modo "Buscar" (en un toque) o "Por pasos" (carrera y luego universidad).
+// Lo usan el selector principal y Mi postulación, para que funcionen igual.
+export function SelectorCarrera({
   carreras,
   porCategoria,
   categoriaDisplay,
-  targetCareer,
-  targetCarreraId,
   favoritos,
   ponderadoDe,
   onElegir,
-}: TargetSelectorProps) {
-  const elegida = useMemo(() => carreras.find((c) => c.id === targetCarreraId) ?? null, [carreras, targetCarreraId]);
-  // Carrera guardada sin universidad (p. ej. un enlace antiguo): se abre directo en el paso 2.
-  const carreraPendiente = !elegida && porCategoria[targetCareer] ? targetCareer : '';
-  const [abierto, setAbierto] = useState(!elegida);
-  const [modo, setModo] = useState<Modo>(carreraPendiente ? 'pasos' : 'buscar');
-  const [carreraPaso, setCarreraPaso] = useState(carreraPendiente);
+  excluir,
+  carreraInicial = '',
+  onCerrar,
+  placeholder = 'Ej: medicina uc, ing civil usach…',
+}: SelectorCarreraProps) {
+  const [modo, setModo] = useState<Modo>(carreraInicial ? 'pasos' : 'buscar');
+  const [carreraPaso, setCarreraPaso] = useState(carreraInicial);
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [queryCarrera, setQueryCarrera] = useState('');
@@ -84,16 +101,7 @@ function TargetSelector({
     return () => clearTimeout(t);
   }, [query]);
 
-  // Sin carrera elegida el selector queda abierto; nunca se elige una por el usuario.
-  useEffect(() => {
-    setAbierto(!elegida);
-    if (carreraPendiente) {
-      setModo('pasos');
-      setCarreraPaso(carreraPendiente);
-    }
-  }, [elegida, carreraPendiente]);
-
-  const conPonderacion = useMemo(() => carreras.filter((c) => c.ponderacion), [carreras]);
+  const conPonderacion = useMemo(() => carreras.filter((c) => c.ponderacion && !excluir?.has(c.id)), [carreras, excluir]);
   const porId = useMemo(() => new Map(conPonderacion.map((c) => [c.id, c])), [conPonderacion]);
   const nombreCategoria = (cat: string) => categoriaDisplay[cat] || cat;
 
@@ -105,7 +113,6 @@ function TargetSelector({
     setQuery('');
     setDebounced('');
     setQueryCarrera('');
-    setAbierto(false);
   };
 
   const irAPaso2 = (cat: string) => {
@@ -138,8 +145,8 @@ function TargetSelector({
       .sort((a, b) => nombre(a.categoria).localeCompare(nombre(b.categoria), 'es'));
   }, [queryCarrera, conPonderacion, categoriaDisplay]);
   const universidades = useMemo(
-    () => (porCategoria[carreraPaso] ?? []).filter((c) => c.ponderacion).sort(compararPorCorte),
-    [porCategoria, carreraPaso]
+    () => (porCategoria[carreraPaso] ?? []).filter((c) => c.ponderacion && !excluir?.has(c.id)).sort(compararPorCorte),
+    [porCategoria, carreraPaso, excluir]
   );
 
   const favoritas = favoritos.map((id) => porId.get(id)).filter((c): c is CarreraConDetalle => !!c);
@@ -186,6 +193,141 @@ function TargetSelector({
     );
 
   return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 bg-[#F2F4F7] p-0.5 rounded-[10px] flex gap-0.5" role="tablist" aria-label="Forma de elegir">
+            {([['buscar', 'Buscar', Search], ['pasos', 'Por pasos', ListOrdered]] as const).map(([val, lbl, Icon]) => (
+              <button
+                key={val}
+                role="tab"
+                aria-selected={modo === val}
+                onClick={() => setModo(val)}
+                className={`flex-1 h-11 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-[color,background-color,box-shadow] cursor-pointer ${
+                  modo === val ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B] hover:text-[#0F172A]'
+                }`}
+              >
+                <Icon size={14} /> {lbl}
+              </button>
+            ))}
+          </div>
+          {onCerrar && (
+            <button onClick={onCerrar} aria-label="Cerrar sin cambiar" className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F2F4F7] cursor-pointer">
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
+        {modo === 'buscar' && (
+          <div className="space-y-3">
+            <CampoBusqueda value={query} onChange={setQuery} placeholder={placeholder} label="Buscar carrera y universidad" />
+            {!debounced.trim() ? (
+              <>
+                {lista('Favoritas', <Star size={14} />, favoritas)}
+                {lista('Últimas elecciones', <Clock size={14} />, ultimas)}
+                {!favoritas.length && !ultimas.length && (
+                  <p className="px-1 text-xs text-[#94A3B8]">Escribe la carrera y, si quieres, la universidad o su sigla (uc, uchile, usach, udec…).</p>
+                )}
+              </>
+            ) : sugerencias.length === 0 ? (
+              <p className="px-1 text-xs text-[#94A3B8]" aria-live="polite">
+                {busqueda.sugerencia ? (
+                  <>Sin resultados. ¿Quisiste decir{' '}
+                    <button onClick={() => setQuery(busqueda.sugerencia!)} className="min-h-[44px] font-semibold text-[#2563EB] underline underline-offset-2 cursor-pointer">{busqueda.sugerencia}</button>?
+                  </>
+                ) : 'Sin resultados. Prueba con otro nombre o elige por pasos.'}
+              </p>
+            ) : (
+              <>
+                <ul className="-mx-1" aria-label="Sugerencias">{sugerencias.map((c) => filaCarrera(c, debounced))}</ul>
+                {gruposSugeridos.length > 0 && (
+                  <ul className="-mx-1 border-t border-[#E8ECF1] pt-2" aria-label="Ver todas las universidades de una carrera">
+                    {gruposSugeridos.map((g) => (
+                      <li key={g.categoria}>
+                        <button onClick={() => irAPaso2(g.categoria)} className={filaCls}>
+                          <span className="text-sm text-[#0F172A]">
+                            <span className="font-semibold"><Resaltado texto={nombreCategoria(g.categoria)} query={debounced} /></span>
+                            <span className="text-[#64748B]"> · {g.carreras.length} universidades</span>
+                          </span>
+                          <ChevronRight size={16} className="shrink-0 text-[#94A3B8]" aria-hidden />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {modo === 'pasos' && paso === 1 && (
+          <div className="space-y-3">
+            <div className="px-1 text-xs font-medium text-[#64748B]">Paso 1 de 2 · Elige la carrera</div>
+            <CampoBusqueda value={queryCarrera} onChange={setQueryCarrera} placeholder="Busca la carrera…" label="Buscar carrera" />
+            <ul className="-mx-1 max-h-80 overflow-y-auto" aria-label="Carreras">
+              {categorias.slice(0, 120).map(({ categoria, n }) => (
+                <li key={categoria}>
+                  <button onClick={() => irAPaso2(categoria)} className={filaCls}>
+                    <span className="text-sm text-[#0F172A]">
+                      <span className="font-semibold"><Resaltado texto={nombreCategoria(categoria)} query={queryCarrera} /></span>
+                      <span className="text-[#64748B]"> · {n} universidad{n === 1 ? '' : 'es'}</span>
+                    </span>
+                    <ChevronRight size={16} className="shrink-0 text-[#94A3B8]" aria-hidden />
+                  </button>
+                </li>
+              ))}
+              {categorias.length === 0 && <li className="px-3 py-2 text-xs text-[#94A3B8]">Sin resultados.</li>}
+            </ul>
+          </div>
+        )}
+
+        {modo === 'pasos' && paso === 2 && (
+          <div className="space-y-3">
+            <button onClick={() => setCarreraPaso('')} className="inline-flex items-center gap-1 min-h-[44px] pr-3 text-sm font-medium text-[#2563EB] cursor-pointer" aria-label="Volver a elegir carrera">
+              <ChevronLeft size={16} /> {nombreCategoria(carreraPaso)}
+            </button>
+            <div className="px-1 text-xs font-medium text-[#64748B]">Paso 2 de 2 · Elige la universidad (de corte más alto a más bajo)</div>
+            <ul className="-mx-1 max-h-96 overflow-y-auto" aria-label="Universidades">
+              {universidades.map((c) => (
+                <li key={c.id}>
+                  <button onClick={() => elegir(c)} className={filaCls} aria-label={`Elegir ${c.universidadNombre}, sede ${c.sedeNombre}`}>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-[#0F172A] leading-snug">{c.universidadNombre}</span>
+                      <span className="block text-[11px] text-[#94A3B8] mt-0.5">{c.sedeNombre} · {c.nombre}</span>
+                    </span>
+                    {corte(c)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="px-1 text-[11px] text-[#94A3B8]">Los cortes son de la Admisión {ANIO_CORTES} y sirven solo como referencia.</p>
+      </div>
+  );
+}
+
+function TargetSelector({
+  carreras,
+  porCategoria,
+  categoriaDisplay,
+  targetCareer,
+  targetCarreraId,
+  favoritos,
+  ponderadoDe,
+  onElegir,
+}: TargetSelectorProps) {
+  const elegida = useMemo(() => carreras.find((c) => c.id === targetCarreraId) ?? null, [carreras, targetCarreraId]);
+  // Carrera guardada sin universidad (p. ej. un enlace antiguo): se abre directo en el paso 2.
+  const carreraPendiente = !elegida && porCategoria[targetCareer] ? targetCareer : '';
+  const [abierto, setAbierto] = useState(!elegida);
+  const nombreCategoria = (cat: string) => categoriaDisplay[cat] || cat;
+
+  // Sin carrera elegida el selector queda abierto; nunca se elige una por el usuario.
+  useEffect(() => {
+    setAbierto(!elegida);
+  }, [elegida]);
+
+  return (
     <Card id="section-objetivo" className="space-y-4">
       <StepHeader n={1} title="¿Dónde quieres postular?" description="Escribe carrera y universidad (ej: medicina uc) o elígelas por pasos." />
 
@@ -208,116 +350,17 @@ function TargetSelector({
       )}
 
       {abierto && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-[#F2F4F7] p-0.5 rounded-[10px] flex gap-0.5" role="tablist" aria-label="Forma de elegir">
-              {([['buscar', 'Buscar', Search], ['pasos', 'Por pasos', ListOrdered]] as const).map(([val, lbl, Icon]) => (
-                <button
-                  key={val}
-                  role="tab"
-                  aria-selected={modo === val}
-                  onClick={() => setModo(val)}
-                  className={`flex-1 h-11 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-[color,background-color,box-shadow] cursor-pointer ${
-                    modo === val ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B] hover:text-[#0F172A]'
-                  }`}
-                >
-                  <Icon size={14} /> {lbl}
-                </button>
-              ))}
-            </div>
-            {elegida && (
-              <button onClick={() => setAbierto(false)} aria-label="Cerrar sin cambiar" className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F2F4F7] cursor-pointer">
-                <X size={18} />
-              </button>
-            )}
-          </div>
-
-          {modo === 'buscar' && (
-            <div className="space-y-3">
-              <CampoBusqueda value={query} onChange={setQuery} placeholder="Ej: medicina uc, ing civil usach…" label="Buscar carrera y universidad" />
-              {!debounced.trim() ? (
-                <>
-                  {lista('Favoritas', <Star size={14} />, favoritas)}
-                  {lista('Últimas elecciones', <Clock size={14} />, ultimas)}
-                  {!favoritas.length && !ultimas.length && (
-                    <p className="px-1 text-xs text-[#94A3B8]">Escribe la carrera y, si quieres, la universidad o su sigla (uc, uchile, usach, udec…).</p>
-                  )}
-                </>
-              ) : sugerencias.length === 0 ? (
-                <p className="px-1 text-xs text-[#94A3B8]" aria-live="polite">
-                  {busqueda.sugerencia ? (
-                    <>Sin resultados. ¿Quisiste decir{' '}
-                      <button onClick={() => setQuery(busqueda.sugerencia!)} className="min-h-[44px] font-semibold text-[#2563EB] underline underline-offset-2 cursor-pointer">{busqueda.sugerencia}</button>?
-                    </>
-                  ) : 'Sin resultados. Prueba con otro nombre o elige por pasos.'}
-                </p>
-              ) : (
-                <>
-                  <ul className="-mx-1" aria-label="Sugerencias">{sugerencias.map((c) => filaCarrera(c, debounced))}</ul>
-                  {gruposSugeridos.length > 0 && (
-                    <ul className="-mx-1 border-t border-[#E8ECF1] pt-2" aria-label="Ver todas las universidades de una carrera">
-                      {gruposSugeridos.map((g) => (
-                        <li key={g.categoria}>
-                          <button onClick={() => irAPaso2(g.categoria)} className={filaCls}>
-                            <span className="text-sm text-[#0F172A]">
-                              <span className="font-semibold"><Resaltado texto={nombreCategoria(g.categoria)} query={debounced} /></span>
-                              <span className="text-[#64748B]"> · {g.carreras.length} universidades</span>
-                            </span>
-                            <ChevronRight size={16} className="shrink-0 text-[#94A3B8]" aria-hidden />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-
-          {modo === 'pasos' && paso === 1 && (
-            <div className="space-y-3">
-              <div className="px-1 text-xs font-medium text-[#64748B]">Paso 1 de 2 · Elige la carrera</div>
-              <CampoBusqueda value={queryCarrera} onChange={setQueryCarrera} placeholder="Busca la carrera…" label="Buscar carrera" />
-              <ul className="-mx-1 max-h-80 overflow-y-auto" aria-label="Carreras">
-                {categorias.slice(0, 120).map(({ categoria, n }) => (
-                  <li key={categoria}>
-                    <button onClick={() => irAPaso2(categoria)} className={filaCls}>
-                      <span className="text-sm text-[#0F172A]">
-                        <span className="font-semibold"><Resaltado texto={nombreCategoria(categoria)} query={queryCarrera} /></span>
-                        <span className="text-[#64748B]"> · {n} universidad{n === 1 ? '' : 'es'}</span>
-                      </span>
-                      <ChevronRight size={16} className="shrink-0 text-[#94A3B8]" aria-hidden />
-                    </button>
-                  </li>
-                ))}
-                {categorias.length === 0 && <li className="px-3 py-2 text-xs text-[#94A3B8]">Sin resultados.</li>}
-              </ul>
-            </div>
-          )}
-
-          {modo === 'pasos' && paso === 2 && (
-            <div className="space-y-3">
-              <button onClick={() => setCarreraPaso('')} className="inline-flex items-center gap-1 min-h-[44px] pr-3 text-sm font-medium text-[#2563EB] cursor-pointer" aria-label="Volver a elegir carrera">
-                <ChevronLeft size={16} /> {nombreCategoria(carreraPaso)}
-              </button>
-              <div className="px-1 text-xs font-medium text-[#64748B]">Paso 2 de 2 · Elige la universidad (de corte más alto a más bajo)</div>
-              <ul className="-mx-1 max-h-96 overflow-y-auto" aria-label="Universidades">
-                {universidades.map((c) => (
-                  <li key={c.id}>
-                    <button onClick={() => elegir(c)} className={filaCls} aria-label={`Elegir ${c.universidadNombre}, sede ${c.sedeNombre}`}>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-[#0F172A] leading-snug">{c.universidadNombre}</span>
-                        <span className="block text-[11px] text-[#94A3B8] mt-0.5">{c.sedeNombre} · {c.nombre}</span>
-                      </span>
-                      {corte(c)}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <p className="px-1 text-[11px] text-[#94A3B8]">Los cortes son de la Admisión {ANIO_CORTES} y sirven solo como referencia.</p>
-        </div>
+        <SelectorCarrera
+          key={carreraPendiente}
+          carreras={carreras}
+          porCategoria={porCategoria}
+          categoriaDisplay={categoriaDisplay}
+          favoritos={favoritos}
+          ponderadoDe={ponderadoDe}
+          carreraInicial={carreraPendiente}
+          onCerrar={elegida ? () => setAbierto(false) : undefined}
+          onElegir={(c) => { onElegir(c); setAbierto(false); }}
+        />
       )}
     </Card>
   );

@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronUp, ChevronDown, X, Check, Clock, Minus, CircleX, ListOrdered, Info } from 'lucide-react';
 import Card from './Card';
-import SearchableSelect from './SearchableSelect';
-import { CarreraConDetalle } from '../types';
-import { displayNombreUniversidad } from '../data';
-import { buscarIds } from '../busqueda';
+import { SelectorCarrera } from './TargetSelector';
+import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
 
 interface Props {
   carreras: CarreraConDetalle[];
+  porCategoria: CarrerasPorCategoria;
   categoriaDisplay: Record<string, string>;
+  favoritos: string[];
   ponderadoDe: (c: CarreraConDetalle) => number | null;
   anioCortes: number;
   sinPuntajes: boolean;
@@ -42,18 +42,17 @@ function cargar(): string[] {
   }
 }
 
-function PostulacionSection({ carreras, categoriaDisplay, ponderadoDe, anioCortes, sinPuntajes, onOpenDetail }: Props) {
+function PostulacionSection({ carreras, porCategoria, categoriaDisplay, favoritos, ponderadoDe, anioCortes, sinPuntajes, onOpenDetail }: Props) {
   const [ids, setIds] = useState<string[]>(cargar);
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ids)); } catch {}
   }, [ids]);
 
   const porId = useMemo(() => new Map(carreras.map((c) => [c.id, c])), [carreras]);
-  const opciones = useMemo(
-    () => carreras.filter((c) => c.ponderacion && !ids.includes(c.id)).map((c) => ({ value: c.id, label: c.nombre, sublabel: displayNombreUniversidad(c) })),
-    [carreras, ids]
-  );
-  const buscar = useCallback((q: string) => buscarIds(carreras, categoriaDisplay, q).filter((id) => !ids.includes(id)), [carreras, categoriaDisplay, ids]);
+  const yaAgregadas = useMemo(() => new Set(ids), [ids]);
+  // Mismo formato que el buscador principal: "Medicina" y "Universidad de Chile · Santiago".
+  const titulo = (c: CarreraConDetalle) => categoriaDisplay[c.categoria] || c.nombre;
+  const lugar = (c: CarreraConDetalle) => `${c.universidadNombre} · ${c.sedeNombre}`;
 
   const agregar = (id: string) => { if (id && !ids.includes(id) && ids.length < MAX) setIds((l) => [...l, id]); };
   const quitar = (id: string) => setIds((l) => l.filter((x) => x !== id));
@@ -101,8 +100,8 @@ function PostulacionSection({ carreras, categoriaDisplay, ponderadoDe, anioCorte
           {elegida >= 0 ? (
             <>
               <div className="text-xs text-[#64748B]">Con tus puntajes quedarías en tu preferencia {elegida + 1}</div>
-              <div className="text-xl font-semibold tracking-[-0.01em] text-[#0F172A] mt-1">{filas[elegida].c.nombre}</div>
-              <div className="text-sm text-[#64748B]">{displayNombreUniversidad(filas[elegida].c)}</div>
+              <div className="text-xl font-semibold tracking-[-0.01em] text-[#0F172A] mt-1">{titulo(filas[elegida].c)}</div>
+              <div className="text-sm text-[#64748B]">{lugar(filas[elegida].c)}</div>
               <div className="text-sm mt-2 tabular-nums" style={{ color: 'var(--e-alcanzable-ink)' }}>
                 {fmt(filas[elegida].p! - filas[elegida].corte!)} pts sobre el corte {anioCortes}
               </div>
@@ -136,14 +135,18 @@ function PostulacionSection({ carreras, categoriaDisplay, ponderadoDe, anioCorte
         </div>
 
         {ids.length < MAX && (
-          <SearchableSelect
-            options={opciones}
-            value=""
-            onChange={agregar}
-            buscar={buscar}
-            placeholder="Agregar carrera: medicina uc, ing civil usach…"
-            ariaLabel="Agregar carrera a tu postulación"
-          />
+          <div className="rounded-2xl border border-[#E8ECF1] p-3 md:p-4">
+            <div className="text-xs font-medium text-[#64748B] mb-2">Agregar preferencia {ids.length + 1}</div>
+            <SelectorCarrera
+              carreras={carreras}
+              porCategoria={porCategoria}
+              categoriaDisplay={categoriaDisplay}
+              favoritos={favoritos}
+              ponderadoDe={ponderadoDe}
+              excluir={yaAgregadas}
+              onElegir={(c) => agregar(c.id)}
+            />
+          </div>
         )}
 
         {filas.length === 0 ? (
@@ -161,8 +164,8 @@ function PostulacionSection({ carreras, categoriaDisplay, ponderadoDe, anioCorte
                 >
                   <div className="w-7 text-center text-sm font-semibold tabular-nums text-[#94A3B8] shrink-0">{i + 1}</div>
                   <button onClick={() => onOpenDetail(c)} className="flex-1 min-w-0 text-left cursor-pointer">
-                    <div className="text-sm font-medium text-[#0F172A] truncate">{c.nombre}</div>
-                    <div className="text-xs text-[#64748B] truncate">{displayNombreUniversidad(c)}</div>
+                    <div className="text-sm font-medium text-[#0F172A] truncate">{titulo(c)}</div>
+                    <div className="text-xs text-[#64748B] truncate">{lugar(c)}</div>
                     {!sinPuntajes && (
                       <div className="text-xs mt-0.5 inline-flex items-center gap-1" style={{ color: ui.color }}>
                         <Icon size={12} strokeWidth={2.4} /> {ui.label}
@@ -174,10 +177,10 @@ function PostulacionSection({ carreras, categoriaDisplay, ponderadoDe, anioCorte
                     <div className="text-[11px] text-[#94A3B8]">{corte !== null ? `corte ${fmt(corte)}` : 'sin corte'}</div>
                   </div>
                   <div className="flex flex-col shrink-0">
-                    <button onClick={() => mover(i, -1)} disabled={i === 0} aria-label={`Subir ${c.nombre}`} className="w-8 h-6 flex items-center justify-center text-[#64748B] disabled:opacity-25 cursor-pointer"><ChevronUp size={16} /></button>
-                    <button onClick={() => mover(i, 1)} disabled={i === filas.length - 1} aria-label={`Bajar ${c.nombre}`} className="w-8 h-6 flex items-center justify-center text-[#64748B] disabled:opacity-25 cursor-pointer"><ChevronDown size={16} /></button>
+                    <button onClick={() => mover(i, -1)} disabled={i === 0} aria-label={`Subir ${titulo(c)}`} className="w-8 h-6 flex items-center justify-center text-[#64748B] disabled:opacity-25 cursor-pointer"><ChevronUp size={16} /></button>
+                    <button onClick={() => mover(i, 1)} disabled={i === filas.length - 1} aria-label={`Bajar ${titulo(c)}`} className="w-8 h-6 flex items-center justify-center text-[#64748B] disabled:opacity-25 cursor-pointer"><ChevronDown size={16} /></button>
                   </div>
-                  <button onClick={() => quitar(c.id)} aria-label={`Quitar ${c.nombre}`} className="w-9 h-9 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#DC2626] hover:bg-[#FEE2E2] shrink-0 cursor-pointer">
+                  <button onClick={() => quitar(c.id)} aria-label={`Quitar ${titulo(c)}`} className="w-9 h-9 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#DC2626] hover:bg-[#FEE2E2] shrink-0 cursor-pointer">
                     <X size={16} />
                   </button>
                 </li>

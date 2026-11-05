@@ -487,7 +487,9 @@ export default function App() {
             <div className="max-w-[880px]">
               {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <PostulacionSection
                 carreras={catalogo.todas}
+                porCategoria={catalogo.porCategoria}
                 categoriaDisplay={catalogo.categoriaDisplay}
+                favoritos={state.favoritos}
                 ponderadoDe={ponderadoObjetivo}
                 anioCortes={catalogo.anioCortes}
                 sinPuntajes={isEmpty}
