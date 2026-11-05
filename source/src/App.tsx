@@ -4,6 +4,7 @@ import { Info, Share2, Link2, RotateCcw, Database, Check } from 'lucide-react';
 import { AppState, CarreraConDetalle } from './types';
 import { loadCatalogo, Catalogo } from './data';
 import { categoriaGenerica } from './categoriasAlias';
+import { areaDeCarrera, AREA_LABEL, AREA_TINTE } from './areas';
 import CatalogoCargando from './components/CatalogoCargando';
 import { calculatePonderado, encodeState, decodeState, puntajePrueba, PuntajesDirectos, EstadoDecodificado, resolverCarreraLegacy } from './utils';
 import { ANIO_CORTES, PRUEBAS_ORDEN, PruebaId, ESTADOS, estadoCorte } from './constants';
@@ -18,6 +19,7 @@ import GradeInputs from './components/GradeInputs';
 import SlidersSection, { directoValido } from './components/SlidersSection';
 import TargetSelector from './components/TargetSelector';
 import HeroCard from './components/HeroCard';
+import AlternativasCard from './components/AlternativasCard';
 const CompatibilitySection = lazy(() => import('./components/CompatibilitySection'));
 import ImproveSection from './components/ImproveSection';
 const CompareSection = lazy(() => import('./components/CompareSection'));
@@ -26,6 +28,7 @@ const CareerDetailModal = lazy(() => import('./components/CareerDetailModal'));
 const EnsayosSection = lazy(() => import('./components/EnsayosSection'));
 const SimuladorInversoSection = lazy(() => import('./components/SimuladorInversoSection'));
 const TestVocacionalSection = lazy(() => import('./components/TestVocacionalSection'));
+const PostulacionSection = lazy(() => import('./components/PostulacionSection'));
 
 const INITIAL_STATE: AppState = {
   grades: {
@@ -299,6 +302,9 @@ export default function App() {
     };
   }, [activeTab]);
 
+  const area = targetUni ? areaDeCarrera(targetUni.nombre) : null;
+  const tinte = area ? AREA_TINTE[area] : null;
+
   const estadoMini = targetUni && targetPonderado !== null ? ESTADOS[estadoCorte(targetPonderado, targetUni.puntajeCorte)] : null;
   const mostrarMini = activeTab === 'puntaje' && !heroVisible && !isEmpty && targetPonderado !== null;
 
@@ -317,7 +323,7 @@ export default function App() {
   return (
     <>
       <Analytics />
-      <div className="min-h-dvh bg-[#F4F3F1] font-sans text-[#0F172A] selection:bg-blue-100">
+      <div className="min-h-dvh bg-[#F7F8FA] font-sans text-[#0F172A] selection:bg-blue-100">
       <Sidebar active={activeTab} onChange={setActiveTab} dark={dark} onToggleDark={toggleDark} />
       <MobileNav active={activeTab} onChange={setActiveTab} dark={dark} onToggleDark={toggleDark} />
       <div className="lg:pl-64">
@@ -328,25 +334,26 @@ export default function App() {
         <div key={activeTab} className="space-y-6 entrada-seccion">
           {activeTab === 'puntaje' && (
             <>
-              <div className="pt-2">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-[1.1] text-[#0F172A]">
-                  Tu puntaje,<br /><span className="text-[#2563EB]">tu próximo paso.</span>
+              <section
+                className="tinte-area -mx-4 md:mx-0 rounded-b-[32px] md:rounded-[32px] px-4 sm:px-6 md:px-8 pt-8 md:pt-10 pb-2"
+                style={{ '--tinte': tinte?.claro, '--tinte-dark': tinte?.oscuro } as React.CSSProperties}
+              >
+                <div className="text-xs font-medium text-[#475569]">{area ? AREA_LABEL[area] : 'Admisión 2027'}</div>
+                <h1 className="mt-1.5 text-[32px] md:text-[44px] font-semibold tracking-[-0.025em] leading-[1.05] text-[#0F172A] max-w-xl text-balance">
+                  ¿Te alcanza para tu carrera?
                 </h1>
-                <p className="text-sm text-[#64748B] mt-3 max-w-lg">
-                  Calcula tu ponderado con las ponderaciones oficiales de cada carrera y mira qué tan cerca estás del corte.
+                <p className="text-sm text-[#475569] mt-3 max-w-lg">
+                  Elige carrera y universidad, ingresa tus notas y puntajes, y mira tu ponderado frente al corte.
                 </p>
-                <p className="inline-flex items-start gap-1.5 mt-3 text-xs text-[#64748B]">
-                  <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
+                <p className="inline-flex items-start gap-1.5 mt-2 text-xs text-[#475569]">
+                  <Info size={14} className="shrink-0 mt-px" />
                   <span>
                     Ponderaciones oficiales Admisión 2027
                     {catalogo && <> · {catalogo.totalUniversidades} universidades · {catalogo.totalCarreras.toLocaleString('es-CL')} carreras</>}.
-                    Los cortes son los de la Admisión {ANIO_CORTES}, como referencia.
+                    Cortes de la Admisión {ANIO_CORTES} como referencia.
                   </span>
                 </p>
-              </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
-                <div className="space-y-6 min-w-0">
+                <div className="mt-6">
                   {catalogo ? <TargetSelector
                     carreras={catalogo.todas}
                     porCategoria={catalogo.porCategoria}
@@ -357,6 +364,11 @@ export default function App() {
                     ponderadoDe={ponderadoObjetivo}
                     onElegir={handleElegirCarrera}
                   /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} />}
+                </div>
+              </section>
+
+              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
+                <div className="space-y-6 min-w-0">
                   <GradeInputs
                     g1={state.grades.g1}
                     g2={state.grades.g2}
@@ -396,6 +408,17 @@ export default function App() {
                     nemScore={finalNemScore}
                     rankingScore={finalRankingScore}
                   /> : <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} compact />}
+                  {catalogo && targetUni && !isEmpty && (
+                    <div className="mt-6">
+                      <AlternativasCard
+                        carreras={catalogo.todas}
+                        target={targetUni}
+                        ponderadoDe={ponderadoObjetivo}
+                        anioCortes={catalogo.anioCortes}
+                        onOpenDetail={setDetailCarrera}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="xl:col-start-1 min-w-0">
@@ -460,6 +483,19 @@ export default function App() {
             </div>
           )}
 
+          {activeTab === 'postulacion' && (
+            <div className="max-w-[880px]">
+              {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <PostulacionSection
+                carreras={catalogo.todas}
+                categoriaDisplay={catalogo.categoriaDisplay}
+                ponderadoDe={ponderadoObjetivo}
+                anioCortes={catalogo.anioCortes}
+                sinPuntajes={isEmpty}
+                onOpenDetail={setDetailCarrera}
+              />}
+            </div>
+          )}
+
           {activeTab === 'inverso' && (
             <div className="max-w-[880px]">
               {!catalogo ? <CatalogoCargando error={catalogoError} onRetry={cargarCatalogo} /> : <SimuladorInversoSection
@@ -492,13 +528,13 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleShareLink}
-                    className="flex-1 h-12 inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded-full transition-colors active:scale-[0.99] cursor-pointer"
+                    className="flex-1 h-12 inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded-[10px] transition-colors active:scale-[0.99] cursor-pointer"
                   >
                     <Link2 size={17} /> Copiar link con mis datos
                   </button>
                   <button
                     onClick={handleReset}
-                    className="px-6 h-12 inline-flex items-center justify-center gap-2 bg-[#F4F3F1] text-[#64748B] hover:text-[#0F172A] text-sm font-semibold rounded-full transition-colors cursor-pointer"
+                    className="px-6 h-12 inline-flex items-center justify-center gap-2 bg-[#F2F4F7] text-[#64748B] hover:text-[#0F172A] text-sm font-semibold rounded-[10px] transition-colors cursor-pointer"
                   >
                     <RotateCcw size={16} /> Empezar de cero
                   </button>
@@ -511,17 +547,17 @@ export default function App() {
                   <h3 className="text-base font-semibold text-[#0F172A]">De dónde salen los datos</h3>
                 </div>
                 <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                  <div className="rounded-xl bg-[#F2F4F7] p-3">
                     <dt className="text-[11px] text-[#64748B]">Ponderaciones, vacantes y mínimos</dt>
                     <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Oferta Definitiva DEMRE, Admisión 2027</dd>
                   </div>
-                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                  <div className="rounded-xl bg-[#F2F4F7] p-3">
                     <dt className="text-[11px] text-[#64748B]">Cobertura</dt>
                     <dd className="text-sm font-semibold text-[#0F172A] mt-0.5 tabular-nums">
                       {catalogo ? `${catalogo.totalUniversidades} universidades · ${catalogo.totalCarreras.toLocaleString('es-CL')} carreras` : 'Cargando…'}
                     </dd>
                   </div>
-                  <div className="rounded-xl bg-[#F4F3F1] p-3">
+                  <div className="rounded-xl bg-[#F2F4F7] p-3">
                     <dt className="text-[11px] text-[#64748B]">Puntajes de corte</dt>
                     <dd className="text-sm font-semibold text-[#0F172A] mt-0.5">Admisión {ANIO_CORTES}, datos DEMRE</dd>
                   </div>
@@ -542,7 +578,7 @@ export default function App() {
             Los puntajes de corte son referenciales y el Ranking es una <strong className="font-semibold text-[#64748B]">aproximación</strong>, no un valor oficial.
             Verifica siempre en las fuentes oficiales antes de postular.
           </p>
-          <p className="text-[10px] text-[#94A3B8]">Hecho por Juan Diego Vergara · simuladorpaes.vercel.app</p>
+          <p className="text-[11px] text-[#94A3B8]">Hecho por Juan Diego Vergara · simuladorpaes.vercel.app</p>
         </footer>
 
       </div>
@@ -551,14 +587,14 @@ export default function App() {
       {mostrarMini && estadoMini && (
         <button
           onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-          className="xl:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-6 z-30 flex items-center gap-3 pl-4 pr-3 h-11 rounded-full bg-[#0F172A] text-white shadow-lg cursor-pointer"
+          className="xl:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-6 z-30 flex items-center gap-3 pl-4 pr-3 h-11 rounded-[10px] bg-[#0F172A] text-white shadow-lg cursor-pointer"
           aria-label="Ver mi resultado"
         >
           <span className="text-[11px] text-white/60">Ponderado</span>
-          <span className="text-base font-bold tabular-nums">
+          <span className="text-base font-semibold tabular-nums">
             {targetPonderado!.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: estadoMini.tint, color: estadoMini.ink }}>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md" style={{ background: estadoMini.tint, color: estadoMini.ink }}>
             {estadoMini.label}
           </span>
         </button>
@@ -578,7 +614,7 @@ export default function App() {
       )}
 
       {toastMessage && (
-        <div className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 bg-[#0F172A] text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 animate-fade-in flex items-center gap-1.5">
+        <div className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 bg-[#0F172A] text-white text-xs font-semibold px-4 py-2.5 rounded-[10px] shadow-lg z-50 animate-fade-in flex items-center gap-1.5">
           <Check size={14} />
           <span>{toastMessage}</span>
         </div>

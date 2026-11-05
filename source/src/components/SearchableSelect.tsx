@@ -83,7 +83,7 @@ function SearchableSelect({
         placeholder={placeholder}
         aria-label={ariaLabel ?? placeholder}
         autoComplete="off"
-        className="w-full h-11 pl-10 pr-9 bg-[#F4F3F1] text-[#0F172A] text-sm font-medium rounded-xl border border-transparent focus:border-[#2563EB] focus:bg-white outline-none transition-colors duration-200 placeholder:text-[#94A3B8] placeholder:font-normal truncate"
+        className="w-full h-11 pl-10 pr-9 bg-[#F2F4F7] text-[#0F172A] text-sm font-medium rounded-xl border border-transparent focus:border-[#2563EB] focus:bg-white outline-none transition-colors duration-200 placeholder:text-[#94A3B8] placeholder:font-normal truncate"
       />
       <ChevronDown
         size={16}
@@ -93,7 +93,7 @@ function SearchableSelect({
       />
 
       {open && (
-        <div className="absolute z-40 left-0 right-0 mt-1.5 bg-white border border-[#E7E5E1] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] max-h-64 overflow-y-auto py-1">
+        <div className="absolute z-40 left-0 right-0 mt-1.5 bg-white border border-[#E8ECF1] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] max-h-64 overflow-y-auto py-1">
           {matches.length === 0 ? (
             <div className="px-4 py-3 text-xs text-[#94A3B8]">{emptyText}</div>
           ) : (
@@ -102,7 +102,7 @@ function SearchableSelect({
                 key={o.value}
                 onClick={() => pick(o.value)}
                 className={`w-full text-left px-4 py-2.5 min-h-[44px] text-sm transition-colors cursor-pointer ${
-                  o.value === value ? 'bg-[#EFF6FF] text-[#2563EB] font-semibold' : 'text-[#0F172A] hover:bg-[#F4F3F1]'
+                  o.value === value ? 'bg-[#EFF6FF] text-[#2563EB] font-semibold' : 'text-[#0F172A] hover:bg-[#F2F4F7]'
                 }`}
               >
                 <div className="truncate">{o.label}</div>

@@ -45,7 +45,7 @@ function ImproveSection({
     return (
       <Card id="section-mejorar" className="space-y-4">
         <Encabezado />
-        <p className="text-sm text-[#94A3B8] text-center py-6 bg-[#F4F3F1] rounded-2xl">
+        <p className="text-sm text-[#94A3B8] text-center py-6 bg-[#F2F4F7] rounded-2xl">
           Elige tu objetivo e ingresa tus puntajes para ver qué prueba te conviene subir.
         </p>
       </Card>
@@ -91,21 +91,21 @@ function ImproveSection({
           const p = PRUEBAS[f.id];
           const top = idx === 0 && f.gain > 0;
           return (
-            <div key={f.id} className="flex items-center gap-3 rounded-2xl border border-[#E7E5E1] p-3.5">
+            <div key={f.id} className="flex items-center gap-3 rounded-2xl border border-[#E8ECF1] p-3.5">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                   <span className="text-sm font-semibold text-[#0F172A]">{p.label}</span>
                   {top && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#166534]">Mayor impacto</span>
+                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[#DCFCE7] text-[#166534]">Mayor impacto</span>
                   )}
                   {f.actual >= f.max && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#64748B]">Al máximo</span>
+                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[#F1F5F9] text-[#64748B]">Al máximo</span>
                   )}
                 </div>
-                <div className="w-full h-1.5 bg-[#ECEAE6] rounded-full overflow-hidden mt-2">
+                <div className="w-full h-1.5 bg-[#EBEEF2] rounded-full overflow-hidden mt-2">
                   <div
-                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    className="h-full rounded-full transition-[width] duration-500 ease-out"
                     style={{ width: `${maxGain > 0 ? (f.gain / maxGain) * 100 : 0}%`, background: p.color }}
                   />
                 </div>
@@ -114,10 +114,10 @@ function ImproveSection({
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className="text-base font-bold tabular-nums" style={{ color: top ? '#166534' : '#0F172A' }}>
+                <div className="text-base font-semibold tabular-nums" style={{ color: top ? '#166534' : '#0F172A' }}>
                   +{f.gain.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <div className="text-[10px] text-[#94A3B8]">pts</div>
+                <div className="text-[11px] text-[#94A3B8]">pts</div>
               </div>
             </div>
           );

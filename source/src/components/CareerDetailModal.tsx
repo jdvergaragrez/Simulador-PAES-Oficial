@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Star, X, Building2, Info, TriangleAlert, Check, CircleX, Minus, ChartColumn, type LucideIcon } from 'lucide-react';
 import { CarreraConDetalle } from '../types';
+import MarcaCorte from './MarcaCorte';
 import { displayNombreUniversidad, normalizar } from '../data';
 import { calculatePonderado, puntajePrueba, PuntajesDirectos } from '../utils';
 import { ANIO_CORTES, ESTADOS, EstadoCorte, PRUEBAS, estadoCorte } from '../constants';
@@ -104,7 +105,7 @@ function CareerDetailModal({
       ? { label: 'Mín. prom. Leng.+M1', valor: fmtMin(carrera.promedioMinimo) }
       : null;
 
-  const statCls = 'bg-[#F4F3F1] rounded-xl px-3 py-2';
+  const statCls = 'bg-[#F2F4F7] rounded-xl px-3 py-2';
 
   return (
     <div
@@ -112,24 +113,24 @@ function CareerDetailModal({
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+        initial={{ opacity: 0, y: 48, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label={carrera.nombre}
-        className="bg-white w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-[#E7E5E1]"
+        className="bg-white w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[24px] sm:rounded-[24px] border border-[#E8ECF1]"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 pt-5 pb-4 border-b border-[#E7E5E1] flex items-start justify-between gap-3 z-10">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 pt-5 pb-4 border-b border-[#E8ECF1] flex items-start justify-between gap-3 z-10">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1.5">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F4F3F1] text-[#64748B]">
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#F2F4F7] text-[#64748B]">
                 Admisión {carrera.anioAdmision}
               </span>
               {categoriaDisplay[carrera.categoria] && normalizar(categoriaDisplay[carrera.categoria]) !== normalizar(carrera.nombre) && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F4F3F1] text-[#64748B] truncate max-w-[180px]">
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#F2F4F7] text-[#64748B] truncate max-w-[180px]">
                   {categoriaDisplay[carrera.categoria]}
                 </span>
               )}
@@ -145,14 +146,14 @@ function CareerDetailModal({
               title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
               aria-label={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
               aria-pressed={isFav}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F2F4F7]"
             >
               <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
             </button>
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F4F3F1] transition-colors cursor-pointer"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F2F4F7] transition-colors cursor-pointer"
             >
               <X size={18} strokeWidth={2} />
             </button>
@@ -162,17 +163,17 @@ function CareerDetailModal({
         <div className="p-5 space-y-5">
           {/* Score / corte summary */}
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#F4F3F1] rounded-2xl p-3.5">
-              <div className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8] mb-1">Tu ponderado</div>
-              <div className="text-2xl font-bold text-[#0F172A] tabular-nums leading-tight">
+            <div className="bg-[#F2F4F7] rounded-xl p-3.5">
+              <div className="text-[11px] font-mono font-medium text-[#94A3B8] mb-1">Tu ponderado</div>
+              <div className="text-2xl font-semibold text-[#0F172A] tabular-nums leading-tight">
                 {ponderado !== null ? fmt(ponderado) : '—'}
               </div>
             </div>
-            <div className="bg-[#F4F3F1] rounded-2xl p-3.5">
-              <div className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8] mb-1">
+            <div className="bg-[#F2F4F7] rounded-xl p-3.5">
+              <div className="text-[11px] font-mono font-medium text-[#94A3B8] mb-1">
                 {corte !== null ? `Corte ${ANIO_CORTES}` : minimo?.label ?? `Corte ${ANIO_CORTES}`}
               </div>
-              <div className="text-2xl font-bold text-[#0F172A] tabular-nums leading-tight">
+              <div className="text-2xl font-semibold text-[#0F172A] tabular-nums leading-tight">
                 {corte !== null ? fmt(corte) : minimo ? minimo.valor : '—'}
               </div>
             </div>
@@ -181,7 +182,7 @@ function CareerDetailModal({
           {estadoMeta && EstadoIcon && estado !== 'sindato' && (
             <div className="flex items-center gap-2 flex-wrap">
               <span
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md"
                 style={{ background: estadoMeta.tint, color: estadoMeta.ink }}
               >
                 <EstadoIcon size={13} strokeWidth={2.5} />
@@ -193,6 +194,10 @@ function CareerDetailModal({
                 </span>
               )}
             </div>
+          )}
+
+          {ponderado !== null && corte !== null && estadoMeta && (
+            <MarcaCorte ponderado={ponderado} corte={corte} color={estadoMeta.color} anio={ANIO_CORTES} />
           )}
 
           {/* Ponderaciones per prueba */}
@@ -219,8 +224,8 @@ function CareerDetailModal({
                         )}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-[#ECEAE6] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(f.pct / maxPct) * 100}%`, background: f.color }} />
+                    <div className="w-full h-1.5 bg-[#EBEEF2] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${(f.pct / maxPct) * 100}%`, background: f.color }} />
                     </div>
                   </div>
                 ))}
@@ -262,12 +267,12 @@ function CareerDetailModal({
             </p>
           )}
           {carrera.nota && (
-            <p className="flex items-start gap-1.5 text-xs text-[#64748B] bg-[#F4F3F1] rounded-xl px-3 py-2 leading-relaxed">
+            <p className="flex items-start gap-1.5 text-xs text-[#64748B] bg-[#F2F4F7] rounded-xl px-3 py-2 leading-relaxed">
               <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" /> {carrera.nota}
             </p>
           )}
           {!hayPuntajes && (
-            <p className="flex items-start gap-1.5 text-xs text-[#64748B] bg-[#F4F3F1] rounded-xl px-3 py-2">
+            <p className="flex items-start gap-1.5 text-xs text-[#64748B] bg-[#F2F4F7] rounded-xl px-3 py-2">
               <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
               <span>Ingresa tus puntajes en <strong className="font-semibold text-[#0F172A]">Mi puntaje</strong> para ver tu ponderado y estado en esta carrera.</span>
             </p>

@@ -170,7 +170,7 @@ function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty, a
         <div className="flex items-center gap-2 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-[#64748B]">
           <Target size={14} /> Tu ponderado
         </div>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F4F3F1] text-[#64748B]">
+        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2F4F7] text-[#64748B]">
           Admisión {targetUni.anioAdmision}
         </span>
       </div>
@@ -178,7 +178,7 @@ function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty, a
       <div className="flex flex-col @lg:flex-row items-center gap-6">
         <div className="relative w-[180px] h-[180px] shrink-0">
           <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
-            <circle cx="90" cy="90" r={R} fill="none" className="stroke-[#ECEAE6]" strokeWidth="14" />
+            <circle cx="90" cy="90" r={R} fill="none" className="stroke-[#EBEEF2]" strokeWidth="14" />
             <circle
               cx="90" cy="90" r={R} fill="none" stroke={ringColor} strokeWidth="14" strokeLinecap="round"
               strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - progreso)}
@@ -218,11 +218,11 @@ function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty, a
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-[#F4F3F1] px-3 py-2">
+            <div className="rounded-xl bg-[#F2F4F7] px-3 py-2">
               <div className="text-[10px] text-[#94A3B8]">Corte {anioCortes}</div>
               <div className="text-sm font-semibold tabular-nums text-[#0F172A]">{corte !== null ? fmt(corte) : 'Sin dato'}</div>
             </div>
-            <div className="rounded-xl bg-[#F4F3F1] px-3 py-2">
+            <div className="rounded-xl bg-[#F2F4F7] px-3 py-2">
               <div className="text-[10px] text-[#94A3B8]">{minimo?.label ?? 'Mínimo para postular'}</div>
               <div className="text-sm font-semibold tabular-nums text-[#0F172A]">
                 {minimo ? fmt(minimo.valor, 0) : '—'}
@@ -272,7 +272,7 @@ function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty, a
         </div>
       )}
 
-      <div className="pt-4 border-t border-[#E7E5E1] flex items-start gap-3">
+      <div className="pt-4 border-t border-[#E8ECF1] flex items-start gap-3">
         <GraduationCap size={18} className="text-[#94A3B8] shrink-0 mt-0.5" />
         <div className="min-w-0">
           <div className="text-sm font-semibold text-[#0F172A]">{targetUni.nombre || categoriaDisplay[targetCareer] || targetCareer}</div>
@@ -300,7 +300,7 @@ function HeroCard({ score, targetCareer, categoriaDisplay, targetUni, isEmpty, a
           <button
             onClick={onPdf}
             disabled={accion !== null}
-            className="h-11 inline-flex items-center justify-center gap-2 rounded-full bg-[#F4F3F1] text-[#0F172A] text-sm font-semibold hover:bg-[#ECEAE6] transition-colors active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:cursor-wait"
+            className="h-11 inline-flex items-center justify-center gap-2 rounded-full bg-[#F2F4F7] text-[#0F172A] text-sm font-semibold hover:bg-[#EBEEF2] transition-colors active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:cursor-wait"
           >
             {accion === 'pdf' ? <LoaderCircle size={16} className="animate-spin" /> : <FileText size={16} />}
             Descargar reporte PDF

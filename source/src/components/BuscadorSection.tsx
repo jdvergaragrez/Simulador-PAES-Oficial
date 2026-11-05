@@ -38,17 +38,17 @@ const fmt = (n: number, dec = 2) => n.toLocaleString('es-CL', { minimumFractionD
 const fmtDelta = (d: number) => `${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}`;
 
 const selectCls =
-  'w-full h-11 pl-3 pr-9 bg-[#F4F3F1] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';
+  'w-full h-11 pl-3 pr-9 bg-[#F2F4F7] text-sm font-medium text-[#0F172A] rounded-xl appearance-none border border-transparent focus:border-[#2563EB] focus:bg-white outline-none cursor-pointer transition-colors';
 
-const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F4F3F1] px-2 py-0.5 rounded-full inline-flex items-center gap-1';
+const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F2F4F7] px-2 py-0.5 rounded-md inline-flex items-center gap-1';
 
 const filtroCls = (activo: boolean) =>
-  `flex items-center gap-1.5 text-xs font-medium rounded-full px-3.5 h-11 border transition-colors cursor-pointer ${
-    activo ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
+  `flex items-center gap-1.5 text-xs font-medium rounded-[10px] px-3.5 h-11 border transition-colors cursor-pointer ${
+    activo ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]' : 'border-[#E8ECF1] text-[#64748B] hover:text-[#0F172A]'
   }`;
 
 const sugerenciaCls =
-  'inline-flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-full bg-[#F4F3F1] text-sm font-medium text-[#0F172A] hover:bg-[#ECEAE6] transition-colors cursor-pointer';
+  'inline-flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-[10px] bg-[#F2F4F7] text-sm font-medium text-[#0F172A] hover:bg-[#EBEEF2] transition-colors cursor-pointer';
 
 function BuscadorSection({
   carreras,
@@ -174,7 +174,7 @@ function BuscadorSection({
     const corte = c.puntajeCorte;
     const estado = ponderado !== null ? estadoCorte(ponderado, corte) : null;
     const delta = ponderado !== null && corte !== null ? ponderado - corte : null;
-    const barColor = estado ? ESTADOS[estado].color : '#E7E5E1';
+    const barColor = estado ? ESTADOS[estado].color : '#E8ECF1';
 
     let electiveText = '';
     if (c.electivaTipo === 'ciencias') electiveText = 'Ciencias';
@@ -196,7 +196,7 @@ function BuscadorSection({
         aria-label={`${c.nombre}, ${displayNombreUniversidad(c)}. Ver detalle`}
         onClick={() => onOpenDetail(c)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenDetail(c); } }}
-        className="relative overflow-hidden bg-white border border-[#E7E5E1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer outline-none focus-visible:border-[#2563EB]"
+        className="relative overflow-hidden bg-white border border-[#E8ECF1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer outline-none focus-visible:border-[#2563EB]"
       >
         <div className="absolute top-0 left-0 w-1 h-full" style={{ background: barColor }} aria-hidden />
         <button
@@ -204,7 +204,7 @@ function BuscadorSection({
           title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
           aria-label={isFav ? `Quitar ${c.nombre} de favoritas` : `Agregar ${c.nombre} a favoritas`}
           aria-pressed={isFav}
-          className="absolute top-1 right-1 w-11 h-11 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
+          className="absolute top-1 right-1 w-11 h-11 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F2F4F7]"
         >
           <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
         </button>
@@ -224,7 +224,7 @@ function BuscadorSection({
 
         <div className="text-left md:text-right shrink-0 space-y-1">
           {ponderado !== null && (
-            <div className="text-xl font-bold text-[#0F172A] tabular-nums leading-none">
+            <div className="text-xl font-semibold text-[#0F172A] tabular-nums leading-none">
               {fmt(ponderado)} <span className="text-[11px] font-medium text-[#94A3B8]">pts</span>
             </div>
           )}
@@ -276,7 +276,7 @@ function BuscadorSection({
           aria-label="Buscar carrera o universidad"
           autoComplete="off"
           enterKeyHint="search"
-          className="w-full h-12 pl-11 pr-12 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal [&::-webkit-search-cancel-button]:hidden"
+          className="w-full h-12 pl-11 pr-12 bg-[#F2F4F7] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal [&::-webkit-search-cancel-button]:hidden"
         />
         {query && (
           <button
@@ -311,8 +311,8 @@ function BuscadorSection({
         <button
           onClick={() => setSoloFavoritas((v) => !v)}
           aria-pressed={soloFavoritas}
-          className={`flex items-center gap-1.5 text-xs font-medium rounded-full px-3.5 h-11 border transition-colors cursor-pointer ${
-            soloFavoritas ? 'bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]' : 'border-[#E7E5E1] text-[#64748B] hover:text-[#0F172A]'
+          className={`flex items-center gap-1.5 text-xs font-medium rounded-[10px] px-3.5 h-11 border transition-colors cursor-pointer ${
+            soloFavoritas ? 'bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]' : 'border-[#E8ECF1] text-[#64748B] hover:text-[#0F172A]'
           }`}
         >
           <Star size={14} strokeWidth={2} className={soloFavoritas ? 'fill-[#F59E0B] text-[#D97706]' : ''} />
@@ -390,7 +390,7 @@ function BuscadorSection({
                   <button
                     onClick={() => alternar(g.categoria)}
                     aria-expanded={abierto}
-                    className="w-full min-h-[44px] flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[#F4F3F1] hover:bg-[#ECEAE6] text-left cursor-pointer transition-colors"
+                    className="w-full min-h-[44px] flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[#F2F4F7] hover:bg-[#EBEEF2] text-left cursor-pointer transition-colors"
                   >
                     <span className="text-sm text-[#0F172A] min-w-0">
                       <span className="font-semibold"><Resaltado texto={nombreCategoria(g.categoria)} query={debouncedQuery} /></span>
@@ -407,7 +407,7 @@ function BuscadorSection({
       )}
 
       {tieneCortes && (hayTexto || hayFiltros) && grupos.length > 0 && (
-        <p className="flex items-start gap-2 text-xs text-[#64748B] bg-[#F4F3F1] rounded-xl px-3 py-2.5">
+        <p className="flex items-start gap-2 text-xs text-[#64748B] bg-[#F2F4F7] rounded-xl px-3 py-2.5">
           <Info size={14} className="shrink-0 mt-px text-[#94A3B8]" />
           <span>
             {hayPuntajes

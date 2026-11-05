@@ -80,14 +80,14 @@ export async function renderResultadoCanvas(d: ResultadoData): Promise<HTMLCanva
   const meta = ESTADOS[d.estado];
   const ringColor = d.estado === 'sindato' ? '#2563EB' : meta.color;
 
-  ctx.fillStyle = '#F4F3F1';
+  ctx.fillStyle = '#F2F4F7';
   ctx.fillRect(0, 0, W, H);
 
   const cx = 60, cy = 60, cw = W - 120, ch = H - 120;
   rrect(ctx, cx, cy, cw, ch, 48);
   ctx.fillStyle = '#FFFFFF';
   ctx.fill();
-  ctx.strokeStyle = '#E7E5E1';
+  ctx.strokeStyle = '#E8ECF1';
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -162,7 +162,7 @@ export async function renderResultadoCanvas(d: ResultadoData): Promise<HTMLCanva
   // Anillo
   ctx.lineCap = 'round';
   ctx.lineWidth = 40 * k;
-  ctx.strokeStyle = '#ECEAE6';
+  ctx.strokeStyle = '#EBEEF2';
   ctx.beginPath();
   ctx.arc(rcx, rcy, R, 0, Math.PI * 2);
   ctx.stroke();
@@ -230,7 +230,7 @@ export async function renderResultadoCanvas(d: ResultadoData): Promise<HTMLCanva
   boxes.forEach(([label, value], i) => {
     const bxx = px + i * (boxW + 24);
     rrect(ctx, bxx, boxY, boxW, boxH, 24);
-    ctx.fillStyle = '#F4F3F1';
+    ctx.fillStyle = '#F2F4F7';
     ctx.fill();
     ctx.fillStyle = '#94A3B8';
     ctx.font = `400 24px ${FONT}`;

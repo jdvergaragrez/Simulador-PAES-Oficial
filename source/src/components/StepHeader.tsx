@@ -10,12 +10,12 @@ interface StepHeaderProps {
 function StepHeader({ n, title, description, action }: StepHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <div className="flex items-start gap-3 min-w-0">
-        <span className="shrink-0 w-7 h-7 rounded-full bg-[#EFF6FF] text-[#2563EB] text-sm font-semibold flex items-center justify-center tabular-nums">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="shrink-0 w-9 h-9 rounded-xl bg-[#EAF2FE] text-[#2563EB] text-sm font-semibold flex items-center justify-center tabular-nums">
           {n}
         </span>
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-[#0F172A] leading-7">{title}</h2>
+          <h2 className="text-base font-semibold text-[#0F172A] leading-5">{title}</h2>
           {description && <p className="text-xs text-[#64748B] leading-snug">{description}</p>}
         </div>
       </div>

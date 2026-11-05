@@ -105,7 +105,7 @@ function GradeInputs({
   };
 
   const inputCls =
-    'w-full h-11 px-3 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-semibold tabular-nums focus:border-[#CBD5E1] focus:bg-white transition-colors outline-none placeholder:text-[#94A3B8] placeholder:font-normal';
+    'w-full h-11 px-3 bg-[#F2F4F7] border border-transparent rounded-xl text-[#0F172A] font-semibold tabular-nums focus:border-[#CBD5E1] focus:bg-white transition-colors outline-none placeholder:text-[#94A3B8] placeholder:font-normal';
 
   return (
     <Card id="section-notas" className="space-y-5">
@@ -117,10 +117,10 @@ function GradeInputs({
             key={opt.value}
             onClick={() => onChangeGrupoEducativo(opt.value)}
             aria-pressed={grupoEducativo === opt.value}
-            className={`px-3.5 h-9 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+            className={`px-3.5 h-9 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
               grupoEducativo === opt.value
                 ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]'
-                : 'bg-[#F4F3F1] border-transparent text-[#64748B] hover:text-[#0F172A]'
+                : 'bg-[#F2F4F7] border-transparent text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
             {opt.label}

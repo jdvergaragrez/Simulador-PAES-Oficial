@@ -10,7 +10,7 @@ function Card({ id, children, className = '' }: CardProps) {
   return (
     <div
       id={id}
-      className={`bg-white rounded-2xl border border-[#E7E5E1] p-5 md:p-6 transition-colors duration-300 ${className}`}
+      className={`tarjeta bg-white rounded-[24px] p-5 md:p-6 transition-colors duration-300 ${className}`}
     >
       {children}
     </div>

@@ -36,7 +36,7 @@ const ICONO_ESTADO: Record<EstadoCorte, LucideIcon> = {
   sindato: Minus,
 };
 
-const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F4F3F1] px-2 py-0.5 rounded-full inline-flex items-center gap-1';
+const chipCls = 'text-[11px] font-medium text-[#64748B] bg-[#F2F4F7] px-2 py-0.5 rounded-md inline-flex items-center gap-1';
 
 function CompatibilitySection({
   porCategoria,
@@ -140,15 +140,15 @@ function CompatibilitySection({
             <div
               key={uni.id}
               onClick={() => onOpenDetail(uni)}
-              className="relative overflow-hidden bg-white border border-[#E7E5E1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer"
+              className="relative overflow-hidden bg-white border border-[#E8ECF1] rounded-2xl p-4 pl-5 pr-12 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors duration-200 hover:border-[#CBD5E1] cursor-pointer"
             >
-              <div className="absolute top-0 left-0 w-1 h-full" style={{ background: meta ? meta.color : '#E7E5E1' }} aria-hidden />
+              <div className="absolute top-0 left-0 w-1 h-full" style={{ background: meta ? meta.color : '#E8ECF1' }} aria-hidden />
               <button
                 onClick={(e) => { e.stopPropagation(); onToggleFav(uni.id); }}
                 title={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
                 aria-label={isFav ? 'Quitar de favoritas' : 'Agregar a favoritas'}
                 aria-pressed={isFav}
-                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F4F3F1]"
+                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer hover:bg-[#F2F4F7]"
               >
                 <Star size={18} strokeWidth={1.8} className={isFav ? 'fill-[#F59E0B] text-[#D97706]' : 'text-[#94A3B8]'} />
               </button>
@@ -161,7 +161,7 @@ function CompatibilitySection({
               </div>
               <div className="text-left md:text-right shrink-0 space-y-1">
                 {ponderado !== null && (
-                  <div className="text-xl font-bold text-[#0F172A] tabular-nums leading-none">
+                  <div className="text-xl font-semibold text-[#0F172A] tabular-nums leading-none">
                     {fmt(ponderado)} <span className="text-[11px] font-medium text-[#94A3B8]">pts</span>
                   </div>
                 )}
@@ -177,7 +177,7 @@ function CompatibilitySection({
                 {meta && EstadoIcon && estado !== 'sindato' && (
                   <div className="flex items-center md:justify-end gap-1.5">
                     <span
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md whitespace-nowrap"
                       style={{ background: meta.tint, color: meta.ink }}
                     >
                       <EstadoIcon size={12} strokeWidth={2.5} />

@@ -65,17 +65,17 @@ function SlidersSection({
           return (
             <div
               key={id}
-              className={`rounded-2xl border border-[#E7E5E1] p-4 transition-opacity ${noPondera ? 'opacity-55' : ''}`}
+              className={`rounded-2xl border border-[#E8ECF1] p-4 transition-opacity ${noPondera ? 'opacity-55' : ''}`}
             >
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="shrink-0 w-2 h-2 rounded-full" style={{ background: p.color }} aria-hidden />
-                  <span className="text-xs font-mono font-medium uppercase tracking-[0.1em] truncate" style={{ color: p.ink }}>
+                  <span className="text-xs font-mono font-medium truncate" style={{ color: p.ink }}>
                     {p.label}
                   </span>
                   {pesos !== null && (
                     <span
-                      className="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums"
+                      className="shrink-0 text-[11px] font-semibold px-1.5 py-0.5 rounded-md tabular-nums"
                       style={peso ? { background: p.tint, color: p.ink } : { background: '#F1F5F9', color: '#94A3B8' }}
                       title={peso ? `Pondera ${peso}% en tu carrera objetivo` : 'No pondera en tu carrera objetivo'}
                     >
@@ -83,13 +83,13 @@ function SlidersSection({
                     </span>
                   )}
                 </div>
-                <div className="flex shrink-0 bg-[#F4F3F1] rounded-full p-0.5 text-[11px] font-medium" role="group" aria-label={`Cómo ingresar ${p.label}`}>
+                <div className="flex shrink-0 bg-[#F2F4F7] rounded-[10px] p-0.5 text-[11px] font-medium" role="group" aria-label={`Cómo ingresar ${p.label}`}>
                   {[false, true].map((modoP) => (
                     <button
                       key={String(modoP)}
                       onClick={() => onChangeModo(id, modoP)}
                       aria-pressed={enPuntaje === modoP}
-                      className={`px-3 h-7 rounded-full transition-all cursor-pointer ${
+                      className={`px-3 h-7 rounded-lg transition-[color,background-color,box-shadow] cursor-pointer ${
                         enPuntaje === modoP ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B]'
                       }`}
                     >
@@ -109,7 +109,7 @@ function SlidersSection({
                     onChange={(e) => onChangeDirecto(id, e.target.value.replace(/[^\d.,]/g, ''))}
                     aria-label={`Puntaje de ${p.label}`}
                     aria-invalid={invalido}
-                    className={`w-24 h-11 text-center font-mono text-base font-semibold rounded-xl bg-[#F4F3F1] border outline-none focus:bg-white transition-colors ${
+                    className={`w-24 h-11 text-center font-mono text-base font-semibold rounded-xl bg-[#F2F4F7] border outline-none focus:bg-white transition-colors ${
                       invalido ? 'border-[#DC2626]' : 'border-transparent focus:border-[#CBD5E1]'
                     }`}
                   />
@@ -145,8 +145,8 @@ function SlidersSection({
                       key={m.id}
                       onClick={() => onChangeCienciasModule(m.id)}
                       aria-pressed={cienciasModule === m.id}
-                      className={`flex-1 h-8 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                        cienciasModule === m.id ? '' : 'bg-[#F4F3F1] border-transparent text-[#64748B] hover:text-[#0F172A]'
+                      className={`flex-1 h-8 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                        cienciasModule === m.id ? '' : 'bg-[#F2F4F7] border-transparent text-[#64748B] hover:text-[#0F172A]'
                       }`}
                       style={cienciasModule === m.id ? { background: p.tint, color: p.ink, borderColor: p.color } : undefined}
                     >

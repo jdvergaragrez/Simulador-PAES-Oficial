@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Columns3, X, Plus, MapPin, Check, TriangleAlert, CircleX, Minus, type LucideIcon } from 'lucide-react';
 import Card from './Card';
+import MarcaCorte from './MarcaCorte';
 import { displayNombreUniversidad } from '../data';
 import { calculatePonderado, carreraPorIndice, PuntajesDirectos } from '../utils';
 import { CarreraConDetalle, CarrerasPorCategoria } from '../types';
@@ -137,7 +138,7 @@ function CompareSection({
             return (
               <div
                 key={slotIndex}
-                className="border border-dashed border-[#E7E5E1] rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-2 min-h-[140px] text-xs text-[#94A3B8]"
+                className="border border-dashed border-[#E8ECF1] rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-2 min-h-[140px] text-xs text-[#94A3B8]"
               >
                 <Plus size={18} strokeWidth={1.8} />
                 <span>Opción {slotIndex + 1} vacía</span>
@@ -163,11 +164,11 @@ function CompareSection({
             <div
               key={slotIndex}
               onClick={() => onOpenDetail(uni)}
-              className="bg-white border border-[#E7E5E1] rounded-2xl p-4 flex flex-col justify-between gap-4 relative cursor-pointer hover:border-[#CBD5E1] transition-colors"
+              className="bg-white border border-[#E8ECF1] rounded-2xl p-4 flex flex-col justify-between gap-4 relative cursor-pointer hover:border-[#CBD5E1] transition-colors"
             >
               <button
                 onClick={(e) => { e.stopPropagation(); onChangeCompareSlot(slotIndex, ''); }}
-                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F4F3F1] transition-colors cursor-pointer"
+                className="absolute top-1.5 right-1.5 w-10 h-10 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F2F4F7] transition-colors cursor-pointer"
                 title="Quitar"
                 aria-label="Quitar de la comparación"
               >
@@ -175,7 +176,7 @@ function CompareSection({
               </button>
 
               <div className="space-y-1 pr-8">
-                <div className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8] truncate">
+                <div className="text-[11px] font-mono font-medium text-[#94A3B8] truncate">
                   {categoriaDisplay[uni.categoria] || uni.nombre}
                 </div>
                 <div className="text-sm font-semibold text-[#0F172A] leading-snug">{displayNombreUniversidad(uni)}</div>
@@ -195,7 +196,7 @@ function CompareSection({
                   </div>
                   <div className="flex flex-wrap gap-x-2.5 gap-y-0.5">
                     {pesos.map((s) => (
-                      <span key={s.label} className="inline-flex items-center gap-1 text-[10px] text-[#64748B]">
+                      <span key={s.label} className="inline-flex items-center gap-1 text-[11px] text-[#64748B]">
                         <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} />
                         {s.label} <span className="font-semibold text-[#0F172A] tabular-nums">{s.pct}%</span>
                       </span>
@@ -204,10 +205,10 @@ function CompareSection({
                 </div>
               )}
 
-              <div className="pt-3 border-t border-[#E7E5E1] space-y-2">
+              <div className="pt-3 border-t border-[#E8ECF1] space-y-2">
                 <div className="flex justify-between items-baseline gap-2">
                   <span className="text-xs text-[#64748B]">Tu ponderado</span>
-                  <span className="text-xl font-bold text-[#0F172A] tabular-nums">{ponderado !== null ? fmt(ponderado) : '—'}</span>
+                  <span className="text-xl font-semibold text-[#0F172A] tabular-nums">{ponderado !== null ? fmt(ponderado) : '—'}</span>
                 </div>
                 <div className="flex justify-between items-baseline gap-2">
                   <span className="text-xs text-[#64748B]">{corte !== null ? `Corte ${ANIO_CORTES}` : minimo?.label ?? `Corte ${ANIO_CORTES}`}</span>
@@ -218,7 +219,7 @@ function CompareSection({
                 {meta && EstadoIcon && estado !== 'sindato' && (
                   <div className="flex justify-between items-center gap-2 pt-0.5">
                     <span
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md"
                       style={{ background: meta.tint, color: meta.ink }}
                     >
                       <EstadoIcon size={12} strokeWidth={2.5} />
@@ -230,6 +231,9 @@ function CompareSection({
                       </span>
                     )}
                   </div>
+                )}
+                {ponderado !== null && corte !== null && meta && (
+                  <MarcaCorte ponderado={ponderado} corte={corte} color={meta.color} anio={ANIO_CORTES} />
                 )}
               </div>
             </div>

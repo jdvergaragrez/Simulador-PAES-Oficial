@@ -28,7 +28,7 @@ export async function descargarReportePdf(d: ResultadoData): Promise<void> {
   const fecha = new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
   text(`Reporte de simulación · Admisión 2027 · ${fecha}`, W - M, y + 4, { align: 'right' });
   y += 10;
-  doc.setDrawColor('#E7E5E1');
+  doc.setDrawColor('#E8ECF1');
   doc.setLineWidth(0.3);
   doc.line(M, y, W - M, y);
   y += 12;
@@ -49,7 +49,7 @@ export async function descargarReportePdf(d: ResultadoData): Promise<void> {
 
   // Bloque de puntaje
   const blockH = 34;
-  doc.setFillColor('#F4F3F1');
+  doc.setFillColor('#F2F4F7');
   doc.roundedRect(M, y, innerW, blockH, 4, 4, 'F');
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);

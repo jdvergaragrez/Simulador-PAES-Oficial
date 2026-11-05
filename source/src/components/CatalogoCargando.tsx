@@ -16,7 +16,7 @@ function CatalogoCargando({ error, onRetry, compact = false }: CatalogoCargandoP
         <p className="text-sm text-[#64748B] max-w-xs">No pudimos cargar el catálogo de carreras. Revisa tu conexión e intenta de nuevo.</p>
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#2563EB] text-white text-sm font-semibold cursor-pointer"
+          className="inline-flex items-center gap-2 h-10 px-5 rounded-lg bg-[#2563EB] text-white text-sm font-semibold cursor-pointer"
         >
           <RotateCcw size={15} /> Reintentar
         </button>
@@ -31,8 +31,8 @@ function CatalogoCargando({ error, onRetry, compact = false }: CatalogoCargandoP
         Cargando el catálogo de carreras…
       </div>
       <div className="space-y-2 animate-pulse" aria-hidden>
-        <div className="h-10 rounded-xl bg-[#F4F3F1]" />
-        {!compact && <div className="h-10 rounded-xl bg-[#F4F3F1] w-2/3" />}
+        <div className="h-10 rounded-xl bg-[#F2F4F7]" />
+        {!compact && <div className="h-10 rounded-xl bg-[#F2F4F7] w-2/3" />}
       </div>
     </Card>
   );

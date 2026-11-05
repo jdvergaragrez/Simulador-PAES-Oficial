@@ -127,8 +127,8 @@ function SimuladorInversoSection({
                     key={id}
                     onClick={() => setVariable(id)}
                     aria-pressed={activo}
-                    className={`inline-flex items-center gap-1.5 px-3 h-10 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                      activo ? '' : 'bg-[#F4F3F1] border-transparent text-[#64748B] hover:text-[#0F172A]'
+                    className={`inline-flex items-center gap-1.5 px-3 h-10 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                      activo ? '' : 'bg-[#F2F4F7] border-transparent text-[#64748B] hover:text-[#0F172A]'
                     }`}
                     style={activo ? { background: p.tint, color: p.ink, borderColor: p.color } : undefined}
                   >
@@ -141,12 +141,12 @@ function SimuladorInversoSection({
           </div>
 
           {target === null ? (
-            <div className="bg-[#F4F3F1] rounded-2xl p-4 text-sm text-[#94A3B8] text-center">
+            <div className="bg-[#F2F4F7] rounded-2xl p-4 text-sm text-[#94A3B8] text-center">
               Esta carrera no tiene corte {ANIO_CORTES} ni mínimo publicado para calcular la meta.
             </div>
           ) : resultado && (
-            <div className="rounded-2xl border border-[#E7E5E1] p-5 space-y-3">
-              <div className="flex items-center gap-1.5 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-[#64748B]">
+            <div className="rounded-2xl border border-[#E8ECF1] p-5 space-y-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-medium text-[#64748B]">
                 <Flag size={13} /> Meta · {targetLabel} <span className="tabular-nums normal-case tracking-normal font-sans font-semibold text-[#0F172A]">{fmt(target)}</span>
               </div>
               {resultado.alcanzable ? (
@@ -155,20 +155,20 @@ function SimuladorInversoSection({
                     En <strong className="font-semibold" style={{ color: pv.ink }}>{pv.label}</strong> necesitas al menos
                   </div>
                   <div className="flex items-baseline gap-3 flex-wrap">
-                    <div className="text-4xl font-bold text-[#0F172A] tabular-nums leading-none">
+                    <div className="text-4xl font-semibold text-[#0F172A] tabular-nums leading-none">
                       {resultado.aciertos}<span className="text-lg font-semibold text-[#94A3B8]"> / {resultado.max}</span>
                     </div>
                     <div className="text-sm text-[#64748B]">
                       respuestas correctas (~<strong className="text-[#0F172A] font-semibold tabular-nums">{resultado.puntaje} pts</strong>)
                     </div>
                   </div>
-                  <div className="w-full h-1.5 bg-[#ECEAE6] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(resultado.aciertos / resultado.max) * 100}%`, background: pv.color }} />
+                  <div className="w-full h-1.5 bg-[#EBEEF2] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${(resultado.aciertos / resultado.max) * 100}%`, background: pv.color }} />
                   </div>
                   <div className="text-xs text-[#64748B]">
                     {faltan === 0
                       ? (
-                        <span className="inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534]">
+                        <span className="inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-md bg-[#DCFCE7] text-[#166534]">
                           <Check size={13} strokeWidth={2.5} /> Con tu puntaje actual ya alcanzas la meta
                         </span>
                       )

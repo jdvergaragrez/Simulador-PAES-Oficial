@@ -1,6 +1,6 @@
-import { Target, Undo2, Search, Scale, Compass, ChartLine, Share2, type LucideIcon } from 'lucide-react';
+import { Target, Undo2, Search, Scale, Compass, ChartLine, Share2, ListOrdered, type LucideIcon } from 'lucide-react';
 
-export type NavId = 'puntaje' | 'inverso' | 'buscar' | 'comparar' | 'vocacional' | 'ensayos' | 'compartir';
+export type NavId = 'puntaje' | 'postulacion' | 'inverso' | 'buscar' | 'comparar' | 'vocacional' | 'ensayos' | 'compartir';
 
 export interface NavItem {
   id: NavId;
@@ -11,6 +11,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: Record<NavId, NavItem> = {
   puntaje: { id: 'puntaje', label: 'Mi puntaje', short: 'Puntaje', icon: Target },
+  postulacion: { id: 'postulacion', label: 'Mi postulación', short: 'Postulación', icon: ListOrdered },
   inverso: { id: 'inverso', label: 'Simulador inverso', short: 'Inverso', icon: Undo2 },
   buscar: { id: 'buscar', label: 'Buscar carrera', short: 'Buscar', icon: Search },
   comparar: { id: 'comparar', label: 'Comparar', short: 'Comparar', icon: Scale },
@@ -20,10 +21,10 @@ export const NAV_ITEMS: Record<NavId, NavItem> = {
 };
 
 export const NAV_GRUPOS: { titulo: string; items: NavId[] }[] = [
-  { titulo: 'Calcular', items: ['puntaje', 'inverso'] },
+  { titulo: 'Calcular', items: ['puntaje', 'postulacion', 'inverso'] },
   { titulo: 'Explorar', items: ['buscar', 'comparar', 'vocacional'] },
   { titulo: 'Planificar', items: ['ensayos', 'compartir'] },
 ];
 
 // Accesos fijos de la barra inferior en celular; el resto va en "Más".
-export const NAV_MOVIL: NavId[] = ['puntaje', 'inverso', 'buscar'];
+export const NAV_MOVIL: NavId[] = ['puntaje', 'ensayos', 'buscar'];

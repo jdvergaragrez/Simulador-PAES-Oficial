@@ -26,10 +26,10 @@ const MAX_SUGERENCIAS = 8;
 const fmt = (n: number) => n.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const filaCls =
-  'w-full min-h-[44px] flex items-center justify-between gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-[#F4F3F1] transition-colors cursor-pointer';
+  'w-full min-h-[44px] flex items-center justify-between gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-[#F2F4F7] transition-colors cursor-pointer';
 
 const inputCls =
-  'w-full h-12 pl-11 pr-12 bg-[#F4F3F1] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal [&::-webkit-search-cancel-button]:hidden';
+  'w-full h-12 pl-11 pr-12 bg-[#F2F4F7] border border-transparent rounded-xl text-[#0F172A] font-medium focus:border-[#2563EB] focus:bg-white transition-colors duration-200 outline-none placeholder:text-[#94A3B8] placeholder:font-normal [&::-webkit-search-cancel-button]:hidden';
 
 function CampoBusqueda({ value, onChange, placeholder, label }: { value: string; onChange: (v: string) => void; placeholder: string; label: string }) {
   return (
@@ -190,7 +190,7 @@ function TargetSelector({
       <StepHeader n={1} title="¿Dónde quieres postular?" description="Escribe carrera y universidad (ej: medicina uc) o elígelas por pasos." />
 
       {elegida && !abierto && (
-        <div className="flex items-center justify-between gap-3 bg-[#F4F3F1] rounded-xl px-4 py-3">
+        <div className="flex items-center justify-between gap-3 bg-[#F2F4F7] rounded-xl px-4 py-3">
           <div className="min-w-0">
             <div className="text-sm font-semibold text-[#0F172A] leading-snug">
               {nombreCategoria(elegida.categoria)} · {elegida.universidadNombre} · {elegida.sedeNombre}
@@ -210,14 +210,14 @@ function TargetSelector({
       {abierto && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="flex-1 bg-[#F4F3F1] p-0.5 rounded-full flex gap-0.5" role="tablist" aria-label="Forma de elegir">
+            <div className="flex-1 bg-[#F2F4F7] p-0.5 rounded-[10px] flex gap-0.5" role="tablist" aria-label="Forma de elegir">
               {([['buscar', 'Buscar', Search], ['pasos', 'Por pasos', ListOrdered]] as const).map(([val, lbl, Icon]) => (
                 <button
                   key={val}
                   role="tab"
                   aria-selected={modo === val}
                   onClick={() => setModo(val)}
-                  className={`flex-1 h-11 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`flex-1 h-11 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-[color,background-color,box-shadow] cursor-pointer ${
                     modo === val ? 'bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.1)]' : 'text-[#64748B] hover:text-[#0F172A]'
                   }`}
                 >
@@ -226,7 +226,7 @@ function TargetSelector({
               ))}
             </div>
             {elegida && (
-              <button onClick={() => setAbierto(false)} aria-label="Cerrar sin cambiar" className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F4F3F1] cursor-pointer">
+              <button onClick={() => setAbierto(false)} aria-label="Cerrar sin cambiar" className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-[#64748B] hover:bg-[#F2F4F7] cursor-pointer">
                 <X size={18} />
               </button>
             )}
@@ -255,7 +255,7 @@ function TargetSelector({
                 <>
                   <ul className="-mx-1" aria-label="Sugerencias">{sugerencias.map((c) => filaCarrera(c, debounced))}</ul>
                   {gruposSugeridos.length > 0 && (
-                    <ul className="-mx-1 border-t border-[#E7E5E1] pt-2" aria-label="Ver todas las universidades de una carrera">
+                    <ul className="-mx-1 border-t border-[#E8ECF1] pt-2" aria-label="Ver todas las universidades de una carrera">
                       {gruposSugeridos.map((g) => (
                         <li key={g.categoria}>
                           <button onClick={() => irAPaso2(g.categoria)} className={filaCls}>

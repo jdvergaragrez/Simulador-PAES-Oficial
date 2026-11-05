@@ -27,7 +27,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
   };
 
   const tab = (isActive: boolean) =>
-    `flex-1 flex flex-col items-center justify-center gap-1 h-16 text-[11px] font-medium transition-colors cursor-pointer ${
+    `flex-1 flex flex-col items-center justify-center gap-1 h-16 text-[11px] font-medium cursor-pointer ${
       isActive ? 'text-[#2563EB]' : 'text-[#64748B]'
     }`;
 
@@ -44,7 +44,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
         aria-modal="true"
         aria-label="Todas las funciones"
         aria-hidden={!sheetOpen}
-        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl border-t border-[#E7E5E1] px-4 pt-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl border-t border-[#E8ECF1] px-4 pt-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] transition-transform duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${
           sheetOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -52,7 +52,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
         <div className="space-y-4 max-h-[65vh] overflow-y-auto">
           {NAV_GRUPOS.map((g) => (
             <div key={g.titulo}>
-              <div className="px-1 mb-2 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-[#94A3B8]">{g.titulo}</div>
+              <div className="px-1 mb-2 text-[11px] font-mono font-medium text-[#94A3B8]">{g.titulo}</div>
               <div className="grid grid-cols-3 gap-2">
                 {g.items.map((id) => {
                   const { short, icon: Icon } = NAV_ITEMS[id];
@@ -63,7 +63,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
                       onClick={() => elegir(id)}
                       tabIndex={sheetOpen ? 0 : -1}
                       className={`flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border text-xs font-medium transition-colors active:scale-[0.97] cursor-pointer ${
-                        isActive ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]' : 'bg-[#F4F3F1] border-transparent text-[#0F172A]'
+                        isActive ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]' : 'bg-[#F2F4F7] border-transparent text-[#0F172A]'
                       }`}
                     >
                       <Icon size={22} strokeWidth={1.8} className="text-[#2563EB]" />
@@ -77,7 +77,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
           <button
             onClick={onToggleDark}
             tabIndex={sheetOpen ? 0 : -1}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#F4F3F1] text-sm font-medium text-[#0F172A] cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#F2F4F7] text-sm font-medium text-[#0F172A] cursor-pointer"
           >
             {dark ? <Sun size={17} /> : <Moon size={17} />}
             {dark ? 'Modo claro' : 'Modo oscuro'}
@@ -85,7 +85,7 @@ function MobileNav({ active, onChange, dark, onToggleDark }: MobileNavProps) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 bg-white/95 backdrop-blur border-t border-[#E7E5E1] pb-[env(safe-area-inset-bottom)]">
+      <nav className="fixed inset-x-0 bottom-0 z-50 vidrio border-t border-[#E8ECF1] pb-[env(safe-area-inset-bottom)]">
         <div className="flex">
           {NAV_MOVIL.map((id) => {
             const { short, icon: Icon } = NAV_ITEMS[id];

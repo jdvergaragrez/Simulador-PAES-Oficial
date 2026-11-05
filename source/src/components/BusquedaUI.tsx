@@ -16,7 +16,7 @@ export function EstadoBadge({ estado }: { estado: EstadoCorte }) {
   const Icon = ICONO_ESTADO[estado];
   return (
     <span
-      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md whitespace-nowrap"
       style={{ background: meta.tint, color: meta.ink }}
     >
       <Icon size={12} strokeWidth={2.5} />
